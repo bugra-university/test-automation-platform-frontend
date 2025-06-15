@@ -1,0 +1,187 @@
+import React, { cloneElement, ReactElement, useEffect } from 'react';
+import TestSidebar from './TestSidebar';
+import { MainNav } from '../components/Shared/MainNav';
+import FullScreen from '../components/dashboard/Settings/FullScreen';
+import Delete, { DeleteDialog } from '../components/dashboard/Settings/Delete';
+import '../styles/Layout/right-container.css';
+import '../styles/Layout/left-container.css';
+import '../styles/Layout/main-layout.css';
+import '../styles/Layout/container-headers.css';
+import '../styles/Layout/header-tabs.css';
+
+// Import modular components
+import { useMainLayoutState } from '../components/Shared/MainLayout/hooks/useMainLayoutState';
+import { useTabHandlers } from '../components/Shared/MainLayout/hooks/useTabHandlers';
+import { LeftTabs } from '../components/Shared/MainLayout/components/LeftTabs';
+import { RightTabs } from '../components/Shared/MainLayout/components/RightTabs';
+import { LeftHeaderActions } from '../components/Shared/MainLayout/components/LeftHeaderActions';
+import { RightHeaderActions } from '../components/Shared/MainLayout/components/RightHeaderActions';
+import { OptionsDropdownMenu } from '../components/Shared/MainLayout/components/OptionsDropdownMenu';
+import { InfoPanel } from '../components/Shared/MainLayout/components/InfoPanel';
+import { FileSyncAlertDialog } from '../components/Shared/MainLayout/components/FileSyncAlertDialog';
+import { formatSaveTime } from '../components/Shared/MainLayout/utils/formatters';
+
+interface MainLayoutProps {
+  children: React.ReactNode;
+}
+
+interface MainLayoutProps {
+  children: React.ReactNode;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use custom hooks for state management
+  const [state, actions] = useMainLayoutState();
+  const { handleTabClick, handleRightTabClick } = useTabHandlers(state, actions);
+
+  // Load table statistics on component mount
+  useEffect(() => {
+    actions.loadTableStatistics();
+  }, []);
+
+  // Using the FullScreen utility component
+  const { handleFullscreen } = FullScreen({ isTableVisible: state.showTable });
+  
+  // Using the Delete utility component
+  const { handleDelete, showDeleteDialog, confirmDelete, cancelDelete, isDeleting } = Delete({
+    isTableVisible: state.showTable, 
+    setShowTable: actions.customSetShowTable,
+    fileName: state.currentFileName,
+    onDeleteSuccess: () => {
+      // Clear file tracking info and sync status after successful deletion
+      actions.setLastSaveInfo({ status: null, timestamp: null, message: undefined });
+      actions.setShowSyncAlert(false);
+      // Reload table statistics after deletion      actions.loadTableStatistics();
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Database deletion completed successfully');
+      }
+    }
+  });
+
+  // Handle edit mode toggle
+  const handleEditModeToggle = () => {
+    if (state.showTable) {
+      actions.setIsExcelEditMode(!state.isExcelEditMode);
+    }
+  };
+
+  // Handle sync trigger
+  const handleSyncTrigger = () => {
+    window.dispatchEvent(new CustomEvent('triggerExcelSave'));
+  };
+
+  // Pass states to child components and allow them to update showTable and set currentFileName
+  const childrenWithProps = React.Children.map(children, (child) => {
+    if (React.isValidElement(child)) {
+      return cloneElement(child as ReactElement<any>, { 
+        activeTabFromHeader: state.activeTab,
+        showTable: state.showTable,
+        setShowTable: actions.customSetShowTable,
+        setCurrentFileName: actions.customSetCurrentFileName,
+        currentFile: state.currentFile,
+        setCurrentFile: actions.customSetCurrentFile,
+        isExcelEditMode: state.isExcelEditMode,
+        setIsExcelEditMode: actions.setIsExcelEditMode,
+        lastSaveInfo: state.lastSaveInfo,
+        setLastSaveInfo: actions.setLastSaveInfo
+      });
+    }
+    return child;
+  });
+
+  return (
+    <div className="h-screen flex flex-col">
+      <MainNav />
+      
+      <div className="flex bg-[#f6f6f6] overflow-hidden main-content-wrapper">
+        <TestSidebar />
+        
+        <div className="flex flex-1 p-8 gap-4 min-w-0">
+          <div className="flex-1 max-w-[calc(100%-380px)] min-w-0">
+            <div className="left-container h-full">
+              <div className="container-header">
+                <div className="container-header-left ml-3">
+                  <LeftTabs 
+                    activeTab={state.activeTab}
+                    onTabClick={handleTabClick}
+                  />
+                </div>
+                <LeftHeaderActions
+                  activeTab={state.activeTab}
+                  showTable={state.showTable}
+                  onReturnToDashboard={() => actions.customSetShowTable(false)}
+                />
+                <OptionsDropdownMenu
+                  isFileInDatabase={state.isFileInDatabase}
+                  fileTrackingInfo={state.fileTrackingInfo}
+                  showTable={state.showTable}
+                  isExcelEditMode={state.isExcelEditMode}
+                  onFullscreen={handleFullscreen}
+                  onDelete={handleDelete}
+                  onEditModeToggle={handleEditModeToggle}
+                />
+              </div>
+              
+              <div className="container-content">
+                {childrenWithProps}
+              </div>
+            </div>
+          </div>
+
+          <div className="right-container flex-shrink-0">
+            <div className="container-header">
+              <div className="container-header-left">
+                <RightTabs
+                  activeRightTab={state.activeRightTab}
+                  onTabClick={handleRightTabClick}
+                />
+              </div>
+              <RightHeaderActions />
+            </div>
+            
+            <div className="container-content">
+              {/* Conditionally display content based on active right tab */}
+              {state.activeRightTab === "test-results" && (                <InfoPanel
+                  currentFileName={state.currentFileName}
+                  showTable={state.showTable}
+                  lastSaveInfo={state.lastSaveInfo}
+                  fileTrackingInfo={state.fileTrackingInfo}
+                  isExcelEditMode={state.isExcelEditMode}
+                  isFileInDatabase={state.isFileInDatabase}
+                  tableStats={state.tableStats}
+                  loadingStats={state.loadingStats}
+                  onEditModeToggle={handleEditModeToggle}
+                  formatSaveTime={formatSaveTime}
+                  onDatabaseRefresh={actions.loadTableStatistics}
+                />
+              )}
+              {state.activeRightTab === "last-activity" && (
+                <div className="p-4 text-gray-500">
+                  No recent activity to display
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Render the delete confirmation dialog */}
+      <DeleteDialog 
+        showDialog={showDeleteDialog} 
+        onCancel={cancelDelete} 
+        onConfirm={confirmDelete}
+        fileName={state.currentFileName || "this table"}
+        isDeleting={isDeleting}
+      />
+
+      {/* File Sync Alert Dialog */}
+      <FileSyncAlertDialog
+        show={state.showSyncAlert}
+        fileTrackingInfo={state.fileTrackingInfo}
+        onClose={() => actions.setShowSyncAlert(false)}        onSync={handleSyncTrigger}
+        formatSaveTime={formatSaveTime}
+      />
+    </div>
+  );
+};
+
+export default MainLayout;

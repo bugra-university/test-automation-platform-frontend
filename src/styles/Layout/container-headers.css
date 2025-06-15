@@ -1,0 +1,69 @@
+/* Container header styles - Yahoo email style headers */
+
+.container-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    color: #333;
+    height: 48px;
+}
+
+.container-header h2 {
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.container-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Custom checkbox styling */
+.container-header-left input[type="checkbox"] {
+    border-width: 2px;
+    border-color: #555555;
+    border-radius: 0;
+}
+
+.container-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.header-action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #5b636a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    width: 28px;
+    border-radius: 4px;
+}
+
+.header-action-btn:hover {
+    background-color: #f0f2f5;
+}
+
+/* Special styles for the return button */
+.header-action-btn.return-btn {
+    margin-right: 4px;
+}
+
+/* Tab styles moved to header-tabs.css */
+
+/* Container content area */
+.container-content {
+    overflow: auto;
+    height: calc(100% - 48px);
+    /* Subtract header height from container height */
+    padding: 0 0.25rem;
+}

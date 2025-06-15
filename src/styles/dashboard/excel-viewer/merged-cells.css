@@ -1,0 +1,192 @@
+/* merged-cells.css - Styling for merged cells */
+
+/* Merged cell container styling */
+.merged-cell {
+    position: relative;
+    vertical-align: top;
+}
+
+/* Main cell in a merged range */
+.merged-main-cell {
+    border: 1px solid #e5e7eb;
+    background-color: inherit;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Content container for merged cells */
+.merged-cell-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 2rem;
+    padding: 0.5rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.8rem;
+    color: #333;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Merged cell hover effects */
+.merged-main-cell:hover {
+    background-color: #FFF0DA;
+    transition: background-color 0.2s ease;
+}
+
+/* Selected merged cell styling */
+.selected-row .merged-main-cell {
+    background-color: #F0F4FF !important;
+}
+
+.selected-row .merged-main-cell:hover {
+    background-color: #FFF0DA !important;
+}
+
+/* Special styling for third column */
+.cell-align-center {
+    text-align: center !important;
+}
+
+.cell-align-center .cell-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Regular cell styling to ensure consistency */
+.regular-cell {
+    border: 1px solid #e5e7eb;
+    border-width: 0 1px 1px 0;
+    background-color: inherit;
+    vertical-align: top;
+}
+
+/* Ensure merged cells work well with striped table rows */
+.excel-table-body tr:nth-child(even) .merged-main-cell {
+    background-color: #F8F9FD;
+}
+
+.excel-table-body tr:nth-child(even) .merged-main-cell:hover {
+    background-color: #FFF0DA;
+}
+
+/* Visual indicator for merged cells (optional - can be enabled for debugging) */
+.merged-main-cell.debug-mode::before {
+    content: '⟷';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    color: #999;
+    opacity: 0.5;
+}
+
+/* Multi-row merged cells styling */
+.merged-main-cell[rowspan] {
+    vertical-align: middle;
+}
+
+.merged-main-cell[colspan] {
+    text-align: center;
+}
+
+/* Handle very large merged cells */
+.merged-main-cell.large-merge {
+    max-width: 300px;
+    min-width: 100px;
+}
+
+.merged-main-cell.large-merge .merged-cell-content {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+/* Checkbox column compatibility with merged cells */
+.merged-main-cell.checkbox-column {
+    text-align: center;
+    padding: 0.2rem;
+}
+
+.merged-main-cell.checkbox-column .merged-cell-content {
+    padding: 0;
+    min-height: auto;
+}
+
+/* Content cell compatibility */
+.merged-main-cell.content-cell {
+    padding: 0;
+}
+
+.merged-main-cell.content-cell .merged-cell-content {
+    padding: 0.5rem 0.75rem;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/* Handle merged cells in different table sections */
+.excel-table-header .merged-main-cell {
+    background-color: #ECECEC;
+    font-weight: 600;
+    color: #4B5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+}
+
+.excel-table-header .merged-main-cell:hover {
+    background-color: #FFFFFF;
+}
+
+/* Animation for merged cell detection */
+@keyframes mergeHighlight {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+.merged-main-cell.newly-detected {
+    animation: mergeHighlight 1s ease-out;
+}
+
+/* Responsive handling for merged cells */
+@media (max-width: 768px) {
+    .merged-cell-content {
+        font-size: 0.7rem;
+        padding: 0.3rem;
+        min-height: 1.5rem;
+    }
+
+    .merged-main-cell.large-merge {
+        max-width: 200px;
+        min-width: 80px;
+    }
+}
+
+/* Print-friendly styling for merged cells */
+@media print {
+    .merged-main-cell {
+        border: 1px solid #000 !important;
+        background-color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .merged-cell-content {
+        color: #000 !important;
+    }
+}

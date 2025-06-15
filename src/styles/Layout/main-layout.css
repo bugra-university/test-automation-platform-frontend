@@ -1,0 +1,4 @@
+/* Ana layout stil tanımlamaları */
+.main-content-wrapper {
+    height: calc(100vh - 56px);
+}

@@ -1,0 +1,142 @@
+/* Sheet tabs styling */
+.sheet-tabs-container {
+    display: flex;
+    padding-left: 0;
+    position: relative;
+
+    /* Higher than table header z-index to ensure tabs are above */
+}
+
+.sheet-tab {
+    position: relative;
+    padding: 4px 20px;
+    font-size: 0.75rem;
+    margin-right: 2px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    text-align: center;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    letter-spacing: 0.05em;
+    color: #4B5563;
+    width: auto;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Pastel colors for sheets */
+.sheet-tab-color-0 {
+    background-color: #E7F1F8;
+    border-color: #d5ebef;
+}
+
+.sheet-tab-color-1 {
+    background-color: #E8F8E7;
+    border-color: #d6efd5;
+}
+
+.sheet-tab-color-2 {
+    background-color: #E7E8F8;
+    border-color: #d5d6ef;
+}
+
+.sheet-tab-color-3 {
+    background-color: #F8F1E7;
+    border-color: #efebd5;
+}
+
+.sheet-tab-color-4 {
+    background-color: #E7F1F8;
+    border-color: #d5ebef;
+}
+
+.sheet-tab-color-5 {
+    background-color: #F0E7F8;
+    border-color: #e9d5ef;
+}
+
+/* Active tab styling */
+.sheet-tab.active {
+    background-color: #ffffff;
+    z-index: 0;
+    border-bottom-color: #ffffff;
+    color: #FFFFFF;
+}
+
+/* Active tab with pastel colors */
+.sheet-tab.active.sheet-tab-color-0 {
+    background-color: #B7D1E8;
+    border-color: #a5cbcb;
+    border-bottom-color: #B7D1E8;
+}
+
+.sheet-tab.active.sheet-tab-color-1 {
+    background-color: #B8D8B7;
+    border-color: #a6cba5;
+    border-bottom-color: #B8D8B7;
+}
+
+.sheet-tab.active.sheet-tab-color-2 {
+    background-color: #B7B8D8;
+    border-color: #a5a6cb;
+    border-bottom-color: #B7B8D8;
+}
+
+.sheet-tab.active.sheet-tab-color-3 {
+    background-color: #D8C1B7;
+    border-color: #cbcba5;
+    border-bottom-color: #D8C1B7;
+}
+
+.sheet-tab.active.sheet-tab-color-4 {
+    background-color: #B7C1D8;
+    border-color: #a5cbcb;
+    border-bottom-color: #B7C1D8;
+}
+
+.sheet-tab.active.sheet-tab-color-5 {
+    background-color: #C0B7D8;
+    border-color: #c9a5cb;
+    border-bottom-color: #C0B7D8;
+}
+
+/* Sheet tab indicator removed as requested */
+.sheet-tab-indicator {
+    display: none;
+}
+
+.sheet-tab.active .sheet-tab-indicator {
+    display: none;
+}
+
+/* Sheet loading indicator */
+.sheet-loading-dot {
+    display: inline-block;
+    margin-left: 4px;
+    color: rgba(0, 0, 0, 0.4);
+    animation: pulse 1.5s infinite;
+    font-size: 14px;
+    vertical-align: top;
+    line-height: 0.5;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.3;
+    }
+}

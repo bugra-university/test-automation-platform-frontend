@@ -1,0 +1,56 @@
+/* Header tabs styling */
+.header-tabs-container {
+    display: flex;
+    align-items: center;
+    overflow-x: auto;
+    /* Allow scrolling for many tabs */
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
+}
+
+.header-tabs-container::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar for Chrome/Safari/Edge */
+}
+
+.tabs-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tab-item {
+    padding: 4px 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.tab-item:hover {
+    color: #1976d2;
+    background-color: rgba(25, 118, 210, 0.04);
+}
+
+.tab-active {
+    color: #1976d2;
+    background-color: rgba(25, 118, 210, 0.08);
+}
+
+/* Make sure the tabs don't wrap to next line */
+@media (max-width: 1200px) {
+    .header-tabs-container {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 900px) {
+    .header-tabs-container {
+        max-width: 350px;
+    }
+}

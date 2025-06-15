@@ -1,0 +1,116 @@
+/* Additional fixes for table layout */
+.excel-table {
+    table-layout: fixed !important;
+}
+
+.excel-table .row-number-header,
+.excel-table .row-number {
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    box-sizing: content-box !important;
+    padding: 0.1rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.excel-table .hash-symbol {
+    font-size: 0.9rem !important;
+}
+
+/* Center align text in specific cells */
+.cell-align-center {
+    text-align: center !important;
+}
+
+/* Allow text wrapping in the Description column */
+.cell-wrap-text {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    min-height: 2.5rem !important;
+    width: 400px !important;
+    min-width: 400px !important;
+    max-width: 400px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Narrower width for the Validation column */
+.validation-column {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+}
+
+/* Narrower width for the User Story ID column */
+.user-story-id-column {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+}
+
+/* Narrower width for the second column in sheets other than first */
+.second-column-narrow {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+}
+
+/* Wider width for the third column in sheets other than first */
+.third-column-wide {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    min-height: 2.5rem !important;
+    width: 400px !important;
+    min-width: 400px !important;
+    max-width: 400px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Narrower width for the fifth column (number column) in sheets other than first */
+.fifth-column-narrow {
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+    text-align: center !important;
+    padding-left: 0.1rem !important;
+    padding-right: 0.1rem !important;
+}
+
+/* Override cell-content class for cells that should wrap */
+.cell-wrap-text .cell-content {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Override cell-content class for third column cells in non-first sheets */
+.third-column-wide .cell-content {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Override cell-content class for fifth column cells in non-first sheets */
+.fifth-column-narrow .cell-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Center align the header content for the fifth column in non-first sheets */
+.fifth-column-header .header-content {
+    justify-content: center !important;
+}
+
+.fifth-column-header .header-content span {
+    text-align: center !important;
+}
+
+/* Center align the ninth column in non-first sheets */
+.ninth-column-center {
+    text-align: center !important;
+}
