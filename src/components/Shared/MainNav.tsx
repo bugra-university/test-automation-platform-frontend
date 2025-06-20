@@ -1,4 +1,4 @@
-import { Search, Filter, Eye } from "lucide-react"
+import { Search, Filter } from "lucide-react"
 import { Input } from "../ui/input"
 
 export function MainNav() {

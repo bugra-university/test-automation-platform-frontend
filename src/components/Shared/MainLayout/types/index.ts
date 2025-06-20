@@ -27,29 +27,19 @@ export interface InfoPanelProps {
         timestamp: Date | null;
         message?: string;
     };
-    fileTrackingInfo: any;
     isExcelEditMode: boolean;
-    isFileInDatabase: boolean;
     tableStats: any;
     loadingStats: boolean;
     onEditModeToggle: () => void;
     formatSaveTime: (timestamp: Date | null) => string;
+    onDatabaseRefresh?: () => void;
 }
 
 export interface OptionsDropdownMenuProps {
     isFileInDatabase: boolean;
-    fileTrackingInfo: any;
     showTable: boolean;
     isExcelEditMode: boolean;
     onFullscreen: () => void;
     onDelete: () => void;
     onEditModeToggle: () => void;
-}
-
-export interface FileSyncAlertDialogProps {
-    show: boolean;
-    fileTrackingInfo: any;
-    onClose: () => void;
-    onSync: () => void;
-    formatSaveTime: (timestamp: Date | null) => string;
 }

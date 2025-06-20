@@ -16,11 +16,9 @@ import {
   DropdownMenuTrigger,
 } from '../../DropDown/DropdownMenu';
 import { ArchiveRestore, Maximize, Plus, Share2, Trash } from "lucide-react";
-import { FileTrackingInfo } from '../../../../services/FileTrackingService';
 
 interface OptionsDropdownMenuProps {
   isFileInDatabase: boolean;
-  fileTrackingInfo: FileTrackingInfo | null;
   showTable: boolean;
   isExcelEditMode: boolean;
   onFullscreen: () => void;
@@ -30,7 +28,6 @@ interface OptionsDropdownMenuProps {
 
 export const OptionsDropdownMenu: React.FC<OptionsDropdownMenuProps> = ({
   isFileInDatabase,
-  fileTrackingInfo,
   showTable,
   isExcelEditMode,
   onFullscreen,
@@ -38,10 +35,8 @@ export const OptionsDropdownMenu: React.FC<OptionsDropdownMenuProps> = ({
   onEditModeToggle
 }) => {
   const handleSaveClick = () => {
-    if (isFileInDatabase ? fileTrackingInfo?.hasChanges : true) {
-      console.log("Database Save/Update button clicked!");
-      window.dispatchEvent(new CustomEvent('triggerExcelSave'));
-    }
+    console.log("Database Save/Update button clicked!");
+    window.dispatchEvent(new CustomEvent('triggerExcelSave'));
   };
 
   return (
@@ -83,10 +78,8 @@ export const OptionsDropdownMenu: React.FC<OptionsDropdownMenuProps> = ({
           <DropdownMenuSub>
             <DropdownMenuSubTrigger inset>Database</DropdownMenuSubTrigger>
             <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuCheckboxItem
+              <DropdownMenuSubContent>                <DropdownMenuCheckboxItem
                   onSelect={handleSaveClick}
-                  disabled={isFileInDatabase ? !fileTrackingInfo?.hasChanges : false}
                 >
                   {isFileInDatabase ? 'Update' : 'Save'}
                 </DropdownMenuCheckboxItem>

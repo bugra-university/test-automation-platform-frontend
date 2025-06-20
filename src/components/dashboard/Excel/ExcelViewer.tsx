@@ -3,8 +3,7 @@ import * as XLSX from 'xlsx';
 import '../../../styles/dashboard/excel-viewer/index.css';
 import { useMergedCells, MergedCell } from './MergedCells';
 import ProductBacklogService from '../../../api/ProductBacklogService';
-import FileTrackingService from '../../../services/FileTrackingService';
-import { StateStorage } from '../../../utils/stateStorage';
+
 
 interface ExcelViewerProps {
   file: File | null;
@@ -44,28 +43,6 @@ const DEFAULT_TABLE_HEADERS: ColumnHeader[] = [
   { id: 'rating', label: 'RATING' },
   { id: 'notes', label: 'NOTES' },
 ];
-
-// Sheet tab component
-interface SheetTabProps {
-  name: string;
-  index: number;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-const SheetTab: React.FC<SheetTabProps> = ({ name, index, isActive, onClick }) => {
-  const colorIndex = index % 6; // We have 6 pastel colors defined in CSS
-  
-  return (
-    <div 
-      className={`sheet-tab sheet-tab-color-${colorIndex} ${isActive ? 'active' : ''}`} 
-      onClick={onClick}
-    >
-      {name}
-      <div className="sheet-tab-indicator" />
-    </div>
-  );
-};
 
 // Sort indicator component
 interface SortIndicatorProps {
@@ -131,25 +108,18 @@ export function ExcelViewer({
   // Her sheet için başlık bilgisini saklayacağımız state
   const [sheetHeaders, setSheetHeaders] = useState<{[key: string]: ColumnHeader[]}>({});
     // Add state for storing worksheet objects to handle merged cells
-  const [allSheetsWorksheets, setAllSheetsWorksheets] = useState<{[key: string]: XLSX.WorkSheet}>({});
-  const [activeWorksheet, setActiveWorksheet] = useState<XLSX.WorkSheet | null>(null);
-    // Add state for cell editing
+  const [allSheetsWorksheets, setAllSheetsWorksheets] = useState<{[key: string]: XLSX.WorkSheet}>({});  const [activeWorksheet, setActiveWorksheet] = useState<XLSX.WorkSheet | null>(null);
+  // Add state for cell editing
   const [editingCell, setEditingCell] = useState<{rowIndex: number, columnId: string} | null>(null);
-  const [editingValue, setEditingValue] = useState<string>('');
-    // Add state for save functionality
-  const [modifiedData, setModifiedData] = useState<any[]>([]);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-    // Use external lastSaveInfo if provided, otherwise use local fallback
+  const [editingValue, setEditingValue] = useState<string>('');  // Add state for save functionality
+  const [modifiedData, setModifiedData] = useState<any[]>([]);  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  // Use external lastSaveInfo if provided, otherwise use local fallback
   const lastSaveInfo = externalLastSaveInfo || { status: null, timestamp: null };
   const setLastSaveInfo = externalSetLastSaveInfo || (() => {});
   
-  // File tracking service instance
-  const fileTrackingService = FileTrackingService.getInstance();
-  
   // Use merged cells hook
   const {
-    mergedCells,
-    mergedCellsTracker, 
     getMergeInfoForCell,
     getMergedCellValueByIndex
   } = useMergedCells(activeWorksheet, data, tableHeaders.map(h => h.label));
@@ -267,18 +237,12 @@ export function ExcelViewer({
       // Create Excel file from modified data
       console.log("Creating Excel file from modified data...");
       const modifiedFile = createModifiedExcelFile();
-      
-      // Call the save API
+        // Call the save API
       console.log("Calling ProductBacklogService.saveToDatabase...");
       const result = await ProductBacklogService.saveToDatabase(modifiedFile);
-        console.log("Save API response:", result);
+      console.log("Save API response:", result);
       
-      // Update file tracking service on successful save
-      if (file?.name) {
-        await fileTrackingService.updateSyncStatus(file.name, true);
-        console.log("File tracking status updated successfully");
-      }
-        setLastSaveInfo({
+      setLastSaveInfo({
         status: 'success',
         timestamp: new Date(),
         message: result.message || 'Data saved successfully'
@@ -301,35 +265,9 @@ export function ExcelViewer({
         message: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     } finally {
-      setIsSaving(false);
-    }
+      setIsSaving(false);    }
   };
 
-  // Function to format save time for display
-  const formatSaveTime = (timestamp: Date | null): string => {
-    if (!timestamp) return '';
-    
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const saveDate = new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate());
-    
-    if (saveDate.getTime() === today.getTime()) {
-      // Today - show only time
-      return timestamp.toLocaleTimeString('tr-TR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    } else {
-      // Other days - show date + time
-      return timestamp.toLocaleString('tr-TR', {
-        day: '2-digit',
-        month: '2-digit', 
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-  };
   // Handle column sorting
   const requestSort = (key: string) => {
     // If clicking on the same column, toggle direction
@@ -403,11 +341,10 @@ export function ExcelViewer({
         // Default string comparison
         comparison = String(a[key]).localeCompare(String(b[key]));
       }
-      
-      // Reverse if direction is descending
+        // Reverse if direction is descending
       return sortConfig.direction === 'asc' ? comparison : -comparison;
     });
-  }, [data, sortConfig]);
+  }, [data, sortConfig, getColumnDataType]);
   
   // Handle select all checkboxes
   const handleSelectAll = () => {
@@ -542,14 +479,8 @@ export function ExcelViewer({
   };  // Excel dosyasını oku and preload first few sheets
   useEffect(() => {
     const readExcel = async () => {
-      try {
-        if (!file) {          // Check if there's file metadata but no actual file (after page refresh)
-          const metadata = activeTab ? StateStorage.loadFileMetadata(activeTab) : null;
-          if (metadata) {
-            setError(`Dosya bulunamadı. Lütfen "${metadata.originalName}" dosyasını tekrar yükleyin.`);
-          } else {
-            setError('No file provided');
-          }
+      try {        if (!file) {
+          setError('No file provided');
           setLoading(false);
           return;
         }
@@ -643,9 +574,8 @@ export function ExcelViewer({
         setError('Excel dosyası okunurken hata oluştu.');
         setLoading(false);
       }
-    };
-      readExcel();
-  }, [file]);
+    };      readExcel();
+  }, [file, activeTab]);
   // Sync modifiedData with data when data changes
   useEffect(() => {
     setModifiedData([...data]);
@@ -658,12 +588,10 @@ export function ExcelViewer({
       handleSaveChanges();
     };
 
-    window.addEventListener('triggerExcelSave', handleSaveTrigger);
-
-    return () => {
+    window.addEventListener('triggerExcelSave', handleSaveTrigger);    return () => {
       window.removeEventListener('triggerExcelSave', handleSaveTrigger);
     };
-  }, [modifiedData, file]); // Dependencies for handleSaveChanges
+  }, [modifiedData, file, handleSaveChanges]); // Dependencies for handleSaveChanges
   // We'll only show the full-page loading spinner on initial load
   // For sheet changes, we'll handle the loading state differently
   if (loading && (!data.length || !sheetNames.length)) {

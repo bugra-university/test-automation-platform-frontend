@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useAuth } from '../contexts/authContext';
+import { Navigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 import { Shield, Clock, Zap } from "lucide-react";
 
-interface LoginProps {
-  onLogin?: (userData: { username: string; token: string }) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ onLogin }) => {
+const Login: React.FC = () => {
+  const { isAuthenticated, loading, loginWithCredentials } = useAuth();
+  
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -15,30 +14,24 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Eğer kullanıcı zaten giriş yapmışsa ana sayfaya yönlendir
+  if (isAuthenticated && !loading) {
+    return <Navigate to="/" replace />;
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', formData);
-      
-      // Token'ı localStorage'a kaydet
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('username', response.data.username);
-      
-      // Parent component'e login başarılı bilgisini gönder
-      if (onLogin) {
-        onLogin(response.data);
-      }
-      
+      await loginWithCredentials(formData.username, formData.password);
     } catch (error: any) {
       setError(error.response?.data?.message ?? 'Giriş yapılırken bir hata oluştu');
     } finally {

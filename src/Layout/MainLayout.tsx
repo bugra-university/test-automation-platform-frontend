@@ -18,7 +18,6 @@ import { LeftHeaderActions } from '../components/Shared/MainLayout/components/Le
 import { RightHeaderActions } from '../components/Shared/MainLayout/components/RightHeaderActions';
 import { OptionsDropdownMenu } from '../components/Shared/MainLayout/components/OptionsDropdownMenu';
 import { InfoPanel } from '../components/Shared/MainLayout/components/InfoPanel';
-import { FileSyncAlertDialog } from '../components/Shared/MainLayout/components/FileSyncAlertDialog';
 import { formatSaveTime } from '../components/Shared/MainLayout/utils/formatters';
 
 interface MainLayoutProps {
@@ -32,25 +31,23 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use custom hooks for state management
   const [state, actions] = useMainLayoutState();
   const { handleTabClick, handleRightTabClick } = useTabHandlers(state, actions);
-
   // Load table statistics on component mount
   useEffect(() => {
     actions.loadTableStatistics();
-  }, []);
+  }, [actions]);
 
   // Using the FullScreen utility component
   const { handleFullscreen } = FullScreen({ isTableVisible: state.showTable });
-  
-  // Using the Delete utility component
+    // Using the Delete utility component
   const { handleDelete, showDeleteDialog, confirmDelete, cancelDelete, isDeleting } = Delete({
     isTableVisible: state.showTable, 
     setShowTable: actions.customSetShowTable,
     fileName: state.currentFileName,
     onDeleteSuccess: () => {
-      // Clear file tracking info and sync status after successful deletion
+      // Clear save info after successful deletion
       actions.setLastSaveInfo({ status: null, timestamp: null, message: undefined });
-      actions.setShowSyncAlert(false);
-      // Reload table statistics after deletion      actions.loadTableStatistics();
+      // Reload table statistics after deletion
+      actions.loadTableStatistics();
       if (process.env.NODE_ENV === 'development') {
         console.log('Database deletion completed successfully');
       }
@@ -61,13 +58,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
   const handleEditModeToggle = () => {
     if (state.showTable) {
       actions.setIsExcelEditMode(!state.isExcelEditMode);
-    }
-  };
-
-  // Handle sync trigger
-  const handleSyncTrigger = () => {
-    window.dispatchEvent(new CustomEvent('triggerExcelSave'));
-  };
+    }  };
 
   // Pass states to child components and allow them to update showTable and set currentFileName
   const childrenWithProps = React.Children.map(children, (child) => {
@@ -109,10 +100,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                   activeTab={state.activeTab}
                   showTable={state.showTable}
                   onReturnToDashboard={() => actions.customSetShowTable(false)}
-                />
-                <OptionsDropdownMenu
-                  isFileInDatabase={state.isFileInDatabase}
-                  fileTrackingInfo={state.fileTrackingInfo}
+                />                <OptionsDropdownMenu
+                  isFileInDatabase={false}
                   showTable={state.showTable}
                   isExcelEditMode={state.isExcelEditMode}
                   onFullscreen={handleFullscreen}
@@ -136,17 +125,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                 />
               </div>
               <RightHeaderActions />
-            </div>
-            
-            <div className="container-content">
+            </div>            <div className="container-content">
               {/* Conditionally display content based on active right tab */}
-              {state.activeRightTab === "test-results" && (                <InfoPanel
+              {state.activeRightTab === "test-results" && (
+                <InfoPanel
                   currentFileName={state.currentFileName}
                   showTable={state.showTable}
                   lastSaveInfo={state.lastSaveInfo}
-                  fileTrackingInfo={state.fileTrackingInfo}
                   isExcelEditMode={state.isExcelEditMode}
-                  isFileInDatabase={state.isFileInDatabase}
                   tableStats={state.tableStats}
                   loadingStats={state.loadingStats}
                   onEditModeToggle={handleEditModeToggle}
@@ -162,23 +148,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Render the delete confirmation dialog */}
+      </div>      {/* Render the delete confirmation dialog */}
       <DeleteDialog 
         showDialog={showDeleteDialog} 
         onCancel={cancelDelete} 
         onConfirm={confirmDelete}
         fileName={state.currentFileName || "this table"}
         isDeleting={isDeleting}
-      />
-
-      {/* File Sync Alert Dialog */}
-      <FileSyncAlertDialog
-        show={state.showSyncAlert}
-        fileTrackingInfo={state.fileTrackingInfo}
-        onClose={() => actions.setShowSyncAlert(false)}        onSync={handleSyncTrigger}
-        formatSaveTime={formatSaveTime}
       />
     </div>
   );

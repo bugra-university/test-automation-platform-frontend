@@ -14,14 +14,9 @@ export const useTabHandlers = (
         showTable,
         currentFileName,
         currentFile
-    } = state;
-
-    const {
+    } = state; const {
         setActiveTab,
         setActiveRightTab,
-        customSetShowTable,
-        customSetCurrentFileName,
-        customSetCurrentFile,
         setIsExcelEditMode
     } = actions;
 

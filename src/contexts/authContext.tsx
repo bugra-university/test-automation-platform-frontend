@@ -1,8 +1,7 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient from '../api/apiClient';
-
-import { User } from '@/types/auth';
+import axios from 'axios';
+import { User } from '../types/auth';
 
 type AuthContextType = {
   isAuthenticated: boolean;
@@ -21,7 +20,7 @@ const AuthContext = React.createContext<AuthContextType>({
 });
 
 type AuthProviderProps = {
-  children: React.ReactNode;
+  readonly children: React.ReactNode;
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -38,7 +37,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Check if user is already logged in (from localStorage)
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
+    const storedToken = localStorage.getItem('token');
+    
+    if (storedUser && storedToken) {
       try {
         const user = JSON.parse(storedUser);
         setAuth(prev => ({
@@ -50,6 +51,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } catch (error) {
         console.error('Failed to parse stored user data:', error);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
         setAuth(prev => ({
           ...prev,
           loading: false,
@@ -60,26 +62,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ...prev,
         loading: false,
       }));
-    }  }, []);    // Custom authentication function
+    }
+  }, []);
+
   const loginWithCredentials = useCallback(async (username: string, password: string) => {
     try {
-      const response = await apiClient.post('/auth/login', { username, password });
+      const response = await axios.post('http://localhost:8080/api/auth/login', { 
+        username, 
+        password 
+      });
       
       if (response.status === 200) {
-        // Prepare user data with UI-friendly properties
-        const apiData = response.data;
+        // Backend'den gelen token ve username'i al
+        const { token, username: returnedUsername } = response.data;
         
-        // Map backend user data to our User type, including UI-specific fields
-        const userData = {
-          ...apiData,
-          // Use fullName as name if name is not provided
-          name: apiData.name || apiData.fullName || apiData.username,
-          // Set a default avatar URL if not provided
-          avatarUrl: apiData.avatarUrl || null
+        // User objesi oluştur
+        const userData: User = {
+          id: 1, // Geçici ID
+          username: returnedUsername,
+          email: `${returnedUsername}@test.com`,
+          fullName: returnedUsername,
+          name: returnedUsername,
+          avatarUrl: undefined,
+          roles: ['ROLE_USER'],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
         
-        // Store user in localStorage
+        // Token ve user bilgilerini localStorage'a kaydet
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', token);
         
         setAuth(prev => ({
           ...prev,
@@ -100,6 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = useCallback(() => {
     // Clear local storage
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     
     // Reset auth state
     setAuth(prev => ({
@@ -107,22 +120,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: false,
       user: null,
     }));
-    
-    // Redirect to login page
+      // Redirect to login page
     navigate('/login');
   }, [navigate]);
+
+  const contextValue = useMemo(() => ({
+    ...auth,
+    loginWithCredentials,
+    logout
+  }), [auth, loginWithCredentials, logout]);
+
   return (
-    <AuthContext.Provider 
-      value={{
-        ...auth,
-        loginWithCredentials,
-        logout
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => useContext(AuthContext);
 
