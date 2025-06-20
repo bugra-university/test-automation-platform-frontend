@@ -88,26 +88,28 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
         
         <div className="flex flex-1 p-8 gap-4 min-w-0">
           <div className="flex-1 max-w-[calc(100%-380px)] min-w-0">
-            <div className="left-container h-full">
-              <div className="container-header">
+            <div className="left-container h-full">              <div className="container-header">
                 <div className="container-header-left ml-3">
                   <LeftTabs 
                     activeTab={state.activeTab}
                     onTabClick={handleTabClick}
                   />
                 </div>
-                <LeftHeaderActions
-                  activeTab={state.activeTab}
-                  showTable={state.showTable}
-                  onReturnToDashboard={() => actions.customSetShowTable(false)}
-                />                <OptionsDropdownMenu
-                  isFileInDatabase={false}
-                  showTable={state.showTable}
-                  isExcelEditMode={state.isExcelEditMode}
-                  onFullscreen={handleFullscreen}
-                  onDelete={handleDelete}
-                  onEditModeToggle={handleEditModeToggle}
-                />
+                <div className="container-header-right">
+                  <LeftHeaderActions
+                    activeTab={state.activeTab}
+                    showTable={state.showTable}
+                    onReturnToDashboard={() => actions.customSetShowTable(false)}
+                  />
+                  <OptionsDropdownMenu
+                    isFileInDatabase={false}
+                    showTable={state.showTable}
+                    isExcelEditMode={state.isExcelEditMode}
+                    onFullscreen={handleFullscreen}
+                    onDelete={handleDelete}
+                    onEditModeToggle={handleEditModeToggle}
+                  />
+                </div>
               </div>
               
               <div className="container-content">
