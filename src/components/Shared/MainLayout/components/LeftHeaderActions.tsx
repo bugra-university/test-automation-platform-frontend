@@ -12,7 +12,7 @@ export const LeftHeaderActions: React.FC<LeftHeaderActionsProps> = ({
   onReturnToDashboard
 }) => {
   return (
-    <div className="container-header-right">
+    <>
       {activeTab === "run-tests" && showTable && (
         <button 
           className="header-action-btn" 
@@ -39,6 +39,6 @@ export const LeftHeaderActions: React.FC<LeftHeaderActionsProps> = ({
           <line x1="4" y1="18" x2="20" y2="18"></line>
         </svg>
       </button>
-    </div>
+    </>
   );
 };
