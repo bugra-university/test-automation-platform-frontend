@@ -63,24 +63,30 @@ const SortIndicator: React.FC<SortIndicatorProps> = ({ column, sortConfig }) => 
   const isAsc = isActive && sortConfig.direction === 'asc';
   const isDesc = isActive && sortConfig.direction === 'desc';
   
+  const renderSortIcon = () => {
+    if (isAsc) {
+      return <span className="sort-arrow">↑</span>;
+    }
+    if (isDesc) {
+      return <span className="sort-arrow">↓</span>;
+    }
+    return (
+      <div className="sort-arrow-default">
+        <div className="az-icon">
+          <span className="az-letter">A</span>
+          <span className="az-letter">Z</span>
+        </div>
+        <span className="default-arrow">↑</span>
+      </div>
+    );
+  };
+  
   return (
     <div 
       className={`sort-indicator-container ${isActive ? 'sort-active' : ''} ${isAsc ? 'sort-asc' : ''} ${isDesc ? 'sort-desc' : ''}`}
       aria-hidden="true"
     >
-      {isAsc ? (
-        <span className="sort-arrow">↑</span>
-      ) : isDesc ? (
-        <span className="sort-arrow">↓</span>
-      ) : (
-        <div className="sort-arrow-default">
-          <div className="az-icon">
-            <span className="az-letter">A</span>
-            <span className="az-letter">Z</span>
-          </div>
-          <span className="default-arrow">↑</span>
-        </div>
-      )}
+      {renderSortIcon()}
     </div>
   );
 };
@@ -238,11 +244,11 @@ export function ExcelViewer({
 
     setIsSaving(true);
     
-    try {
-      // Create Excel file from modified data
+    try {      // Create Excel file from modified data
       console.log("Creating Excel file from modified data...");
       const modifiedFile = createModifiedExcelFile();
-        // Call the save API
+      
+      // Call the save API
       console.log("Calling ProductBacklogService.saveToDatabase...");
       const result = await ProductBacklogService.saveToDatabase(modifiedFile);
       console.log("Save API response:", result);
@@ -252,7 +258,8 @@ export function ExcelViewer({
         timestamp: new Date(),
         message: result.message ?? 'Data saved successfully'
       });
-        // Dispatch success event for MainLayout to reload table statistics
+      
+      // Dispatch success event for MainLayout to reload table statistics
       window.dispatchEvent(new CustomEvent('excelSaveSuccess'));
       
       // Dispatch event to update file database status

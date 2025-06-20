@@ -39,11 +39,10 @@ export function RunTestsTab({
   const [dragActive, setDragActive] = useState(false);
   const [localFile, setLocalFile] = useState<File | null>(null);
   const [localShowTable, setLocalShowTable] = useState(false);
-  
-  // Use external state if provided, otherwise use local state
-  const showTable = externalShowTable !== undefined ? externalShowTable : localShowTable;
+    // Use external state if provided, otherwise use local state
+  const showTable = externalShowTable ?? localShowTable;
   const setShowTable = externalSetShowTable || setLocalShowTable;
-  const file = externalCurrentFile !== undefined ? externalCurrentFile : localFile;
+  const file = externalCurrentFile ?? localFile;
   const setFile = setCurrentFile || setLocalFile;
   
   const handleDrag = (e: React.DragEvent) => {
@@ -137,12 +136,13 @@ export function RunTestsTab({
             </div>
           </div>
 
-          {/* File Upload Section */}      
-          <div className="max-w-2xl mx-auto w-full">            <div
+          {/* File Upload Section */}          <div className="max-w-2xl mx-auto w-full">
+            <section
               className={cn(
                 "rounded-lg p-8 bg-slate-50/60 shadow-sm",
                 dragActive ? "bg-blue-50" : ""
               )}
+              aria-label="File upload area - drag and drop Excel files here"
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
@@ -200,26 +200,18 @@ export function RunTestsTab({
                     >
                       <Upload className="h-7 w-7 text-blue-600" />
                     </button>
-                    <div className="text-center">
-                      <p className="text-gray-600 mb-1">
-                        Drag and drop your Excel file here, or{" "}                        <label className="text-blue-600 hover:text-blue-700 cursor-pointer">
-                          browse
-                          <input
-                            type="file"
-                            className="hidden"
-                            accept=".xlsx"
-                            onChange={handleFileChange}
-                          />
+                    <div className="text-center">                      <p className="text-gray-600 mb-1">
+                        Drag and drop your Excel file here, or{" "}                        <label className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer transition-colors">
+                          browse<input type="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
                         </label>
                       </p>
                       <p className="text-sm text-gray-500">
                         Supports: .xlsx (Excel) files up to 10MB
                       </p>
                     </div>
-                  </div>
-                )}
+                  </div>                )}
               </div>
-            </div>
+            </section>
             
             {/* Download Sample Excel Button */}
             <div className="mt-4 flex justify-center">          
