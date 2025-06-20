@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ProjectsTab } from "../components/dashboard/Tabs/ProjectsTab";
 import { TestSuitesTab } from "../components/dashboard/Tabs/TestSuitesTab";
 import { RunTestsTab } from "../components/dashboard/Tabs/RunTestsTab";
 import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
@@ -46,7 +47,7 @@ export default function TestDashboard({
   lastSaveInfo,  setLastSaveInfo,
   onLogout
 }: TestDashboardProps) {
-  const [activeTab, setActiveTab] = useState("run-tests");
+  const [activeTab, setActiveTab] = useState("projects");
   
   // Use external setter if provided, otherwise use a dummy function
   const setCurrentFileName = externalSetCurrentFileName || (() => {});
@@ -55,9 +56,10 @@ export default function TestDashboard({
   useEffect(() => {
     if (activeTabFromHeader) {
       setActiveTab(activeTabFromHeader);
-    }  }, [activeTabFromHeader]);
-  const renderActiveTab = () => {
-    switch (activeTab) {      
+    }  }, [activeTabFromHeader]);  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "projects":
+        return <ProjectsTab />;
       case "test-suites":
         return <TestSuitesTab />;      
       case "run-tests":

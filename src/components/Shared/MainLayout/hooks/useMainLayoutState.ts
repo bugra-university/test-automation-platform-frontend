@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import ProductBacklogService from '../../../../api/ProductBacklogService';
 
 export interface MainLayoutState {
     // Tab states
@@ -61,14 +60,13 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     });
 
     const [tableStats, setTableStats] = useState<any>(null);
-    const [loadingStats, setLoadingStats] = useState<boolean>(false);
-
-    // Function to load database table statistics
+    const [loadingStats, setLoadingStats] = useState<boolean>(false);    // Function to load database table statistics
     const loadTableStatistics = async () => {
         setLoadingStats(true);
         try {
-            const stats = await ProductBacklogService.getTableStatistics();
-            setTableStats(stats);
+            // Backend API endpoint not ready yet - using mock data
+            console.log('Table statistics loading disabled - backend not ready');
+            setTableStats(null);
         } catch (error) {
             console.error('Error loading table statistics:', error);
             setTableStats(null);
