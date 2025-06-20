@@ -174,6 +174,96 @@ export function ExcelViewer({
     const baseClasses = 'excel-table narrow-row-numbers sheet-change-transition';
     return isEditMode ? `${baseClasses} edit-mode` : baseClasses;
   };
+  // Helper function to get sort-related classes
+  const getSortClassName = (column: any) => {
+    if (sortConfig.key !== column.label) return '';
+    
+    const classes = ['sort-active'];
+    if (sortConfig.direction === 'asc') {
+      classes.push('sort-asc');
+    } else if (sortConfig.direction === 'desc') {
+      classes.push('sort-desc');
+    }
+    return classes.join(' ');
+  };
+
+  // Helper function to get column positioning classes
+  const getColumnPositionClasses = (colIndex: number) => {
+    const classes = [];
+    
+    // Center align specific columns
+    if (colIndex === 0 || 
+        colIndex === tableHeaders.length - 2 || 
+        (activeSheetIndex !== 0 && (colIndex === 1 || colIndex === 3 || colIndex === 8))) {
+      classes.push('cell-align-center');
+    }
+    
+    return classes;
+  };
+
+  // Helper function to get sheet-specific classes
+  const getSheetSpecificClasses = (colIndex: number) => {
+    const classes = [];
+    
+    // Text wrapping for DESCRIPTION column in first sheet
+    if (activeSheetIndex === 0 && colIndex === 1) {
+      classes.push('cell-wrap-text');
+    }
+    
+    // Column-specific styles for non-first sheets
+    if (activeSheetIndex !== 0) {
+      if (colIndex === 1) classes.push('second-column-narrow');
+      if (colIndex === 2) classes.push('third-column-wide');
+      if (colIndex === 4) classes.push('fifth-column-narrow', 'fifth-column-header');
+      if (colIndex === 8) classes.push('ninth-column-center');
+    }
+    
+    return classes;
+  };
+
+  // Helper function to get special column classes
+  const getSpecialColumnClasses = (colIndex: number) => {
+    const classes = [];
+    
+    if (colIndex === tableHeaders.length - 2) classes.push('validation-column');
+    if (colIndex === 0) classes.push('user-story-id-column');
+    
+    return classes;
+  };
+
+  // Helper function to get header class names
+  const getHeaderClassName = (colIndex: number, column: any) => {
+    const classes = [
+      getSortClassName(column),
+      ...getColumnPositionClasses(colIndex),
+      ...getSheetSpecificClasses(colIndex),
+      ...getSpecialColumnClasses(colIndex)
+    ].filter(Boolean);
+    
+    return classes.join(' ');
+  };
+
+  // Helper function to get cell class names
+  const getCellClassName = (colIndex: number) => {
+    const classes = [
+      'content-cell',
+      ...getColumnPositionClasses(colIndex),
+      ...getSheetSpecificClasses(colIndex),
+      ...getSpecialColumnClasses(colIndex)
+    ].filter(Boolean);
+    
+    return classes.join(' ');
+  };
+
+  // Helper function to check if sorting should be disabled
+  const isSortingDisabled = (colIndex: number) => {
+    return activeSheetIndex !== 0 && colIndex === 4;
+  };
+
+  // Helper function to check if sort indicator should be shown
+  const shouldShowSortIndicator = (colIndex: number) => {
+    return !isSortingDisabled(colIndex);
+  };
 
   const handleCellSave = () => {
     console.log("handleCellSave called - editingCell:", editingCell, "editingValue:", editingValue);
@@ -390,209 +480,222 @@ export function ExcelViewer({
     }
   };  // State to store all sheets data to prevent flickering during sheet changes
   const [allSheetsData, setAllSheetsData] = useState<{[key: string]: any[]}>({});
-    // Handle sheet change - now uses pre-loaded data for smoother transitions
+    // Handle sheet change - now uses pre-loaded data for smoother transitions  // Helper function to validate sheet change request
+  const isValidSheetChange = (sheetIndex: number): boolean => {
+    return sheetIndex !== activeSheetIndex && 
+           file !== null && 
+           sheetIndex < sheetNames.length;
+  };
+
+  // Helper function to load cached sheet data
+  const loadCachedSheetData = (sheetName: string, sheetIndex: number): void => {
+    setData(allSheetsData[sheetName]);
+    
+    if (allSheetsWorksheets[sheetName]) {
+      setActiveWorksheet(allSheetsWorksheets[sheetName]);
+    }
+    
+    if (sheetHeaders[sheetName]) {
+      setTableHeaders(sheetHeaders[sheetName]);
+    }
+    
+    updateSheetState(sheetIndex);
+  };
+
+  // Helper function to update sheet state
+  const updateSheetState = (sheetIndex: number): void => {
+    setActiveSheetIndex(sheetIndex);
+    setSelectedRows({});
+    setSortConfig({ key: '', direction: null });
+  };
+
+  // Helper function to process worksheet data
+  const processWorksheetData = (worksheet: XLSX.WorkSheet): any[] => {
+    const range = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
+    
+    if (!range) {
+      return [];
+    }
+
+    const lastDataRow = findLastDataRow(worksheet);
+    const limitedRange = {
+      s: { r: range.s.r, c: range.s.c },
+      e: { r: lastDataRow, c: range.e.c }
+    };
+
+    return XLSX.utils.sheet_to_json(worksheet, { 
+      defval: '', 
+      blankrows: true, 
+      range: limitedRange 
+    });
+  };
+
+  // Helper function to handle successful sheet loading
+  const handleSheetLoadSuccess = (
+    sheetName: string, 
+    sheetIndex: number, 
+    jsonData: any[], 
+    worksheet: XLSX.WorkSheet, 
+    extractedHeaders: ColumnHeader[]
+  ): void => {
+    setData(jsonData);
+    setActiveWorksheet(worksheet);
+    setTableHeaders(extractedHeaders);
+    
+    setAllSheetsData(prev => ({ ...prev, [sheetName]: jsonData }));
+    setAllSheetsWorksheets(prev => ({ ...prev, [sheetName]: worksheet }));
+    setSheetHeaders(prev => ({ ...prev, [sheetName]: extractedHeaders }));
+    
+    updateSheetState(sheetIndex);
+    setLoading(false);
+  };
+
+  // Helper function to handle sheet loading errors
+  const handleSheetLoadError = (error: any, message: string): void => {
+    console.error(message, error);
+    setError(message);
+    setLoading(false);
+  };
+
+  // Helper function to load new sheet data
+  const loadNewSheetData = (sheetIndex: number): void => {
+    if (!file) return;
+    
+    setLoading(true);
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[sheetIndex];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        const jsonData = processWorksheetData(worksheet);
+        const extractedHeaders = extractHeadersFromWorksheet(worksheet);
+        
+        handleSheetLoadSuccess(sheetName, sheetIndex, jsonData, worksheet, extractedHeaders);
+      } catch (err) {
+        handleSheetLoadError(err, 'Error parsing Excel sheet.');
+      }
+    };
+    
+    reader.onerror = () => handleSheetLoadError(null, 'Could not read file.');
+    
+    try {
+      reader.readAsArrayBuffer(file);
+    } catch (err) {
+      handleSheetLoadError(err, 'Error reading Excel file.');
+    }
+  };
+
   const handleSheetChange = (sheetIndex: number) => {
-    if (sheetIndex === activeSheetIndex || !file || sheetIndex >= sheetNames.length) {
-      return; // No change needed
+    if (!isValidSheetChange(sheetIndex)) {
+      return;
     }
     
     const sheetName = sheetNames[sheetIndex];
     
-    // Check if we already have the data for this sheet
     if (allSheetsData[sheetName]) {
-      // Use cached data for immediate switching without loading screen
-      setData(allSheetsData[sheetName]);
-      // Set the worksheet for merged cells handling
-      if (allSheetsWorksheets[sheetName]) {
-        setActiveWorksheet(allSheetsWorksheets[sheetName]);
-      }
-      // Eğer bu sheet için önceden çıkarılmış başlıklar varsa, onları kullan
-      if (sheetHeaders[sheetName]) {
-        setTableHeaders(sheetHeaders[sheetName]);
-      }
-      setActiveSheetIndex(sheetIndex);
-      setSelectedRows({});
-      setSortConfig({ key: '', direction: null });
+      loadCachedSheetData(sheetName, sheetIndex);
     } else {
-      // Only show loading if we don't have the data yet
-      setLoading(true);
-      
-      try {
-        // Read the file again to get the selected sheet
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const data = new Uint8Array(e.target?.result as ArrayBuffer);
-            const workbook = XLSX.read(data, { type: 'array' });              const sheetName = workbook.SheetNames[sheetIndex];
-            const worksheet = workbook.Sheets[sheetName];
-            
-            // Get the actual data range to avoid infinite empty rows
-            const range = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
-            let jsonData: any[] = [];
-            
-            if (range) {
-              // Find the last row with actual data
-              const lastDataRow = findLastDataRow(worksheet);
-              
-              // Create a limited range from start to last data row
-              const limitedRange = {
-                s: { r: range.s.r, c: range.s.c },
-                e: { r: lastDataRow, c: range.e.c }
-              };
-                // Use defval to preserve empty rows and cells within the actual data range
-              jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-                defval: '', // Default value for empty cells
-                blankrows: true, // Include blank rows
-                range: limitedRange // Limit to actual data range
-              });
-            }
-            
-          // Extract headers
-            const extractedHeaders = extractHeadersFromWorksheet(worksheet);
-            
-            // Update states
-            setData(jsonData);
-            setActiveWorksheet(worksheet);
-            setTableHeaders(extractedHeaders);
-            setActiveSheetIndex(sheetIndex);
-            setSelectedRows({});
-            setSortConfig({ key: '', direction: null });
-            
-            // Store the data and worksheet for future use
-            setAllSheetsData(prev => ({
-              ...prev,
-              [sheetName]: jsonData
-            }));
-            
-            setAllSheetsWorksheets(prev => ({
-              ...prev,
-              [sheetName]: worksheet
-            }));
-            
-            // Save headers
-            setSheetHeaders(prev => ({
-              ...prev,
-              [sheetName]: extractedHeaders
-            }));
-            
-            setLoading(false);
-          } catch (err) {
-            console.error('Error parsing Excel sheet:', err);
-            setError('Error parsing Excel sheet.');
-            setLoading(false);
-          }
-        };
-        
-        reader.onerror = () => {
-          setError('Could not read file.');
-          setLoading(false);
-        };
-        
-        reader.readAsArrayBuffer(file);
-      } catch (err) {
-        console.error('Error reading Excel file:', err);
-        setError('Error reading Excel file.');
-        setLoading(false);
-      }
+      loadNewSheetData(sheetIndex);
     }
-  };  // Excel dosyasını oku and preload first few sheets
+  };  // Helper function to preload sheet data
+  const preloadSheetData = (workbook: XLSX.WorkBook, sheetName: string): { data: any[], worksheet: XLSX.WorkSheet } => {
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = processWorksheetData(worksheet);
+    
+    return { data: jsonData, worksheet };
+  };
+
+  // Helper function to preload multiple sheets
+  const preloadMultipleSheets = (workbook: XLSX.WorkBook, allSheetNames: string[]): {
+    preloadedData: {[key: string]: any[]},
+    preloadedWorksheets: {[key: string]: XLSX.WorkSheet},
+    extractedHeaders: {[key: string]: ColumnHeader[]}
+  } => {
+    const sheetsToPreload = Math.min(3, allSheetNames.length);
+    const preloadedData: {[key: string]: any[]} = {};
+    const preloadedWorksheets: {[key: string]: XLSX.WorkSheet} = {};
+    const extractedHeaders: {[key: string]: ColumnHeader[]} = {};
+
+    for (let i = 0; i < sheetsToPreload; i++) {
+      const sheetName = allSheetNames[i];
+      const { data, worksheet } = preloadSheetData(workbook, sheetName);
+      
+      preloadedData[sheetName] = data;
+      preloadedWorksheets[sheetName] = worksheet;
+      extractedHeaders[sheetName] = extractHeadersFromWorksheet(worksheet);
+    }
+
+    return { preloadedData, preloadedWorksheets, extractedHeaders };
+  };
+
+  // Helper function to initialize first sheet
+  const initializeFirstSheet = (
+    allSheetNames: string[],
+    preloadedData: {[key: string]: any[]},
+    preloadedWorksheets: {[key: string]: XLSX.WorkSheet},
+    extractedHeaders: {[key: string]: ColumnHeader[]}
+  ): void => {
+    const firstSheet = allSheetNames[0];
+    
+    setData(preloadedData[firstSheet]);
+    setActiveWorksheet(preloadedWorksheets[firstSheet]);
+    setTableHeaders(extractedHeaders[firstSheet] || DEFAULT_TABLE_HEADERS);
+    
+    setActiveSheetIndex(0);
+    setSelectedRows({});
+    setSortConfig({ key: '', direction: null });
+  };
+
+  // Helper function to handle Excel reading success
+  const handleExcelReadSuccess = (workbook: XLSX.WorkBook): void => {
+    const allSheetNames = workbook.SheetNames;
+    setSheetNames(allSheetNames);
+
+    const { preloadedData, preloadedWorksheets, extractedHeaders } = preloadMultipleSheets(workbook, allSheetNames);
+
+    setAllSheetsData(preloadedData);
+    setAllSheetsWorksheets(preloadedWorksheets);
+    setSheetHeaders(extractedHeaders);
+
+    initializeFirstSheet(allSheetNames, preloadedData, preloadedWorksheets, extractedHeaders);
+    setLoading(false);
+  };
+  // Excel dosyasını oku and preload first few sheets
   useEffect(() => {
     const readExcel = async () => {
-      try {        if (!file) {
-          setError('No file provided');
-          setLoading(false);
-          return;
+      if (!file) {
+        setError('No file provided');
+        setLoading(false);
+        return;
+      }
+      
+      setLoading(true);
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target?.result as ArrayBuffer);
+          const workbook = XLSX.read(data, { type: 'array' });
+          handleExcelReadSuccess(workbook);
+        } catch (err) {
+          handleSheetLoadError(err, 'Excel dosyası çözümlenirken hata oluştu.');
         }
-        
-        setLoading(true);
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const data = new Uint8Array(e.target?.result as ArrayBuffer);
-            const workbook = XLSX.read(data, { type: 'array' });
-            
-            // Get all sheet names
-            const allSheetNames = workbook.SheetNames;
-            setSheetNames(allSheetNames);
-              // Preload data for up to first 3 sheets to make switching faster
-            const preloadedData: {[key: string]: any[]} = {};
-            const preloadedWorksheets: {[key: string]: XLSX.WorkSheet} = {};
-            const sheetsToPreload = Math.min(3, allSheetNames.length);            for (let i = 0; i < sheetsToPreload; i++) {
-              const sheetName = allSheetNames[i];
-              const worksheet = workbook.Sheets[sheetName];
-              
-              // Get the actual data range to avoid infinite empty rows
-              const range = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
-              let jsonData: any[] = [];
-              
-              if (range) {
-                // Find the last row with actual data
-                const lastDataRow = findLastDataRow(worksheet);
-                
-                // Create a limited range from start to last data row
-                const limitedRange = {
-                  s: { r: range.s.r, c: range.s.c },
-                  e: { r: lastDataRow, c: range.e.c }
-                };
-                  // Use defval to preserve empty rows and cells within the actual data range
-                jsonData = XLSX.utils.sheet_to_json(worksheet, { 
-                  defval: '', // Default value for empty cells
-                  blankrows: true, // Include blank rows
-                  range: limitedRange // Limit to actual data range
-                });
-              }
-              
-              preloadedData[sheetName] = jsonData;
-              preloadedWorksheets[sheetName] = worksheet;
-            }
-              // Set all preloaded sheets data and worksheets
-            setAllSheetsData(preloadedData);
-            setAllSheetsWorksheets(preloadedWorksheets);
-            
-            // Extract and store headers for each preloaded sheet
-            const extractedHeaders: {[key: string]: ColumnHeader[]} = {};
-            for (let i = 0; i < sheetsToPreload; i++) {
-              const sheetName = allSheetNames[i];
-              const worksheet = workbook.Sheets[sheetName];
-              extractedHeaders[sheetName] = extractHeadersFromWorksheet(worksheet);
-            }
-            
-            // Set headers for all preloaded sheets
-            setSheetHeaders(extractedHeaders);
-            
-            // Load first sheet by default
-            const firstSheet = allSheetNames[0];
-            setData(preloadedData[firstSheet]);
-            setActiveWorksheet(preloadedWorksheets[firstSheet]);
-            
-            // Set the headers for the first sheet
-            setTableHeaders(extractedHeaders[firstSheet] || DEFAULT_TABLE_HEADERS);
-            
-            // Reset states
-            setActiveSheetIndex(0);
-            setSelectedRows({});
-            setSortConfig({ key: '', direction: null });
-            setLoading(false);
-          } catch (err) {
-            console.error('Excel dosyası çözümlenirken hata oluştu:', err);
-            setError('Excel dosyası çözümlenirken hata oluştu.');
-            setLoading(false);
-          }
-        };
-        
-        reader.onerror = () => {
-          setError('Dosya okunamadı.');
-          setLoading(false);
-        };
-        
+      };
+      
+      reader.onerror = () => handleSheetLoadError(null, 'Dosya okunamadı.');
+      
+      try {
         reader.readAsArrayBuffer(file);
       } catch (err) {
-        console.error('Excel dosyası okunurken hata oluştu:', err);
-        setError('Excel dosyası okunurken hata oluştu.');
-        setLoading(false);
+        handleSheetLoadError(err, 'Excel dosyası okunurken hata oluştu.');
       }
-    };      readExcel();
+    };
+
+    readExcel();
   }, [file, activeTab]);
   // Sync modifiedData with data when data changes
   useEffect(() => {
@@ -640,24 +743,34 @@ export function ExcelViewer({
             Loading sheet...
           </div>
         )}
-        
-        {/* Sheet tabs */}
+          {/* Sheet tabs */}
         {sheetNames.length > 0 && (
-          <div className="sheet-tabs-container">
-            {sheetNames.map((sheetName, index) => (
-              <div 
-                key={index}
-                className={`sheet-tab sheet-tab-color-${index % 6} ${index === activeSheetIndex ? 'active' : ''}`} 
-                onClick={() => handleSheetChange(index)}
-              >
+          <div className="sheet-tabs-container" role="tablist" aria-label="Excel sheet tabs">            {sheetNames.map((sheetName, index) => {
+              const isSelected = index === activeSheetIndex;
+              return (
+                <div 
+                  key={sheetName}
+                  className={`sheet-tab sheet-tab-color-${index % 6} ${isSelected ? 'active' : ''}`} 
+                  role="tab"
+                  tabIndex={0}
+                  aria-selected={isSelected ? "true" : "false"}
+                  aria-label={`Switch to ${sheetName} sheet`}
+                  onClick={() => handleSheetChange(index)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSheetChange(index);
+                    }
+                  }}
+                >
                 {sheetName}
                 {/* Show loading indicator for sheets that aren't loaded yet */}
                 {!allSheetsData[sheetName] && index !== activeSheetIndex && (
-                  <span className="sheet-loading-dot" title="This sheet will load when selected">•</span>
-                )}
+                  <span className="sheet-loading-dot" title="This sheet will load when selected">•</span>                )}
                 <div className="sheet-tab-indicator" />
               </div>
-            ))}
+              );
+            })}
           </div>
         )}          <div className="table-scroll-container">
             <table className={getTableClassName()}>
@@ -679,38 +792,30 @@ export function ExcelViewer({
                       onChange={handleSelectAll}
                     />
                   </th>                  {/* Dynamic column headers - skip the first one (#) since we're handling it separately */}
-                  {tableHeaders.slice(1).map((column, colIndex) => (
-                    <th 
+                  {tableHeaders.slice(1).map((column, colIndex) => (                    <th 
                       key={column.id}
                       scope="col"
                       onClick={() => {
-                      // Disable sorting for 5th column in non-first sheets
-                      if (!(activeSheetIndex !== 0 && colIndex === 4)) {
-                        requestSort(column.label);
-                      }
-                    }}
-                    className={`${sortConfig.key === column.label ? 'sort-active' : ''} ${
-                      sortConfig.key === column.label && sortConfig.direction === 'asc' ? 'sort-asc' : 
-                      sortConfig.key === column.label && sortConfig.direction === 'desc' ? 'sort-desc' : ''                    }                    ${colIndex === 0 || colIndex === tableHeaders.length - 2 || (activeSheetIndex !== 0 && (colIndex === 1 || colIndex === 3 || colIndex === 8)) ? 'cell-align-center' : ''}                    ${activeSheetIndex === 0 && colIndex === 1 ? 'cell-wrap-text' : ''}
-                    ${activeSheetIndex !== 0 && colIndex === 1 ? 'second-column-narrow' : ''}                    ${activeSheetIndex !== 0 && colIndex === 2 ? 'third-column-wide' : ''}
-                    ${activeSheetIndex !== 0 && colIndex === 4 ? 'fifth-column-narrow fifth-column-header' : ''}
-                    ${activeSheetIndex !== 0 && colIndex === 8 ? 'ninth-column-center' : ''}
-                    ${colIndex === tableHeaders.length - 2 ? 'validation-column' : ''}
-                    ${colIndex === 0 ? 'user-story-id-column' : ''}`}
-                  >                    <div className="header-content">
+                        if (!isSortingDisabled(colIndex)) {
+                          requestSort(column.label);
+                        }
+                      }}
+                      className={getHeaderClassName(colIndex, column)}
+                    >                    <div className="header-content">
                       <span>{column.label}</span>
-                      {/* Hide sort indicator for 5th column (index 4) in non-first sheets */}
-                      {!(activeSheetIndex !== 0 && colIndex === 4) && 
+                      {shouldShowSortIndicator(colIndex) && 
                         <SortIndicator column={column.label} sortConfig={sortConfig} />
                       }
-                    </div>                  </th>
+                    </div></th>
                 ))}
               </tr>
             </thead>
-            <tbody className="excel-table-body">
-              {data.length > 0 ? (
-                sortedData.map((row, idx) => (
-                  <tr key={idx} className={selectedRows[idx] ? 'selected-row' : ''}>
+            <tbody className="excel-table-body">              {data.length > 0 ? (
+                sortedData.map((row, idx) => {
+                  // Create a stable key using row content
+                  const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
+                  return (
+                  <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
                     {/* Row number column */}
                     <td className="row-number">
                       {idx + 1}                    </td>
@@ -727,43 +832,10 @@ export function ExcelViewer({
                       />
                     </td>                    {/* Data cells for other columns - now with merged cell support */}                    {tableHeaders.slice(1).map((column, colIndex) => {
                       const mergeInfo = getMergeInfoForCell(idx, colIndex);
-                      const cellValue = getMergedCellValueByIndex(idx, colIndex);                      // Class determination based on column index
-                      let className = 'content-cell';                        // Center align USER ID, second column in non-first sheets, fourth column in non-first sheets, ninth column in non-first sheets, and VALIDATION columns
-                      if (colIndex === 0 || colIndex === tableHeaders.length - 2 || (activeSheetIndex !== 0 && (colIndex === 1 || colIndex === 3 || colIndex === 8))) {
-                        className += ' cell-align-center';
-                      }
-                        // Apply text wrapping to DESCRIPTION column (index 1) only in the first sheet
-                      if (activeSheetIndex === 0 && colIndex === 1) {
-                        className += ' cell-wrap-text';
-                      }
-                        // Apply narrow width to the second column in all sheets except the first one
-                      if (activeSheetIndex !== 0 && colIndex === 1) {
-                        className += ' second-column-narrow';
-                      }
-                        // Apply wide width to the third column in all sheets except the first one
-                      if (activeSheetIndex !== 0 && colIndex === 2) {
-                        className += ' third-column-wide';
-                      }
-                      
-                      // Apply narrow width to the fifth column in all sheets except the first one
-                      if (activeSheetIndex !== 0 && colIndex === 4) {
-                        className += ' fifth-column-narrow';
-                      }
-                        
-                      // Apply narrow width to VALIDATION column
-                      if (colIndex === tableHeaders.length - 2) {
-                        className += ' validation-column';
-                      }
-                        // Apply narrow width to first column in all sheets
-                      if (colIndex === 0) {
-                        className += ' user-story-id-column';
-                      }
-                      
-                      // Apply center alignment to ninth column in all sheets except first one
-                      if (activeSheetIndex !== 0 && colIndex === 8) {
-                        className += ' ninth-column-center';
-                      }
-                        return (
+                      const cellValue = getMergedCellValueByIndex(idx, colIndex);
+                      const className = getCellClassName(colIndex);
+
+                      return (
                         <MergedCell
                           key={`${idx}-${column.id}`}
                           mergeInfo={mergeInfo}
@@ -777,9 +849,10 @@ export function ExcelViewer({
                           onKeyDown={handleKeyDown}
                         />
                       );
-                    })}
-                  </tr>
-                ))              ) : (
+                    })}                  </tr>
+                  );
+                })
+              ) : (
                 <tr>
                   <td colSpan={tableHeaders.length + 1} className="text-center">
                     No data found                  </td>
@@ -821,7 +894,7 @@ const extractHeadersFromWorksheet = (worksheet: XLSX.WorkSheet): ColumnHeader[] 
       const cellAddress = XLSX.utils.encode_cell({ r: range.s.r, c: col });
       const cell = worksheet[cellAddress];
       
-      if (cell && cell.v !== undefined && cell.v !== null) {
+      if (cell?.v !== undefined && cell.v !== null) {
         // Use the cell value as both id and label to make it consistent with the current implementation
         const headerText = String(cell.v).trim();
         headers.push({ id: headerText.toLowerCase().replace(/\s+/g, '_'), label: headerText });
@@ -849,7 +922,7 @@ const findLastDataRow = (worksheet: XLSX.WorkSheet): number => {
         const cell = worksheet[cellAddress];
         
         // Check if cell has actual content (not just empty string)
-        if (cell && cell.v !== undefined && cell.v !== null && String(cell.v).trim() !== '') {
+        if (cell?.v !== undefined && cell.v !== null && String(cell.v).trim() !== '') {
           return row;
         }
       }
