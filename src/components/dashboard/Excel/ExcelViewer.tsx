@@ -94,11 +94,12 @@ const SortIndicator: React.FC<SortIndicatorProps> = ({ column, sortConfig }) => 
 export function ExcelViewer({ 
   file, 
   onReturn, 
-  isEditMode = false,   setIsEditMode,
+  isEditMode = false,
+  setIsEditMode,
   activeTab,
   lastSaveInfo: externalLastSaveInfo,
   setLastSaveInfo: externalSetLastSaveInfo 
-}: ExcelViewerProps) {
+}: Readonly<ExcelViewerProps>) {
   
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -123,10 +124,8 @@ export function ExcelViewer({
   // Add state for cell editing
   const [editingCell, setEditingCell] = useState<{rowIndex: number, columnId: string} | null>(null);
   const [editingValue, setEditingValue] = useState<string>('');  // Add state for save functionality
-  const [modifiedData, setModifiedData] = useState<any[]>([]);  const [isSaving, setIsSaving] = useState<boolean>(false);
-
+  const [modifiedData, setModifiedData] = useState<any[]>([]);
   // Use external lastSaveInfo if provided, otherwise use local fallback
-  const lastSaveInfo = externalLastSaveInfo || { status: null, timestamp: null };
   const setLastSaveInfo = externalSetLastSaveInfo || (() => {});
   
   // Use merged cells hook
@@ -143,9 +142,9 @@ export function ExcelViewer({
       };
       return newState;
     });
-  };  // Handle cell editing
-  const handleCellClick = (rowIndex: number, columnId: string, currentValue: any) => {
-    if (isEditMode && columnId !== 'number') {
+  };  // Handle cell editing in edit mode
+  const handleCellEditClick = (rowIndex: number, columnId: string, currentValue: any) => {
+    if (columnId !== 'number') {
       // Find the column index for merged cell checking
       const columnIndex = tableHeaders.findIndex(header => header.id === columnId);
       if (columnIndex > 0) { // Skip row number column
@@ -158,9 +157,24 @@ export function ExcelViewer({
         }
       }
     } else {
-      console.log('Edit mode is off or cell is row number');
+      console.log('Cell is row number, cannot edit');
     }
   };
+
+  // Handle cell click in view mode
+  const handleCellViewClick = (rowIndex: number, columnId: string, currentValue: any) => {
+    console.log('View mode - cell click disabled');
+  };
+
+  // Determine which cell click handler to use
+  const handleCellClick = isEditMode ? handleCellEditClick : handleCellViewClick;
+
+  // Get table class name based on mode
+  const getTableClassName = () => {
+    const baseClasses = 'excel-table narrow-row-numbers sheet-change-transition';
+    return isEditMode ? `${baseClasses} edit-mode` : baseClasses;
+  };
+
   const handleCellSave = () => {
     console.log("handleCellSave called - editingCell:", editingCell, "editingValue:", editingValue);
     
@@ -237,14 +251,11 @@ export function ExcelViewer({
       setLastSaveInfo({
         status: 'error',
         timestamp: new Date(),
-        message: 'No file available for saving'
-      });
+        message: 'No file available for saving'      });
       return;
     }
 
-    setIsSaving(true);
-    
-    try {      // Create Excel file from modified data
+    try {// Create Excel file from modified data
       console.log("Creating Excel file from modified data...");
       const modifiedFile = createModifiedExcelFile();
       
@@ -273,11 +284,9 @@ export function ExcelViewer({
       console.error("Error saving changes:", error);
       setLastSaveInfo({
         status: 'error',
-        timestamp: new Date(),
-        message: error instanceof Error ? error.message : 'Unknown error occurred'
+        timestamp: new Date(),        message: error instanceof Error ? error.message : 'Unknown error occurred'
       });
-    } finally {
-      setIsSaving(false);    }
+    }
   };
   // Handle column sorting
   const requestSort = (key: string) => {
@@ -430,13 +439,12 @@ export function ExcelViewer({
                 s: { r: range.s.r, c: range.s.c },
                 e: { r: lastDataRow, c: range.e.c }
               };
-              
-              // Use defval to preserve empty rows and cells within the actual data range
+                // Use defval to preserve empty rows and cells within the actual data range
               jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                 defval: '', // Default value for empty cells
                 blankrows: true, // Include blank rows
                 range: limitedRange // Limit to actual data range
-              }) as any[];
+              });
             }
             
           // Extract headers
@@ -527,13 +535,12 @@ export function ExcelViewer({
                   s: { r: range.s.r, c: range.s.c },
                   e: { r: lastDataRow, c: range.e.c }
                 };
-                
-                // Use defval to preserve empty rows and cells within the actual data range
+                  // Use defval to preserve empty rows and cells within the actual data range
                 jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                   defval: '', // Default value for empty cells
                   blankrows: true, // Include blank rows
                   range: limitedRange // Limit to actual data range
-                }) as any[];
+                });
               }
               
               preloadedData[sheetName] = jsonData;
@@ -653,7 +660,7 @@ export function ExcelViewer({
             ))}
           </div>
         )}          <div className="table-scroll-container">
-            <table className={`excel-table narrow-row-numbers sheet-change-transition ${isEditMode ? 'edit-mode' : ''}`}>
+            <table className={getTableClassName()}>
               <thead className="excel-table-header">
                 <tr>
                   <th className="row-number-header">
