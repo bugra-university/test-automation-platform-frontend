@@ -655,15 +655,14 @@ export function ExcelViewer({
     const allSheetNames = workbook.SheetNames;
     setSheetNames(allSheetNames);
 
-    const { preloadedData, preloadedWorksheets, extractedHeaders } = preloadMultipleSheets(workbook, allSheetNames);
-
-    setAllSheetsData(preloadedData);
+    const { preloadedData, preloadedWorksheets, extractedHeaders } = preloadMultipleSheets(workbook, allSheetNames);    setAllSheetsData(preloadedData);
     setAllSheetsWorksheets(preloadedWorksheets);
     setSheetHeaders(extractedHeaders);
 
     initializeFirstSheet(allSheetNames, preloadedData, preloadedWorksheets, extractedHeaders);
     setLoading(false);
   };
+
   // Excel dosyasını oku and preload first few sheets
   useEffect(() => {
     const readExcel = async () => {
@@ -805,9 +804,9 @@ export function ExcelViewer({
                       <span>{column.label}</span>
                       {shouldShowSortIndicator(colIndex) && 
                         <SortIndicator column={column.label} sortConfig={sortConfig} />
-                      }
-                    </div></th>
-                ))}
+                      }                    </div>
+                    </th>
+                  ))}
               </tr>
             </thead>
             <tbody className="excel-table-body">              {data.length > 0 ? (

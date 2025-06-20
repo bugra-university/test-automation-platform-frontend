@@ -1,4 +1,4 @@
-import { Search, Filter } from "lucide-react"
+import { Search, SlidersHorizontal } from "lucide-react"
 import { Input } from "../ui/input"
 
 export function MainNav() {
@@ -19,7 +19,7 @@ export function MainNav() {
                     title="Filter tests"
                     className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
                   >
-                    <Filter className="h-4 w-4 text-gray-700" />
+                    <SlidersHorizontal className="h-4 w-4 text-gray-700" />
                   </button>
                 </div>
                 <div className="flex items-center">
