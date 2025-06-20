@@ -4,6 +4,11 @@ import '../../../styles/dashboard/excel-viewer/index.css';
 import { useMergedCells, MergedCell } from './MergedCells';
 import ProductBacklogService from '../../../api/ProductBacklogService';
 
+// Type aliases to replace union types
+type SaveStatus = 'success' | 'error' | null;
+type SortDirection = 'asc' | 'desc' | null;
+type ColumnDataType = 'number' | 'date' | 'string';
+
 
 interface ExcelViewerProps {
   file: File | null;
@@ -12,12 +17,12 @@ interface ExcelViewerProps {
   setIsEditMode?: (editMode: boolean) => void;
   activeTab?: string; // Add activeTab to check for file metadata
   lastSaveInfo?: {
-    status: 'success' | 'error' | null;
+    status: SaveStatus;
     timestamp: Date | null;
     message?: string;
   };
   setLastSaveInfo?: (saveInfo: {
-    status: 'success' | 'error' | null;
+    status: SaveStatus;
     timestamp: Date | null;
     message?: string;
   }) => void;
@@ -49,7 +54,7 @@ interface SortIndicatorProps {
   column: string;
   sortConfig: {
     key: string;
-    direction: 'asc' | 'desc' | null;
+    direction: SortDirection;
   };
 };
 
@@ -94,7 +99,7 @@ export function ExcelViewer({
   const [error, setError] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<{[key: number]: boolean}>({});
   const [whiteBackgroundActive, setWhiteBackgroundActive] = useState<boolean>(false);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' | null }>({
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: SortDirection }>({
     key: '',
     direction: null
   });
@@ -141,7 +146,7 @@ export function ExcelViewer({
         const mergeInfo = getMergeInfoForCell(rowIndex, columnIndex - 1);
         if (!mergeInfo.isCovered) {
           setEditingCell({ rowIndex, columnId });
-          setEditingValue(String(currentValue || ''));
+          setEditingValue(String(currentValue ?? ''));
         } else {
           console.log('Cell is covered by merge, cannot edit');
         }
@@ -209,7 +214,7 @@ export function ExcelViewer({
     const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     
     // Create File object
-    const modifiedFile = new File([excelBuffer], file?.name || 'modified.xlsx', {
+    const modifiedFile = new File([excelBuffer], file?.name ?? 'modified.xlsx', {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
     
@@ -245,7 +250,7 @@ export function ExcelViewer({
       setLastSaveInfo({
         status: 'success',
         timestamp: new Date(),
-        message: result.message || 'Data saved successfully'
+        message: result.message ?? 'Data saved successfully'
       });
         // Dispatch success event for MainLayout to reload table statistics
       window.dispatchEvent(new CustomEvent('excelSaveSuccess'));
@@ -267,11 +272,10 @@ export function ExcelViewer({
     } finally {
       setIsSaving(false);    }
   };
-
   // Handle column sorting
   const requestSort = (key: string) => {
     // If clicking on the same column, toggle direction
-    let direction: 'asc' | 'desc' | null = 'asc';
+    let direction: SortDirection = 'asc';
     
     if (sortConfig.key === key) {
       if (sortConfig.direction === 'asc') {
@@ -287,7 +291,7 @@ export function ExcelViewer({
   };
   
   // Function to determine data type of a column
-  const getColumnDataType = (key: string): 'number' | 'date' | 'string' => {
+  const getColumnDataType = (key: string): ColumnDataType => {
     // Sample first non-null value to determine type
     const sampleValue = data.find(row => row[key] !== undefined && row[key] !== null)?.[key];
     
@@ -789,7 +793,7 @@ export function ExcelViewer({
 const extractHeadersFromWorksheet = (worksheet: XLSX.WorkSheet): ColumnHeader[] => {
   try {
     // Get the range reference from the worksheet
-    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+    const range = XLSX.utils.decode_range(worksheet['!ref'] ?? 'A1');
     
     // If the sheet is empty, return default headers
     if (range.s.r > range.e.r || range.s.c > range.e.c) {
