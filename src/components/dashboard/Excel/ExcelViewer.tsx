@@ -746,13 +746,11 @@ export function ExcelViewer({
         {sheetNames.length > 0 && (
           <div className="sheet-tabs-container" role="tablist" aria-label="Excel sheet tabs">            {sheetNames.map((sheetName, index) => {
               const isSelected = index === activeSheetIndex;
-              return (
-                <div 
+              return (<div 
                   key={sheetName}
                   className={`sheet-tab sheet-tab-color-${index % 6} ${isSelected ? 'active' : ''}`} 
                   role="tab"
                   tabIndex={0}
-                  aria-selected={isSelected ? "true" : "false"}
                   aria-label={`Switch to ${sheetName} sheet`}
                   onClick={() => handleSheetChange(index)}
                   onKeyDown={(e) => {
