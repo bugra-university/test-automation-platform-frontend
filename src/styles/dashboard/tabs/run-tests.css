@@ -22,3 +22,14 @@
 .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
     background: #666;
 }
+
+/* Upload button styling - force round shape */
+.upload-button-round {
+    border-radius: 50% !important;
+    width: 5rem !important;
+    height: 5rem !important;
+    min-width: 5rem !important;
+    min-height: 5rem !important;
+    max-width: 5rem !important;
+    max-height: 5rem !important;
+}

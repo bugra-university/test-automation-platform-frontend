@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Upload, X, FileDown } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { ExcelViewer } from "../Excel/ExcelViewer";
+import "../../../styles/dashboard/tabs/run-tests.css";
 
 interface RunTestsTabProps {
   showTable?: boolean;
@@ -189,18 +190,14 @@ export function RunTestsTab({
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center space-y-4">
-                    <button 
-                      type="button"
-                      className="w-16 h-16 aspect-square rounded-full bg-blue-50 hover:bg-blue-100 cursor-pointer flex items-center justify-center"
+                ) : (                  <div className="flex flex-col items-center space-y-4">                    <button 
+                      type="button"                      className="upload-button-round aspect-square bg-blue-50 hover:bg-blue-100 cursor-pointer flex items-center justify-center transition-colors"
                       onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
                       aria-label="Upload Excel file"
-                      title="Upload Excel file"
-                    >
-                      <Upload className="h-7 w-7 text-blue-600" />
+                      title="Upload Excel file">
+                      <Upload className="h-8 w-8 text-blue-600" />
                     </button>
-                    <div className="text-center">                      <p className="text-gray-600 mb-1">
+                    <div className="text-center"><p className="text-gray-600 mb-1">
                         Drag and drop your Excel file here, or{" "}                        <label className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer transition-colors">
                           browse<input type="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
                         </label>
