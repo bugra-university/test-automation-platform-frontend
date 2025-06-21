@@ -125,7 +125,7 @@ const TestSidebar: React.FC = () => {
                 "transition-colors duration-150",
                 isActive 
                   ? "text-blue-600" 
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-100"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
               )}
             >
               <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
@@ -154,7 +154,7 @@ const TestSidebar: React.FC = () => {
                   "transition-colors duration-150",
                   isActive 
                     ? "text-blue-600" 
-                    : "text-gray-600 hover:text-blue-600 hover:bg-blue-100"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
                 )}
               >
                 <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
@@ -165,7 +165,7 @@ const TestSidebar: React.FC = () => {
         <div className="px-4 py-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-blue-100 cursor-pointer transition-colors duration-150 hover:text-blue-600">
+              <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-[#ededed] cursor-pointer transition-colors duration-150 hover:text-blue-600">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user?.avatarUrl} alt={user?.name || "User"} />
                   <AvatarFallback className="bg-blue-100 text-blue-600 text-base">
