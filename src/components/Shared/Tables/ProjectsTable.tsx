@@ -299,9 +299,9 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: Pr
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 pagination-controls">
         <div className="flex items-center space-x-2">
-          <p className="text-sm font-medium text-gray-600">Rows per page</p>
+          <p className="text-xs font-normal text-gray-400">Rows per page</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -323,7 +323,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: Pr
 
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2">
-            <Label htmlFor={selectedRowsId} className="text-sm font-medium text-gray-600">
+            <Label htmlFor={selectedRowsId} className="text-xs font-normal text-gray-400">
               {table.getFilteredSelectedRowModel().rows.length} of{" "}
               {table.getFilteredRowModel().rows.length} row(s) selected
             </Label>
@@ -331,7 +331,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: Pr
         </div>
 
         <div className="flex items-center space-x-2">
-          <div className="flex w-[100px] items-center justify-center text-sm font-medium text-gray-600">
+          <div className="flex w-[100px] items-center justify-center text-xs font-normal text-gray-400">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </div>
 

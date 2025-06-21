@@ -174,7 +174,7 @@
     margin-bottom: 0.75rem;
 }
 
-.api-dashboard .space-y-4 p {
+.api-dashboard .space-y-4 > p {
     font-size: 1rem;
     line-height: 1.5;
     color: #4b5563;
@@ -190,4 +190,12 @@
 .api-dashboard .product-backlog-header p {
     font-size: 0.875rem;
     color: #6b7280;
+}
+
+/* Pagination controls - specific styling to override other rules */
+.pagination-controls p,
+.pagination-controls div,
+.pagination-controls label {
+    font-size: 0.75rem !important;
+    font-weight: 400 !important;
 }
