@@ -138,7 +138,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
         isExcelEditMode: state.isExcelEditMode,
         setIsExcelEditMode: actions.setIsExcelEditMode,
         lastSaveInfo: state.lastSaveInfo,
-        setLastSaveInfo: actions.setLastSaveInfo
+        setLastSaveInfo: actions.setLastSaveInfo,
+        loadProjectExcelAndSwitchTab: actions.loadProjectExcelAndSwitchTab
       });
     }
     return child;

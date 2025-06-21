@@ -5,6 +5,12 @@ export interface UploadResponse {
     message: string;
 }
 
+export interface ProjectExcelData {
+    fileName: string;
+    fileData: Blob;
+    hasData: boolean;
+}
+
 export const uploadAndSaveExcel = async (projectId: number, file: File): Promise<UploadResponse> => {
     console.log('Starting Excel upload for project:', projectId);
     console.log('File details:', {
@@ -43,5 +49,44 @@ export const uploadAndSaveExcel = async (projectId: number, file: File): Promise
             success: false,
             message: error.message || 'Network error or server is not reachable.',
         };
+    }
+};
+
+export const getProjectExcel = async (projectId: number): Promise<ProjectExcelData | null> => {
+    try {
+        console.log('Fetching Excel data for project:', projectId);
+        const response = await apiClient.get(`/api/projects/${projectId}/latest-excel`, {
+            responseType: 'blob'
+        });
+        
+        // Check if response has data
+        if (response.data.size === 0) {
+            console.log('No Excel data found for project:', projectId);
+            return null;
+        }
+
+        // Get filename from headers or use default
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = `project_${projectId}_data.xlsx`;
+        
+        if (contentDisposition) {
+            const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+            if (fileNameMatch) {
+                fileName = fileNameMatch[1];
+            }
+        }
+
+        return {
+            fileName,
+            fileData: response.data,
+            hasData: true
+        };
+    } catch (error: any) {
+        console.error('Error fetching project Excel:', error);
+        if (error.response?.status === 404) {
+            console.log('No Excel file found for project:', projectId);
+            return null;
+        }
+        throw error;
     }
 }; 

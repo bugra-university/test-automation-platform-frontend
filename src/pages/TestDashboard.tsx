@@ -35,6 +35,7 @@ interface TestDashboardProps {
     timestamp: Date | null;
     message?: string;
   }) => void;
+  readonly loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
   readonly onLogout?: () => void;
 }
 
@@ -50,6 +51,7 @@ export default function TestDashboard({
   isExcelEditMode,
   setIsExcelEditMode,
   lastSaveInfo,  setLastSaveInfo,
+  loadProjectExcelAndSwitchTab,
   onLogout
 }: TestDashboardProps) {
   const [activeTab, setActiveTab] = useState("projects");
@@ -64,7 +66,10 @@ export default function TestDashboard({
     }  }, [activeTabFromHeader]);  const renderActiveTab = () => {
     switch (activeTab) {
       case "projects":
-        return <ProjectsTab onProjectSelect={setActiveProject || (() => {})} />;
+        return <ProjectsTab 
+          onProjectSelect={setActiveProject || (() => {})} 
+          loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
+        />;
       case "test-suites":
         return <TestSuitesTab />;      
       case "run-tests":

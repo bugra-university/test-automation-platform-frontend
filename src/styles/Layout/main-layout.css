@@ -2,3 +2,16 @@
 .main-content-wrapper {
     height: calc(100vh - 56px);
 }
+
+/* Sidebar container styling - diğer container'larla uyumlu */
+.sidebar-container {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(229 231 235);
+    width: 256px; /* w-64 equivalent */
+    height: 100%;
+    padding: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}

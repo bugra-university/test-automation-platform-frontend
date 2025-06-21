@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Project } from '../../../../api/projectsApi';
+import { getProjectExcel } from '../../../../api/excelApi';
 
 export interface MainLayoutState {
     // Tab states
@@ -42,6 +43,7 @@ export interface MainLayoutActions {
     setIsSaving: (saving: boolean) => void;
     setLastSaveInfo: (info: MainLayoutState['lastSaveInfo']) => void;
     loadTableStatistics: () => Promise<void>;
+    loadProjectExcelAndSwitchTab: (project: Project) => Promise<void>;
 }
 
 export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
@@ -67,7 +69,56 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     });
 
     const [tableStats, setTableStats] = useState<any>(null);
-    const [loadingStats, setLoadingStats] = useState<boolean>(false);    // Function to load database table statistics
+    const [loadingStats, setLoadingStats] = useState<boolean>(false);
+
+    // Load last active project from localStorage on mount
+    useEffect(() => {
+        const loadLastProject = async () => {
+            try {
+                const lastProjectData = localStorage.getItem('lastActiveProject');
+                if (lastProjectData) {
+                    const project = JSON.parse(lastProjectData);
+                    console.log('Loading last active project from localStorage:', project);
+                    
+                    // Set active project first
+                    setActiveProject(project);
+                    
+                    // Try to load Excel data for this project
+                    const excelData = await getProjectExcel(project.id);
+                    
+                    if (excelData) {
+                        console.log('Excel data found for project:', project.name);
+                        
+                        // Convert Blob to File
+                        const file = new File([excelData.fileData], excelData.fileName, {
+                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                        });
+                        
+                        // Set file data
+                        setCurrentFile(file);
+                        setCurrentFileName(excelData.fileName);
+                        setShowTable(true);
+                        
+                        console.log('Setting showTable to true, file:', file.name);
+                        console.log('Switching to backlog tab...');
+                        // Switch to backlog tab
+                        setActiveTab('run-tests');
+                    } else {
+                        console.log('No Excel data found for project:', project.name);
+                        // Still switch to backlog tab but without Excel data
+                        setActiveTab('run-tests');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading last project:', error);
+                localStorage.removeItem('lastActiveProject'); // Clean up invalid data
+            }
+        };
+
+        loadLastProject();
+    }, []); // Only run on mount
+
+    // Function to load database table statistics
     const loadTableStatistics = async () => {
         setLoadingStats(true);
         try {
@@ -79,6 +130,49 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
             setTableStats(null);
         } finally {
             setLoadingStats(false);
+        }
+    };
+
+    // Function to load project Excel and switch to backlog tab
+    const loadProjectExcelAndSwitchTab = async (project: Project) => {
+        try {
+            console.log('Loading Excel for project:', project.name, project.id);
+            
+            // Set active project first
+            setActiveProject(project);
+            
+            // Save to localStorage for persistence
+            localStorage.setItem('lastActiveProject', JSON.stringify(project));
+            
+            // Try to load Excel data for this project
+            const excelData = await getProjectExcel(project.id);
+            
+            if (excelData) {
+                console.log('Excel data found for project:', project.name);
+                
+                // Convert Blob to File
+                const file = new File([excelData.fileData], excelData.fileName, {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+                
+                // Set file data
+                setCurrentFile(file);
+                setCurrentFileName(excelData.fileName);
+                setShowTable(true);
+                
+                console.log('loadProjectExcelAndSwitchTab: Setting showTable to true, file:', file.name);
+                console.log('Switching to backlog tab...');
+                // Switch to backlog tab
+                setActiveTab('run-tests');
+            } else {
+                console.log('No Excel data found for project:', project.name);
+                // Still switch to backlog tab but without Excel data
+                setActiveTab('run-tests');
+            }
+        } catch (error) {
+            console.error('Error loading project Excel:', error);
+            // Still switch to backlog tab even if Excel loading fails
+            setActiveTab('run-tests');
         }
     };
 
@@ -195,7 +289,8 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         setIsExcelEditMode,
         setIsSaving,
         setLastSaveInfo,
-        loadTableStatistics
+        loadTableStatistics,
+        loadProjectExcelAndSwitchTab
     };
 
     return [state, actions];

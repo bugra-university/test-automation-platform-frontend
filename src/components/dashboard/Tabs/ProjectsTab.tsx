@@ -8,9 +8,10 @@ import AlertDelete from "../Alert/AlertDelete";
 
 interface ProjectsTabProps {
     onProjectSelect: (project: Project) => void;
+    loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
 }
 
-export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
+export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab }: ProjectsTabProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [loadingProjects, setLoadingProjects] = useState(true);
@@ -296,7 +297,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             <div className="flex-1">
                 <ProjectsTable 
                     projects={projects} 
-                    onProjectSelect={onProjectSelect}
+                    onProjectSelect={loadProjectExcelAndSwitchTab || onProjectSelect}
                     onDeleteProject={handleDeleteProject}
                     onEditProject={handleEditProject}
                 />

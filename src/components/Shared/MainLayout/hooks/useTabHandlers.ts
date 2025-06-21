@@ -14,10 +14,13 @@ export const useTabHandlers = (
         showTable,
         currentFileName,
         currentFile
-    } = state; const {
+    } = state;     const {
         setActiveTab,
         setActiveRightTab,
-        setIsExcelEditMode
+        setIsExcelEditMode,
+        customSetShowTable,
+        customSetCurrentFileName,
+        customSetCurrentFile
     } = actions;
 
     // Function to handle tab click for left container
@@ -28,21 +31,14 @@ export const useTabHandlers = (
         if (activeTab) {
             console.log("Saving current state - showTable:", showTable, "fileName:", currentFileName, "file:", currentFile);
 
-            // Update states immediately to ensure they're saved
-            state.tabTableStates = {
-                ...state.tabTableStates,
-                [activeTab]: showTable
-            };
-
-            state.tabFileNames = {
-                ...state.tabFileNames,
-                [activeTab]: currentFileName
-            };
-
-            state.tabFiles = {
-                ...state.tabFiles,
-                [activeTab]: currentFile
-            };
+            // Use custom setters to properly save state
+            customSetShowTable(showTable);
+            if (currentFileName) {
+                customSetCurrentFileName(currentFileName);
+            }
+            if (currentFile) {
+                customSetCurrentFile(currentFile);
+            }
         }
 
         // Reset edit mode when switching tabs
