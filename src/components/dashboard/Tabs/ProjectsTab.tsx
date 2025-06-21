@@ -4,6 +4,7 @@ import { projectsApi, type Project } from "../../../api/projectsApi";
 import { Button } from "../../ui/button";
 import { useToast } from "../../ui/UseToast";
 import { ProjectsTable } from "../../Shared/Tables/ProjectsTable";
+import AlertDelete from "../Alert/AlertDelete";
 
 interface ProjectsTabProps {
     onProjectSelect: (project: Project) => void;
@@ -16,6 +17,9 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
     const [formData, setFormData] = useState({ name: '', description: '' });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -66,6 +70,40 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleDeleteProject = (project: Project) => {
+        setProjectToDelete(project);
+        setShowDeleteAlert(true);
+    };
+
+    const confirmDeleteProject = async () => {
+        if (!projectToDelete) return;
+
+        try {
+            setIsDeleting(true);
+            await projectsApi.deleteProject(projectToDelete.id);
+            toast({
+                title: "Success",
+                description: "Project deleted successfully"
+            });
+            setShowDeleteAlert(false);
+            setProjectToDelete(null);
+            loadProjects();
+        } catch (error) {
+            console.error('Error deleting project:', error);
+            toast({
+                title: "Error",
+                description: "Error deleting project"
+            });
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    const cancelDeleteProject = () => {
+        setShowDeleteAlert(false);
+        setProjectToDelete(null);
     };
 
     if (loadingProjects) {
@@ -155,8 +193,20 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             )}
 
             <div className="flex-1">
-                <ProjectsTable projects={projects} onProjectSelect={onProjectSelect} />
+                <ProjectsTable 
+                    projects={projects} 
+                    onProjectSelect={onProjectSelect}
+                    onDeleteProject={handleDeleteProject}
+                />
             </div>
+
+            <AlertDelete
+                isOpen={showDeleteAlert}
+                onClose={cancelDeleteProject}
+                onConfirm={confirmDeleteProject}
+                title={projectToDelete?.name || ""}
+                isDeleting={isDeleting}
+            />
         </div>
     );
 }

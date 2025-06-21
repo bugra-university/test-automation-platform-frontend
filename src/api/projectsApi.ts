@@ -47,5 +47,13 @@ export const projectsApi = {
             throw new Error(response.data.message ?? 'Project not found');
         }
         return response.data.project;
+    },
+
+    // Delete a project
+    deleteProject: async (id: number): Promise<void> => {
+        const response = await apiClient.delete<ProjectResponse>(`${API_URL}/${id}`);
+        if (!response.data.success) {
+            throw new Error(response.data.message ?? 'Failed to delete project');
+        }
     }
 };

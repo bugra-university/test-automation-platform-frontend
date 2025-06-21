@@ -72,11 +72,14 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
               <p className="text-left text-base text-gray-700">
                 Are you sure you want to delete "<span className="font-medium">{title}</span>"?
               </p>              <p className="text-left text-base text-gray-700 mt-2">
-                This will permanently remove the Excel file from the server storage.
+                This will permanently remove the project and all associated data including:
               </p>
-              <p className="text-left text-base text-blue-600 mt-2 font-medium">
-                Note: The database test data will remain intact.
-              </p>
+              <ul className="text-left text-sm text-gray-700 mt-2 ml-4 list-disc">
+                <li>All Excel files and sheets</li>
+                <li>Product backlog items and test cases</li>
+                <li>Test runs and results</li>
+                <li>Screenshots and attachments</li>
+              </ul>
               <p className="text-left text-base text-red-600 mt-2 font-medium">
                 This action cannot be undone.
               </p>

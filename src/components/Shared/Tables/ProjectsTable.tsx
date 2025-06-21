@@ -43,6 +43,7 @@ import { Project } from "../../../api/projectsApi";
 interface ProjectsTableProps {
   projects: Project[];
   onProjectSelect: (project: Project) => void;
+  onDeleteProject?: (project: Project) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -66,7 +67,7 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
-const columns: ColumnDef<Project>[] = [
+const createColumns = (onDeleteProject?: (project: Project) => void): ColumnDef<Project>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -174,9 +175,7 @@ const columns: ColumnDef<Project>[] = [
           title="Delete project"
           onClick={(e) => {
             e.stopPropagation();
-            // TODO: Delete functionality - NEEDS APPROVAL BEFORE IMPLEMENTATION
-            console.log('Delete project requested:', row.original.id);
-            alert('Delete functionality will be implemented in step 2 after backend analysis');
+            onDeleteProject?.(row.original);
           }}
         >
           <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,12 +189,14 @@ const columns: ColumnDef<Project>[] = [
   },
 ];
 
-export function ProjectsTable({ projects, onProjectSelect }: ProjectsTableProps) {
+export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: ProjectsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+
+  const columns = createColumns(onDeleteProject);
 
   const table = useReactTable({
     data: projects,
