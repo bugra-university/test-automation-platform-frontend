@@ -152,11 +152,11 @@ const createColumns = (onDeleteProject?: (project: Project) => void): ColumnDef<
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Actions</div>
+      <div className="text-sm font-medium text-gray-600 text-center">Actions</div>
     ),
     id: "actions",
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center gap-2">
         <button
           className="p-1 hover:bg-gray-100 rounded"
           title="Edit project"
@@ -229,38 +229,46 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: Pr
                       className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"
                     >
                       {header.isPlaceholder ? null : (
-                        <div
-                          className={cn(
-                            "flex items-center space-x-2",
-                            header.column.getCanSort() &&
-                              "cursor-pointer select-none hover:text-foreground",
-                          )}
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          <span>
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                          </span>
-                          {header.column.getCanSort() && (
-                            <div className="flex flex-col">
-                              <ChevronUp
-                                className={cn(
-                                  "h-3 w-3",
-                                  header.column.getIsSorted() === "asc"
-                                    ? "text-foreground"
-                                    : "text-muted-foreground/30",
-                                )}
-                              />
-                              <ChevronDown
-                                className={cn(
-                                  "h-3 w-3",
-                                  header.column.getIsSorted() === "desc"
-                                    ? "text-foreground"
-                                    : "text-muted-foreground/30",
-                                )}
-                              />
-                            </div>
-                          )}
-                        </div>
+                        header.column.id === "actions" ? (
+                          <div className="flex items-center justify-center w-full">
+                            <span>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            className={cn(
+                              "flex items-center space-x-2",
+                              header.column.getCanSort() &&
+                                "cursor-pointer select-none hover:text-foreground",
+                            )}
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            <span>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                            </span>
+                            {header.column.getCanSort() && (
+                              <div className="flex flex-col">
+                                <ChevronUp
+                                  className={cn(
+                                    "h-3 w-3",
+                                    header.column.getIsSorted() === "asc"
+                                      ? "text-foreground"
+                                      : "text-muted-foreground/30",
+                                  )}
+                                />
+                                <ChevronDown
+                                  className={cn(
+                                    "h-3 w-3",
+                                    header.column.getIsSorted() === "desc"
+                                      ? "text-foreground"
+                                      : "text-muted-foreground/30",
+                                  )}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )
                       )}
                     </TableHead>
                   );
