@@ -6,6 +6,7 @@ import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
 import { ReportsTab } from "../components/dashboard/Tabs/ReportsTab";
 import { SchedulesTab } from "../components/dashboard/Tabs/SchedulesTab";
+import { Project } from "@/api/projectsApi";
 
 import "../styles/dashboard/tabs/test-dashboard.css";
 import "../styles/dashboard/tabs/run-tests.css";
@@ -15,6 +16,8 @@ import "../styles/Layout/container-headers.css";
 
 interface TestDashboardProps {
   readonly activeTabFromHeader?: string;
+  readonly activeProject?: Project | null;
+  readonly setActiveProject?: (project: Project | null) => void;
   readonly showTable?: boolean;
   readonly setShowTable?: (show: boolean) => void;
   readonly setCurrentFileName?: (fileName: string) => void;
@@ -37,6 +40,8 @@ interface TestDashboardProps {
 
 export default function TestDashboard({ 
   activeTabFromHeader, 
+  activeProject,
+  setActiveProject,
   showTable, 
   setShowTable, 
   setCurrentFileName: externalSetCurrentFileName,
@@ -59,7 +64,7 @@ export default function TestDashboard({
     }  }, [activeTabFromHeader]);  const renderActiveTab = () => {
     switch (activeTab) {
       case "projects":
-        return <ProjectsTab />;
+        return <ProjectsTab onProjectSelect={setActiveProject || (() => {})} />;
       case "test-suites":
         return <TestSuitesTab />;      
       case "run-tests":

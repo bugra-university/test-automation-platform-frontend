@@ -19,10 +19,8 @@ import { RightHeaderActions } from '../components/Shared/MainLayout/components/R
 import { OptionsDropdownMenu } from '../components/Shared/MainLayout/components/OptionsDropdownMenu';
 import { InfoPanel } from '../components/Shared/MainLayout/components/InfoPanel';
 import { formatSaveTime } from '../components/Shared/MainLayout/utils/formatters';
-
-interface MainLayoutProps {
-  children: React.ReactNode;
-}
+import { uploadAndSaveExcel } from '../api/excelApi';
+import { useToast } from '../components/ui/UseToast';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -31,6 +29,8 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use custom hooks for state management
   const [state, actions] = useMainLayoutState();
   const { handleTabClick, handleRightTabClick } = useTabHandlers(state, actions);
+  const { toast } = useToast();
+
   // Load table statistics on component mount
   useEffect(() => {
     actions.loadTableStatistics();
@@ -54,6 +54,53 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
     }
   });
 
+  const handleSaveToDatabase = async () => {
+    // This needs to be implemented based on project selection logic.
+    const activeProjectId = state.activeProject?.id; 
+
+    if (!activeProjectId) {
+        toast({
+            title: "No Project Selected",
+            description: "Please select a project before saving.",
+        });
+        return;
+    }
+
+    if (!state.currentFile) {
+        toast({
+            title: "No File Selected",
+            description: "Please upload a file before saving.",
+        });
+        return;
+    }
+
+    actions.setIsSaving(true);
+    try {
+        const response = await uploadAndSaveExcel(activeProjectId, state.currentFile);
+        if (response.success) {
+            toast({
+                title: "Success",
+                description: response.message || "Data saved to database!",
+            });
+            actions.setLastSaveInfo({ status: 'success', timestamp: new Date(), message: response.message });
+        } else {
+            toast({
+                title: "Error Saving Data",
+                description: response.message || "An unknown error occurred.",
+            });
+            actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: response.message });
+        }
+    } catch (error: any) {
+        toast({
+            title: "Unhandled Error",
+            description: error.message || "An unexpected error occurred.",
+        });
+        actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: error.message });
+    } finally {
+        actions.setIsSaving(false);
+    }
+  };
+
   // Handle edit mode toggle
   const handleEditModeToggle = () => {
     if (state.showTable) {
@@ -65,6 +112,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
     if (React.isValidElement(child)) {
       return cloneElement(child as ReactElement<any>, { 
         activeTabFromHeader: state.activeTab,
+        activeProject: state.activeProject,
+        setActiveProject: actions.setActiveProject,
         showTable: state.showTable,
         setShowTable: actions.customSetShowTable,
         setCurrentFileName: actions.customSetCurrentFileName,
@@ -132,12 +181,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
               {state.activeRightTab === "test-results" && (
                 <InfoPanel
                   currentFileName={state.currentFileName}
+                  currentFile={state.currentFile}
                   showTable={state.showTable}
                   lastSaveInfo={state.lastSaveInfo}
                   isExcelEditMode={state.isExcelEditMode}
+                  isSaving={state.isSaving}
                   tableStats={state.tableStats}
                   loadingStats={state.loadingStats}
+                  activeProject={state.activeProject}
                   onEditModeToggle={handleEditModeToggle}
+                  onSaveToDatabase={handleSaveToDatabase}
+                  onProjectSelect={actions.setActiveProject}
                   formatSaveTime={formatSaveTime}
                   onDatabaseRefresh={actions.loadTableStatistics}
                 />

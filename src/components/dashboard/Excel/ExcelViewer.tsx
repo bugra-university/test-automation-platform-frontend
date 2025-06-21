@@ -775,7 +775,8 @@ export function ExcelViewer({
                 <tr>
                   <th className="row-number-header">
                     <span className="hash-symbol">#</span>
-                  </th>                  {/* Checkbox column header */}
+                  </th>
+                  {/* Checkbox column header */}
                   <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
                     <input 
                       type="checkbox" 
@@ -788,8 +789,10 @@ export function ExcelViewer({
                               data.every((_, idx) => selectedRows[idx])}
                       onChange={handleSelectAll}
                     />
-                  </th>                  {/* Dynamic column headers - skip the first one (#) since we're handling it separately */}
-                  {tableHeaders.slice(1).map((column, colIndex) => (                    <th 
+                  </th>
+                  {/* Dynamic column headers - skip the first one (#) since we're handling it separately */}
+                  {tableHeaders.slice(1).map((column, colIndex) => (
+                    <th 
                       key={column.id}
                       scope="col"
                       onClick={() => {
@@ -798,64 +801,72 @@ export function ExcelViewer({
                         }
                       }}
                       className={getHeaderClassName(colIndex, column)}
-                    >                    <div className="header-content">
-                      <span>{column.label}</span>
-                      {shouldShowSortIndicator(colIndex) && 
-                        <SortIndicator column={column.label} sortConfig={sortConfig} />
-                      }                    </div>
+                    >
+                      <div className="header-content">
+                        <span>{column.label}</span>
+                        {shouldShowSortIndicator(colIndex) && 
+                          <SortIndicator column={column.label} sortConfig={sortConfig} />
+                        }
+                      </div>
                     </th>
                   ))}
-              </tr>
-            </thead>
-            <tbody className="excel-table-body">              {data.length > 0 ? (
+                </tr>
+              </thead>
+              <tbody className="excel-table-body">
+                {data.length > 0 ? (
                 sortedData.map((row, idx) => {
                   // Create a stable key using row content
                   const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
                   return (
-                  <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
-                    {/* Row number column */}
-                    <td className="row-number">
-                      {idx + 1}                    </td>
-                    {/* Checkbox column */}
-                    <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-                      <input 
-                        type="checkbox" 
-                        className="regular-checkbox"
-                        id={`row-checkbox-${idx}`}
-                        aria-label={`Select row ${idx + 1}`}
-                        title={`Select row ${idx + 1}`}
-                        checked={!!selectedRows[idx]} 
-                        onChange={() => handleCheckboxToggle(idx)}
-                      />
-                    </td>                    {/* Data cells for other columns - now with merged cell support */}                    {tableHeaders.slice(1).map((column, colIndex) => {
-                      const mergeInfo = getMergeInfoForCell(idx, colIndex);
-                      const cellValue = getMergedCellValueByIndex(idx, colIndex);
-                      const className = getCellClassName(colIndex);
-
-                      return (
-                        <MergedCell
-                          key={`${idx}-${column.id}`}
-                          mergeInfo={mergeInfo}
-                          value={cellValue}
-                          className={className}
-                          isEditMode={isEditMode}
-                          isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
-                          editValue={editingValue}
-                          onCellClick={() => handleCellClick(idx, column.id, cellValue)}
-                          onValueChange={setEditingValue}
-                          onKeyDown={handleKeyDown}
+                    <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
+                      {/* Row number column */}
+                      <td className="row-number">
+                        {idx + 1}
+                      </td>
+                      {/* Checkbox column */}
+                      <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
+                        <input 
+                          type="checkbox" 
+                          className="regular-checkbox"
+                          id={`row-checkbox-${idx}`}
+                          aria-label={`Select row ${idx + 1}`}
+                          title={`Select row ${idx + 1}`}
+                          checked={!!selectedRows[idx]} 
+                          onChange={() => handleCheckboxToggle(idx)}
                         />
-                      );
-                    })}                  </tr>
+                      </td>
+                      {/* Data cells for other columns - now with merged cell support */}
+                      {tableHeaders.slice(1).map((column, colIndex) => {
+                        const mergeInfo = getMergeInfoForCell(idx, colIndex);
+                        const cellValue = getMergedCellValueByIndex(idx, colIndex);
+                        const className = getCellClassName(colIndex);
+
+                        return (
+                          <MergedCell
+                            key={`${idx}-${column.id}`}
+                            mergeInfo={mergeInfo}
+                            value={cellValue}
+                            className={className}
+                            isEditMode={isEditMode}
+                            isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
+                            editValue={editingValue}
+                            onCellClick={() => handleCellClick(idx, column.id, cellValue)}
+                            onValueChange={setEditingValue}
+                            onKeyDown={handleKeyDown}
+                          />
+                        );
+                      })}
+                    </tr>
                   );
                 })
               ) : (
                 <tr>
                   <td colSpan={tableHeaders.length + 1} className="text-center">
-                    No data found                  </td>
+                    No data found
+                  </td>
                 </tr>
               )}
-            </tbody>
+              </tbody>
           </table>
         </div>
       </div>

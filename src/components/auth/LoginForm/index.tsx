@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../../contexts/authContext';
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from '../../ui/button';
@@ -10,22 +9,37 @@ interface LoginFormProps {
   onSuccess?: () => void;
 }
 
-export function LoginForm({ onSuccess }: LoginFormProps) {  const { loginWithCredentials } = useAuth();
+export function LoginForm({ onSuccess }: LoginFormProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
     try {
-      await loginWithCredentials(username, password);
-      onSuccess?.();
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('username', data.username);
+        onSuccess?.();
+      } else {
+        setError(data.message || "Login failed. Please try again.");
+      }
     } catch (err) {
-      setError("We couldn't verify your credentials. Please try again.");
+      setError("Could not connect to the server. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +57,9 @@ export function LoginForm({ onSuccess }: LoginFormProps) {  const { loginWithCre
         </motion.div>
       )}
 
-      <div className="space-y-7">        <div>          <Label htmlFor="username" className="text-[16px] font-normal text-gray-700 mb-2 block">
+      <div className="space-y-7">
+        <div>
+          <Label htmlFor="username" className="text-[16px] font-normal text-gray-700 mb-2 block">
             Username or Email
           </Label>
           <div className="relative">

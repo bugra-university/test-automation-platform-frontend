@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { Project } from '../../../../api/projectsApi';
 
 export interface MainLayoutState {
     // Tab states
     activeTab: string;
     activeRightTab: string;
+    activeProject: Project | null;
 
     // Table states
     showTable: boolean;
@@ -15,6 +17,7 @@ export interface MainLayoutState {
     currentFileName: string;
     currentFile: File | null;
     isExcelEditMode: boolean;
+    isSaving: boolean;
 
     // Save and sync states
     lastSaveInfo: {
@@ -31,18 +34,21 @@ export interface MainLayoutState {
 export interface MainLayoutActions {
     setActiveTab: (tab: string) => void;
     setActiveRightTab: (tab: string) => void;
+    setActiveProject: (project: Project | null) => void;
     customSetShowTable: (value: boolean | ((prev: boolean) => boolean)) => void;
     customSetCurrentFileName: (fileName: string) => void;
     customSetCurrentFile: (file: File | null) => Promise<void>;
     setIsExcelEditMode: (value: boolean) => void;
+    setIsSaving: (saving: boolean) => void;
     setLastSaveInfo: (info: MainLayoutState['lastSaveInfo']) => void;
     loadTableStatistics: () => Promise<void>;
 }
 
 export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     // Initialize states with default values
-    const [activeTab, setActiveTab] = useState("tab1");
+    const [activeTab, setActiveTab] = useState("projects");
     const [activeRightTab, setActiveRightTab] = useState("test-results");
+    const [activeProject, setActiveProject] = useState<Project | null>(null);
     const [showTable, setShowTable] = useState(false);
     const [tabTableStates, setTabTableStates] = useState<{ [key: string]: boolean }>({});
     const [tabFileNames, setTabFileNames] = useState<{ [key: string]: string }>({});
@@ -50,6 +56,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const [currentFileName, setCurrentFileName] = useState<string>("");
     const [currentFile, setCurrentFile] = useState<File | null>(null);
     const [isExcelEditMode, setIsExcelEditMode] = useState<boolean>(false);
+    const [isSaving, setIsSaving] = useState<boolean>(false);
     const [lastSaveInfo, setLastSaveInfo] = useState<{
         status: 'success' | 'error' | null;
         timestamp: Date | null;
@@ -164,6 +171,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const state: MainLayoutState = {
         activeTab,
         activeRightTab,
+        activeProject,
         showTable,
         tabTableStates,
         tabFileNames,
@@ -171,6 +179,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         currentFileName,
         currentFile,
         isExcelEditMode,
+        isSaving,
         lastSaveInfo,
         tableStats,
         loadingStats
@@ -179,10 +188,12 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const actions: MainLayoutActions = {
         setActiveTab,
         setActiveRightTab,
+        setActiveProject,
         customSetShowTable,
         customSetCurrentFileName,
         customSetCurrentFile,
         setIsExcelEditMode,
+        setIsSaving,
         setLastSaveInfo,
         loadTableStatistics
     };

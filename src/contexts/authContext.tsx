@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/apiClient';
 import { User } from '../types/auth';
 
 type AuthContextType = {
@@ -67,14 +67,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const loginWithCredentials = useCallback(async (username: string, password: string) => {
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', { 
+      const response = await apiClient.post('/api/auth/login', { 
         username, 
         password 
       });
       
       if (response.status === 200) {
-        // Backend'den gelen token ve username'i al
-        const { token, username: returnedUsername } = response.data;
+        // Backend'den gelen username'i al
+        const { username: returnedUsername } = response.data;
         
         // User objesi oluştur
         const userData: User = {
@@ -89,9 +89,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           updatedAt: new Date().toISOString()
         };
         
-        // Token ve user bilgilerini localStorage'a kaydet
+        // User bilgilerini localStorage'a kaydet
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', token);
         
         setAuth(prev => ({
           ...prev,
@@ -99,6 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           user: userData,
         }));
         
+        console.log('Login successful, navigating to dashboard...', { isAuthenticated: true, user: userData });
         navigate('/');
       } else {
         throw new Error('Authentication failed');
