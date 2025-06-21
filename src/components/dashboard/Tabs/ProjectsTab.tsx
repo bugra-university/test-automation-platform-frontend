@@ -30,7 +30,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             setProjects(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error loading projects:', error);
-            setError('Projeler yüklenirken hata oluştu');
+            setError('Error loading projects');
             setProjects([]);
         } finally {
             setLoadingProjects(false);
@@ -41,8 +41,8 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
         e.preventDefault();
         if (!formData.name.trim()) {
             toast({
-                title: "Hata",
-                description: "Proje adı gerekli"
+                title: "Error",
+                description: "Project name is required"
             });
             return;
         }
@@ -51,8 +51,8 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             setLoading(true);
             await projectsApi.createProject(formData);
             toast({
-                title: "Başarılı",
-                description: "Proje başarıyla oluşturuldu"
+                title: "Success",
+                description: "Project created successfully"
             });
             setFormData({ name: '', description: '' });
             setShowCreateForm(false);
@@ -60,8 +60,8 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
         } catch (error) {
             console.error('Error creating project:', error);
             toast({
-                title: "Hata",
-                description: "Proje oluşturulurken hata oluştu"
+                title: "Error",
+                description: "Error creating project"
             });
         } finally {
             setLoading(false);
@@ -73,7 +73,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             <div className="flex items-center justify-center h-64">
                 <div className="flex items-center gap-2">
                     <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Projeler yükleniyor...</span>
+                    <span>Loading projects...</span>
                 </div>
             </div>
         );
@@ -84,7 +84,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             <div className="text-center py-8">
                 <div className="text-red-600 mb-4">{error}</div>
                 <Button onClick={loadProjects} variant="outline">
-                    Tekrar Dene
+                    Try Again
                 </Button>
             </div>
         );
@@ -95,40 +95,40 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                     <FolderKanban className="h-5 w-5" />
-                    <h2 className="text-lg font-semibold">Projeler</h2>
+                    <h2 className="text-lg font-semibold">Projects</h2>
                 </div>
                 <Button onClick={() => setShowCreateForm(true)} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Yeni Proje
+                    New Project
                 </Button>
             </div>
 
             {showCreateForm && (
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
-                    <h3 className="text-md font-medium mb-3">Yeni Proje Oluştur</h3>
+                    <h3 className="text-md font-medium mb-3">Create New Project</h3>
                     <form onSubmit={handleCreateProject} className="space-y-3">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Proje Adı
+                                Project Name
                             </label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Proje adını girin"
+                                placeholder="Enter project name"
                                 required
                             />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Açıklama
+                                Description
                             </label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Proje açıklamasını girin"
+                                placeholder="Enter project description"
                                 rows={3}
                             />
                         </div>
@@ -137,10 +137,10 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
                                 {loading ? (
                                     <>
                                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                        Oluşturuluyor...
+                                        Creating...
                                     </>
                                 ) : (
-                                    'Proje Oluştur'
+                                    'Create Project'
                                 )}
                             </Button>
                             <Button
@@ -148,7 +148,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
                                 variant="outline"
                                 onClick={() => setShowCreateForm(false)}
                             >
-                                İptal
+                                Cancel
                             </Button>
                         </div>
                     </form>
