@@ -36,7 +36,7 @@ export function MainNav() {
             </div>
           </div>
         </div>
-        <div className="flex items-center px-4 gap-4 h-full">
+        <div className="flex items-center gap-4 h-full" style={{ paddingRight: '2rem' }}>
           <button className="text-sm text-[#5f6368] hover:text-[#202124]">Help</button>
           <button className="text-sm text-[#5f6368] hover:text-[#202124]">Settings</button>
         </div>

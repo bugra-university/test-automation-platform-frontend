@@ -33,7 +33,7 @@ const Login: React.FC = () => {
     try {
       await loginWithCredentials(formData.username, formData.password);
     } catch (error: any) {
-      setError(error.response?.data?.message ?? 'Giriş yapılırken bir hata oluştu');
+      setError(error.response?.data?.message ?? 'An error occurred while signing in');
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +108,7 @@ const Login: React.FC = () => {
           </motion.div>          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Kullanıcı Adı
+                Username
               </label>
               <input
                 id="username"
@@ -118,13 +118,13 @@ const Login: React.FC = () => {
                 value={formData.username}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Kullanıcı adınızı girin"
+                placeholder="Enter your username"
               />
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Şifre
+                Password
               </label>
               <input
                 id="password"
@@ -134,7 +134,7 @@ const Login: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Şifrenizi girin"
+                placeholder="Enter your password"
               />
             </div>
 
@@ -149,7 +149,7 @@ const Login: React.FC = () => {
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 

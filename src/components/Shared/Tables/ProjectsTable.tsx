@@ -97,7 +97,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
       <div className="text-sm font-medium text-gray-600">Project Name</div>
     ),
     accessorKey: "name",
-    cell: ({ row }) => <div className="font-medium text-gray-600">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-medium text-blue-600">{row.getValue("name")}</div>,
     size: 250,
   },
   {

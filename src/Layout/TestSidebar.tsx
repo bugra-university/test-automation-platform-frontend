@@ -121,7 +121,7 @@ const TestSidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-md",
+                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full",
                 "transition-colors duration-150",
                 isActive 
                   ? "text-blue-600" 
@@ -150,7 +150,7 @@ const TestSidebar: React.FC = () => {
                 key={item.path}
                 to={item.path}
                 className={cn(
-                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-md",
+                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full",
                   "transition-colors duration-150",
                   isActive 
                     ? "text-blue-600" 
@@ -165,7 +165,7 @@ const TestSidebar: React.FC = () => {
         <div className="px-4 py-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-[#ededed] cursor-pointer transition-colors duration-150 hover:text-blue-600">
+              <div className="flex items-center gap-3 px-2 py-2 rounded-full hover:bg-[#ededed] cursor-pointer transition-colors duration-150 hover:text-blue-600">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user?.avatarUrl} alt={user?.name || "User"} />
                   <AvatarFallback className="bg-blue-100 text-blue-600 text-base">
