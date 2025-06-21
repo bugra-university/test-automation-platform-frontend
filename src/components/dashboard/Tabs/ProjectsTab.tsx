@@ -94,8 +94,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
         <div className="w-full bg-white h-full flex flex-col p-8">
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                    <FolderKanban className="h-5 w-5" />
-                    <h2 className="text-lg font-semibold">Projects</h2>
+                    <h2 className="text-lg font-medium text-gray-600">Projects</h2>
                 </div>
                 <Button onClick={() => setShowCreateForm(true)} className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -105,7 +104,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
 
             {showCreateForm && (
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
-                    <h3 className="text-md font-medium mb-3">Create New Project</h3>
+                    <h3 className="text-md font-medium text-gray-600 mb-3">Create New Project</h3>
                     <form onSubmit={handleCreateProject} className="space-y-3">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -115,7 +114,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder:text-sm placeholder:text-gray-400"
                                 placeholder="Enter project name"
                                 required
                             />
@@ -127,7 +126,7 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm placeholder:text-sm placeholder:text-gray-400"
                                 placeholder="Enter project description"
                                 rows={3}
                             />
