@@ -59,7 +59,7 @@ export const projectsApi = {
 
     // Update a project (only name and description)
     updateProject: async (id: number, data: { name: string; description: string }): Promise<Project> => {
-        const response = await apiClient.put<ProjectResponse>(`${API_URL}/${id}`, data);
+        const response = await apiClient.post<ProjectResponse>(`${API_URL}/${id}/update`, data);
         if (!response.data.success || !response.data.project) {
             throw new Error(response.data.message ?? 'Failed to update project');
         }

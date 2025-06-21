@@ -316,7 +316,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[70px] text-xs font-normal text-gray-400">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent>
