@@ -36,33 +36,48 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     // Check if user is already logged in (from localStorage)
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
-    
-    if (storedUser && storedToken) {
-      try {
-        const user = JSON.parse(storedUser);
+    const checkAuthStatus = () => {
+      const storedUser = localStorage.getItem('user');
+      const storedToken = localStorage.getItem('token');
+      
+      console.log('Checking auth status on page load:', { 
+        hasUser: !!storedUser, 
+        hasToken: !!storedToken 
+      });
+      
+      if (storedUser && storedToken) {
+        try {
+          const user = JSON.parse(storedUser);
+          console.log('Restoring user session:', user);
+          setAuth(prev => ({
+            ...prev,
+            isAuthenticated: true,
+            user,
+            loading: false,
+          }));
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('token');
+          setAuth(prev => ({
+            ...prev,
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+          }));
+        }
+      } else {
+        console.log('No stored auth data found');
         setAuth(prev => ({
           ...prev,
-          isAuthenticated: true,
-          user,
-          loading: false,
-        }));
-      } catch (error) {
-        console.error('Failed to parse stored user data:', error);
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
-        setAuth(prev => ({
-          ...prev,
+          isAuthenticated: false,
+          user: null,
           loading: false,
         }));
       }
-    } else {
-      setAuth(prev => ({
-        ...prev,
-        loading: false,
-      }));
-    }
+    };
+
+    checkAuthStatus();
   }, []);
 
   const loginWithCredentials = useCallback(async (username: string, password: string) => {
@@ -89,8 +104,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           updatedAt: new Date().toISOString()
         };
         
-        // User bilgilerini localStorage'a kaydet
+        // User bilgilerini ve token'ı localStorage'a kaydet
         localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', 'authenticated'); // Simple token for persistence
         
         setAuth(prev => ({
           ...prev,

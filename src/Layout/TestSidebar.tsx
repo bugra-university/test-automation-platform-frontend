@@ -107,38 +107,36 @@ const TestSidebar: React.FC = () => {
       .join("")
       .toUpperCase();
   };
-  return (    <div className="flex flex-col h-full w-full" id="main-test-sidebar">      <div className="flex-1">
-        {/* Header spacing to align with tab bar */}
-        <div className="h-12 border-b border-gray-200"></div>
-        
-        {/* Main Menu - aligned with tab content */}
-        <nav className="px-3 pt-4">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+  return (    <div className="flex flex-col h-full w-full" id="main-test-sidebar">      {/* Header spacing to align with tab bar */}
+      <div className="h-12 border-b border-gray-200"></div>
+      
+      {/* Main Menu - aligned with tab content */}
+      <nav className="px-3 pt-4 flex-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
 
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={cn(
-                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-md",
-                  "transition-colors duration-150",
-                  isActive 
-                    ? "text-blue-600" 
-                    : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                )}
-              >
-                <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
-                <span>{item.title}</span>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-md",
+                "transition-colors duration-150",
+                isActive 
+                  ? "text-blue-600" 
+                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+              )}
+            >
+              <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
+              <span>{item.title}</span>
+            </Link>
+          );
+        })}
+      </nav>
 
       {/* Bottom Section with thin separator */}
-      <div className="mt-auto">
+      <div className="pb-8">
         {/* Thin separator line */}
         <div className="mx-6 border-t border-gray-200 my-3"></div>
           {/* Bottom menu items */}
@@ -163,8 +161,8 @@ const TestSidebar: React.FC = () => {
                 <span>{item.title}</span>
               </Link>
             );
-          })}        </nav>{/* User Profile */}
-        <div className="px-4 py-3 mb-3 pb-12">
+          })}        </nav>        {/* User Profile */}
+        <div className="px-4 py-3 mb-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-blue-50 cursor-pointer transition-colors duration-150 hover:text-blue-600">
