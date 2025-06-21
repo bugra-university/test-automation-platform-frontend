@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Plus, FolderKanban, Loader2, Search } from "lucide-react";
+import { Plus, FolderKanban, Loader2 } from "lucide-react";
 import { projectsApi, type Project } from "../../../api/projectsApi";
 import { Button } from "../../ui/button";
 import { useToast } from "../../ui/UseToast";
+import { ProjectsTable } from "../../Shared/Tables/ProjectsTable";
 
 interface ProjectsTabProps {
     onProjectSelect: (project: Project) => void;
@@ -11,7 +12,6 @@ interface ProjectsTabProps {
 export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [showCreateForm, setShowCreateForm] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
     const [loadingProjects, setLoadingProjects] = useState(true);
     const [formData, setFormData] = useState({ name: '', description: '' });
     const [loading, setLoading] = useState(false);
@@ -25,11 +25,13 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
     const loadProjects = async () => {
         try {
             setLoadingProjects(true);
-            const fetchedProjects = await projectsApi.getProjects();
-            setProjects(fetchedProjects.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
-        } catch (err: any) {
-            console.error('Error loading projects:', err);
-            setError('Failed to load projects.');
+            setError(null);
+            const data = await projectsApi.getProjects();
+            setProjects(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error('Error loading projects:', error);
+            setError('Projeler yüklenirken hata oluştu');
+            setProjects([]);
         } finally {
             setLoadingProjects(false);
         }
@@ -38,97 +40,123 @@ export function ProjectsTab({ onProjectSelect }: ProjectsTabProps) {
     const handleCreateProject = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.name.trim()) {
-            setError('Project name is required.');
+            toast({
+                title: "Hata",
+                description: "Proje adı gerekli"
+            });
             return;
         }
-        setLoading(true);
-        setError(null);
+
         try {
-            const newProject = await projectsApi.createProject({
-                name: formData.name.trim(),
-                description: formData.description.trim()
+            setLoading(true);
+            await projectsApi.createProject(formData);
+            toast({
+                title: "Başarılı",
+                description: "Proje başarıyla oluşturuldu"
             });
-            setProjects(prev => [newProject, ...prev]);
-            setShowCreateForm(false);
             setFormData({ name: '', description: '' });
-            toast({ title: "Success", description: "Project created successfully." });
-        } catch (err: any) {
-            setError(err.message ?? 'Failed to create project');
+            setShowCreateForm(false);
+            loadProjects();
+        } catch (error) {
+            console.error('Error creating project:', error);
+            toast({
+                title: "Hata",
+                description: "Proje oluşturulurken hata oluştu"
+            });
         } finally {
             setLoading(false);
         }
     };
 
-    const filteredProjects = projects.filter(project =>
-        project.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
     if (loadingProjects) {
-        return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Projeler yükleniyor...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="text-center py-8">
+                <div className="text-red-600 mb-4">{error}</div>
+                <Button onClick={loadProjects} variant="outline">
+                    Tekrar Dene
+                </Button>
+            </div>
+        );
     }
 
     return (
-        <div className="p-4 h-full">
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold">Projects</h1>
-                <div className="flex items-center space-x-2">
-                    <Search className="h-5 w-5 text-gray-400" />
-                    <input
-                        type="text"
-                        placeholder="Search projects..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="p-2 border rounded"
-                    />
-                    <Button onClick={() => setShowCreateForm(true)}><Plus className="mr-2 h-4 w-4" /> New Project</Button>
+        <div className="w-full bg-white h-full flex flex-col p-8">
+            <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                    <FolderKanban className="h-5 w-5" />
+                    <h2 className="text-lg font-semibold">Projeler</h2>
                 </div>
+                <Button onClick={() => setShowCreateForm(true)} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Yeni Proje
+                </Button>
             </div>
 
-            {error && <p className="text-red-500">{error}</p>}
-
             {showCreateForm && (
-                <form onSubmit={handleCreateProject} className="mb-4 p-4 border rounded bg-gray-50">
-                    <h2 className="text-lg font-semibold mb-2">Create New Project</h2>
-                    <div className="space-y-2">
-                        <input
-                            type="text"
-                            placeholder="Project Name"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full p-2 border rounded"
-                            required
-                        />
-                        <textarea
-                            placeholder="Project Description"
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full p-2 border rounded"
-                        />
-                    </div>
-                    <div className="flex justify-end space-x-2 mt-2">
-                        <Button type="button" variant="ghost" onClick={() => setShowCreateForm(false)}>Cancel</Button>
-                        <Button type="submit" disabled={loading}>
-                            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Create
-                        </Button>
-                    </div>
-                </form>
+                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
+                    <h3 className="text-md font-medium mb-3">Yeni Proje Oluştur</h3>
+                    <form onSubmit={handleCreateProject} className="space-y-3">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Proje Adı
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Proje adını girin"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Açıklama
+                            </label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="Proje açıklamasını girin"
+                                rows={3}
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            <Button type="submit" disabled={loading}>
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                        Oluşturuluyor...
+                                    </>
+                                ) : (
+                                    'Proje Oluştur'
+                                )}
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowCreateForm(false)}
+                            >
+                                İptal
+                            </Button>
+                        </div>
+                    </form>
+                </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredProjects.map(project => (
-                    <div
-                        key={project.id}
-                        onClick={() => onProjectSelect(project)}
-                        className="p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
-                    >
-                        <div className="flex items-center">
-                            <FolderKanban className="h-6 w-6 mr-3 text-blue-500" />
-                            <h3 className="text-lg font-semibold">{project.name}</h3>
-                        </div>
-                        <p className="text-sm text-gray-500 mt-2 truncate">{project.description}</p>
-                    </div>
-                ))}
+            <div className="flex-1">
+                <ProjectsTable projects={projects} onProjectSelect={onProjectSelect} />
             </div>
         </div>
     );
