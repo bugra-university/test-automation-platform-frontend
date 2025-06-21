@@ -107,14 +107,12 @@ const TestSidebar: React.FC = () => {
       .join("")
       .toUpperCase();
   };
-  return (    <div className="flex flex-col h-screen bg-[#f6f6f6] w-64" id="main-test-sidebar">      <div className="flex-1">
-        {/* Logo or Brand */}
-        <div className="px-6 py-5">
-          {/* "Test Platform" text removed as requested */}
-        </div>
+  return (    <div className="flex flex-col h-full w-full" id="main-test-sidebar">      <div className="flex-1">
+        {/* Header spacing to align with tab bar */}
+        <div className="h-12 border-b border-gray-200"></div>
         
-        {/* Main Menu - with top padding to align with navbar bottom border */}
-        <nav className="px-3 mt-16">
+        {/* Main Menu - aligned with tab content */}
+        <nav className="px-3 pt-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;

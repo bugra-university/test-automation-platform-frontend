@@ -149,9 +149,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
       <MainNav />
       
       <div className="flex bg-[#f6f6f6] overflow-hidden main-content-wrapper">
-        <TestSidebar />
+        <div className="p-8 pr-4">
+          <div className="sidebar-container">
+            <TestSidebar />
+          </div>
+        </div>
         
-        <div className="flex flex-1 p-8 gap-4 min-w-0">
+        <div className="flex flex-1 p-8 pl-4 gap-4 min-w-0">
           <div className="flex-1 max-w-[calc(100%-380px)] min-w-0">
             <div className="left-container h-full">              <div className="container-header">
                 <div className="container-header-left ml-3">
