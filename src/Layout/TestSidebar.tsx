@@ -125,7 +125,7 @@ const TestSidebar: React.FC = () => {
                 "transition-colors duration-150",
                 isActive 
                   ? "text-blue-600" 
-                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-blue-100"
               )}
             >
               <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
@@ -136,7 +136,7 @@ const TestSidebar: React.FC = () => {
       </nav>
 
       {/* Bottom Section with thin separator */}
-      <div className="pb-8">
+      <div className="pt-48">
         {/* Thin separator line */}
         <div className="mx-6 border-t border-gray-200 my-3"></div>
           {/* Bottom menu items */}
@@ -154,7 +154,7 @@ const TestSidebar: React.FC = () => {
                   "transition-colors duration-150",
                   isActive 
                     ? "text-blue-600" 
-                    : "text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+                    : "text-gray-600 hover:text-blue-600 hover:bg-blue-100"
                 )}
               >
                 <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
@@ -162,10 +162,10 @@ const TestSidebar: React.FC = () => {
               </Link>
             );
           })}        </nav>        {/* User Profile */}
-        <div className="px-4 py-3 mb-3">
+        <div className="px-4 py-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-blue-50 cursor-pointer transition-colors duration-150 hover:text-blue-600">
+              <div className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-blue-100 cursor-pointer transition-colors duration-150 hover:text-blue-600">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={user?.avatarUrl} alt={user?.name || "User"} />
                   <AvatarFallback className="bg-blue-100 text-blue-600 text-base">
@@ -188,17 +188,17 @@ const TestSidebar: React.FC = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-200" />
               <DropdownMenuGroup className="bg-white">
-                <DropdownMenuItem onClick={() => navigate("/profile")} className="px-4 py-2 hover:bg-blue-50 hover:text-blue-600 cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate("/profile")} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")} className="px-4 py-2 hover:bg-blue-50 hover:text-blue-600 cursor-pointer">
+                <DropdownMenuItem onClick={() => navigate("/settings")} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-200" />
-              <DropdownMenuItem onClick={handleLogout} className="px-4 py-2 hover:bg-blue-50 hover:text-blue-600 cursor-pointer">
+              <DropdownMenuItem onClick={handleLogout} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
