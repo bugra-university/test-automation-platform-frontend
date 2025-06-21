@@ -55,5 +55,14 @@ export const projectsApi = {
         if (!response.data.success) {
             throw new Error(response.data.message ?? 'Failed to delete project');
         }
+    },
+
+    // Update a project (only name and description)
+    updateProject: async (id: number, data: { name: string; description: string }): Promise<Project> => {
+        const response = await apiClient.put<ProjectResponse>(`${API_URL}/${id}`, data);
+        if (!response.data.success || !response.data.project) {
+            throw new Error(response.data.message ?? 'Failed to update project');
+        }
+        return response.data.project;
     }
 };

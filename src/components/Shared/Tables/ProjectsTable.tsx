@@ -44,6 +44,7 @@ interface ProjectsTableProps {
   projects: Project[];
   onProjectSelect: (project: Project) => void;
   onDeleteProject?: (project: Project) => void;
+  onEditProject?: (project: Project) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -67,7 +68,7 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
-const createColumns = (onDeleteProject?: (project: Project) => void): ColumnDef<Project>[] => [
+const createColumns = (onDeleteProject?: (project: Project) => void, onEditProject?: (project: Project) => void): ColumnDef<Project>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -162,8 +163,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void): ColumnDef<
           title="Edit project"
           onClick={(e) => {
             e.stopPropagation();
-            // TODO: Edit functionality
-            console.log('Edit project:', row.original.id);
+            onEditProject?.(row.original);
           }}
         >
           <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,14 +189,14 @@ const createColumns = (onDeleteProject?: (project: Project) => void): ColumnDef<
   },
 ];
 
-export function ProjectsTable({ projects, onProjectSelect, onDeleteProject }: ProjectsTableProps) {
+export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject }: ProjectsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const columns = createColumns(onDeleteProject);
+  const columns = createColumns(onDeleteProject, onEditProject);
 
   const table = useReactTable({
     data: projects,
