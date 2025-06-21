@@ -55,10 +55,18 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
   });
 
   const handleSaveToDatabase = async () => {
-    // This needs to be implemented based on project selection logic.
     const activeProjectId = state.activeProject?.id; 
+    console.log('Save to database initiated', {
+        activeProject: state.activeProject,
+        currentFile: state.currentFile ? {
+            name: state.currentFile.name,
+            size: state.currentFile.size,
+            type: state.currentFile.type
+        } : null
+    });
 
     if (!activeProjectId) {
+        console.warn('No project selected');
         toast({
             title: "No Project Selected",
             description: "Please select a project before saving.",
@@ -67,6 +75,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
     }
 
     if (!state.currentFile) {
+        console.warn('No file selected');
         toast({
             title: "No File Selected",
             description: "Please upload a file before saving.",
@@ -76,14 +85,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
 
     actions.setIsSaving(true);
     try {
+        console.log('Starting file upload...');
         const response = await uploadAndSaveExcel(activeProjectId, state.currentFile);
+        console.log('Upload response:', response);
+        
         if (response.success) {
+            console.log('Upload successful');
             toast({
                 title: "Success",
                 description: response.message || "Data saved to database!",
             });
             actions.setLastSaveInfo({ status: 'success', timestamp: new Date(), message: response.message });
         } else {
+            console.error('Upload failed:', response.message);
             toast({
                 title: "Error Saving Data",
                 description: response.message || "An unknown error occurred.",
@@ -91,12 +105,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
             actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: response.message });
         }
     } catch (error: any) {
+        console.error('Unhandled error during save:', error);
         toast({
             title: "Unhandled Error",
             description: error.message || "An unexpected error occurred.",
         });
         actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: error.message });
     } finally {
+        console.log('Save operation completed');
         actions.setIsSaving(false);
     }
   };
