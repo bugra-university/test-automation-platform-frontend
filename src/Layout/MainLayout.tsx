@@ -215,6 +215,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                   onProjectSelect={actions.setActiveProject}
                   formatSaveTime={formatSaveTime}
                   onDatabaseRefresh={actions.loadTableStatistics}
+                  onDeleteExcel={actions.deleteExcel}
+                  onUploadNewExcel={actions.uploadNewExcel}
                 />
               )}
               {state.activeRightTab === "last-activity" && (

@@ -20,6 +20,8 @@ interface InfoPanelProps {
   onProjectSelect: (project: Project | null) => void;
   formatSaveTime: (timestamp: Date | null) => string;
   onDatabaseRefresh?: () => void;
+  onDeleteExcel?: (projectId: number) => void;
+  onUploadNewExcel?: () => void;
 }
 
 export const InfoPanel: React.FC<InfoPanelProps> = ({
@@ -36,7 +38,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   onSaveToDatabase,
   onProjectSelect,
   formatSaveTime,
-  onDatabaseRefresh
+  onDatabaseRefresh,
+  onDeleteExcel,
+  onUploadNewExcel
 }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(false);
@@ -170,11 +174,34 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       {currentFileName && (
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
           <h3 className="text-sm font-medium text-gray-900 mb-2">File Information</h3>
-          <div className="space-y-1 text-sm text-gray-600">
+          <div className="space-y-1 text-sm text-gray-600 mb-3">
             <div>Name: {currentFileName}</div>
             <div>Edit Mode: {isExcelEditMode ? 'Enabled' : 'Disabled'}</div>
             <div>Table View: {showTable ? 'Visible' : 'Hidden'}</div>
           </div>
+          
+          {/* File Actions */}
+          {activeProject && showTable && (
+            <div className="space-y-2">
+              <button
+                onClick={() => {
+                  if (window.confirm(`Are you sure you want to delete the Excel file and ALL related data for project "${activeProject.name}"?\n\nThis will permanently delete:\n• Excel file\n• All test cases\n• All backlog items\n• All test steps\n\nThis action cannot be undone!`)) {
+                    onDeleteExcel?.(activeProject.id);
+                  }
+                }}
+                className="w-full px-3 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md flex items-center justify-center"
+              >
+                🗑️ Delete Excel File
+              </button>
+              
+              <button
+                onClick={onUploadNewExcel}
+                className="w-full px-3 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-md flex items-center justify-center"
+              >
+                📁 Upload New Excel
+              </button>
+            </div>
+          )}
         </div>
       )}
 

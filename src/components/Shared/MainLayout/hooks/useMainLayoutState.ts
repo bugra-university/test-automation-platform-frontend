@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Project } from '../../../../api/projectsApi';
-import { getProjectExcel } from '../../../../api/excelApi';
+import { getProjectExcel, deleteProjectExcel } from '../../../../api/excelApi';
 
 export interface MainLayoutState {
     // Tab states
@@ -44,6 +44,8 @@ export interface MainLayoutActions {
     setLastSaveInfo: (info: MainLayoutState['lastSaveInfo']) => void;
     loadTableStatistics: () => Promise<void>;
     loadProjectExcelAndSwitchTab: (project: Project) => Promise<void>;
+    deleteExcel: (projectId: number) => Promise<void>;
+    uploadNewExcel: () => void;
 }
 
 export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
@@ -320,6 +322,72 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         localStorage.setItem('lastActiveTab', tab);
     };
 
+    // Delete Excel file and all related data
+    const deleteExcel = async (projectId: number) => {
+        try {
+            console.log('Deleting Excel for project:', projectId);
+            
+            const result = await deleteProjectExcel(projectId);
+            
+            if (result.success) {
+                // Clear all state related to Excel
+                setCurrentFile(null);
+                setCurrentFileName('');
+                setShowTable(false);
+                setIsExcelEditMode(false);
+                
+                // Clear tab states for this project
+                setTabTableStates(prev => ({
+                    ...prev,
+                    'run-tests': false
+                }));
+                
+                // Show success message
+                setLastSaveInfo({
+                    status: 'success',
+                    timestamp: new Date(),
+                    message: 'Excel file and all related data deleted successfully'
+                });
+                
+                console.log('Excel deletion successful:', result.message);
+            } else {
+                setLastSaveInfo({
+                    status: 'error',
+                    timestamp: new Date(),
+                    message: result.message || 'Failed to delete Excel file'
+                });
+                console.error('Excel deletion failed:', result.message);
+            }
+        } catch (error) {
+            console.error('Error deleting Excel:', error);
+            setLastSaveInfo({
+                status: 'error',
+                timestamp: new Date(),
+                message: 'Network error during deletion'
+            });
+        }
+    };
+
+      // Upload new Excel file (clear state and show upload screen)
+  const uploadNewExcel = () => {
+    // Clear current state first
+    setCurrentFile(null);
+    setCurrentFileName('');
+    setShowTable(false);
+    setIsExcelEditMode(false);
+    
+    // Clear tab states
+    setTabTableStates(prev => ({
+      ...prev,
+      'run-tests': false
+    }));
+    
+    // Switch to upload state
+    enhancedSetActiveTab('run-tests');
+    
+    console.log('Cleared state for new Excel upload');
+  };
+
     const actions: MainLayoutActions = {
         setActiveTab: enhancedSetActiveTab,
         setActiveRightTab,
@@ -331,7 +399,9 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         setIsSaving,
         setLastSaveInfo,
         loadTableStatistics,
-        loadProjectExcelAndSwitchTab
+        loadProjectExcelAndSwitchTab,
+        deleteExcel,
+        uploadNewExcel
     };
 
     return [state, actions];

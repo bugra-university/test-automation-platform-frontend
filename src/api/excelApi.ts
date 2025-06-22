@@ -89,4 +89,31 @@ export const getProjectExcel = async (projectId: number): Promise<ProjectExcelDa
         }
         throw error;
     }
+};
+
+export const deleteProjectExcel = async (projectId: number): Promise<UploadResponse> => {
+    try {
+        console.log('Deleting Excel data for project:', projectId);
+        const response = await apiClient.delete(`/api/projects/${projectId}/excel`);
+        console.log('Delete response:', response.data);
+        return response.data;
+    } catch (error: any) {
+        console.error('Delete error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            error: error.message
+        });
+        
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data.message || 'An unknown error occurred during deletion.',
+            };
+        }
+        return {
+            success: false,
+            message: error.message || 'Network error or server is not reachable.',
+        };
+    }
 }; 
