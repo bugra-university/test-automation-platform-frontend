@@ -21,6 +21,7 @@ import { InfoPanel } from '../components/Shared/MainLayout/components/InfoPanel'
 import { formatSaveTime } from '../components/Shared/MainLayout/utils/formatters';
 import { uploadAndSaveExcel } from '../api/excelApi';
 import { useToast } from '../components/ui/UseToast';
+import { ActionsPanel } from '../components/Shared/MainLayout/components/ActionsPanel';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -215,6 +216,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                   onProjectSelect={actions.setActiveProject}
                   formatSaveTime={formatSaveTime}
                   onDatabaseRefresh={actions.loadTableStatistics}
+                  onDeleteExcel={actions.deleteExcel}
+                  onUploadNewExcel={actions.uploadNewExcel}
+                />
+              )}
+              {state.activeRightTab === "actions" && (
+                <ActionsPanel
+                  currentFileName={state.currentFileName}
+                  currentFile={state.currentFile}
+                  showTable={state.showTable}
+                  isExcelEditMode={state.isExcelEditMode}
+                  isSaving={state.isSaving}
+                  activeProject={state.activeProject}
+                  onEditModeToggle={handleEditModeToggle}
+                  onSaveToDatabase={handleSaveToDatabase}
+                  onProjectSelect={actions.setActiveProject}
                   onDeleteExcel={actions.deleteExcel}
                   onUploadNewExcel={actions.uploadNewExcel}
                 />
