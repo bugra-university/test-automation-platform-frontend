@@ -107,7 +107,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               Selected: {activeProject.name}
             </div>
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
-              Owner: {activeProject.owner_username || 'Unknown'}
+              Owner: {activeProject.ownerUsername || 'Unknown'}
             </div>
             {activeProject.description && (
               <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
