@@ -38,14 +38,20 @@ export function RunTestsTab({
   setLastSaveInfo
 }: RunTestsTabProps = {}) {
   const [dragActive, setDragActive] = useState(false);
-  const [localFile, setLocalFile] = useState<File | null>(null);
-  const [localShowTable, setLocalShowTable] = useState(false);
-    // Use external state if provided, otherwise use local state
-  const showTable = externalShowTable ?? localShowTable;
-  const setShowTable = externalSetShowTable || setLocalShowTable;
-  const file = externalCurrentFile ?? localFile;
-  const setFile = setCurrentFile || setLocalFile;
   
+  // FORCE external state usage - no local state fallback
+  const showTable = externalShowTable || false;
+  const setShowTable = externalSetShowTable || (() => {});
+  const file = externalCurrentFile || null;
+  const setFile = setCurrentFile || (() => {});
+  
+  // DEBUG: Log state values
+  console.log('RunTestsTab:', {
+    showTable,
+    fileExists: !!file,
+    fileName: file?.name
+  });
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();

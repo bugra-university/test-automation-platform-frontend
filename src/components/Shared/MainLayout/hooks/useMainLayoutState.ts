@@ -71,11 +71,19 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const [tableStats, setTableStats] = useState<any>(null);
     const [loadingStats, setLoadingStats] = useState<boolean>(false);
 
-    // Load last active project from localStorage on mount
+    // Load last session state from localStorage on mount
     useEffect(() => {
-        const loadLastProject = async () => {
+        const loadLastSession = async () => {
             try {
                 const lastProjectData = localStorage.getItem('lastActiveProject');
+                const lastTabData = localStorage.getItem('lastActiveTab');
+                
+                // Restore last tab if exists, otherwise default to projects
+                if (lastTabData) {
+                    setActiveTab(lastTabData);
+                    console.log('Restored last active tab:', lastTabData);
+                }
+                
                 if (lastProjectData) {
                     const project = JSON.parse(lastProjectData);
                     console.log('Loading last active project from localStorage:', project);
@@ -83,39 +91,38 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
                     // Set active project first
                     setActiveProject(project);
                     
-                    // Try to load Excel data for this project
-                    const excelData = await getProjectExcel(project.id);
-                    
-                    if (excelData) {
-                        console.log('Excel data found for project:', project.name);
+                    // Only load Excel if we're on the backlog tab
+                    if (lastTabData === 'run-tests') {
+                        // Try to load Excel data for this project
+                        const excelData = await getProjectExcel(project.id);
                         
-                        // Convert Blob to File
-                        const file = new File([excelData.fileData], excelData.fileName, {
-                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                        });
-                        
-                        // Set file data
-                        setCurrentFile(file);
-                        setCurrentFileName(excelData.fileName);
-                        setShowTable(true);
-                        
-                        console.log('Setting showTable to true, file:', file.name);
-                        console.log('Switching to backlog tab...');
-                        // Switch to backlog tab
-                        setActiveTab('run-tests');
-                    } else {
-                        console.log('No Excel data found for project:', project.name);
-                        // Still switch to backlog tab but without Excel data
-                        setActiveTab('run-tests');
+                        if (excelData) {
+                            console.log('Excel data found for project:', project.name);
+                            
+                            // Convert Blob to File
+                            const file = new File([excelData.fileData], excelData.fileName, {
+                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            });
+                            
+                            // Set file data
+                            setCurrentFile(file);
+                            setCurrentFileName(excelData.fileName);
+                            setShowTable(true);
+                            
+                            console.log('Setting showTable to true, file:', file.name);
+                        } else {
+                            console.log('No Excel data found for project:', project.name);
+                        }
                     }
                 }
             } catch (error) {
-                console.error('Error loading last project:', error);
-                localStorage.removeItem('lastActiveProject'); // Clean up invalid data
+                console.error('Error loading last session:', error);
+                localStorage.removeItem('lastActiveProject');
+                localStorage.removeItem('lastActiveTab');
             }
         };
 
-        loadLastProject();
+        loadLastSession();
     }, []); // Only run on mount
 
     // Function to load database table statistics
@@ -158,21 +165,46 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
                 // Set file data
                 setCurrentFile(file);
                 setCurrentFileName(excelData.fileName);
-                setShowTable(true);
                 
                 console.log('loadProjectExcelAndSwitchTab: Setting showTable to true, file:', file.name);
+                console.log('showTable state after setting:', showTable);
                 console.log('Switching to backlog tab...');
-                // Switch to backlog tab
-                setActiveTab('run-tests');
+                
+                // Switch to backlog tab AND set state directly for run-tests tab
+                enhancedSetActiveTab('run-tests');
+                setTabTableStates(prev => ({
+                    ...prev,
+                    'run-tests': true
+                }));
+                setShowTable(true);
+                
+                console.log('Set run-tests tab state to true');
             } else {
                 console.log('No Excel data found for project:', project.name);
-                // Still switch to backlog tab but without Excel data
-                setActiveTab('run-tests');
+                // Clear any existing Excel data
+                setCurrentFile(null);
+                setCurrentFileName('');
+                
+                // Use customSetShowTable to save to tab states too
+                customSetShowTable(false);
+                
+                console.log('Cleared Excel data for project without files');
+                
+                // Switch to backlog tab AND clear state directly for run-tests tab
+                enhancedSetActiveTab('run-tests');
+                setTabTableStates(prev => ({
+                    ...prev,
+                    'run-tests': false
+                }));
+                setShowTable(false);
+                
+                console.log('Set run-tests tab state to false');
             }
         } catch (error) {
             console.error('Error loading project Excel:', error);
-            // Still switch to backlog tab even if Excel loading fails
-            setActiveTab('run-tests');
+            // Don't clear existing data on error - could be network issue
+            // Just switch to backlog tab
+            enhancedSetActiveTab('run-tests');
         }
     };
 
@@ -233,7 +265,9 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         };
     }, []);
 
-    // Restore tab state and file info when activeTab changes
+    // DISABLED: Tab state restoration - causing conflicts
+    // Will be re-implemented after fixing core state management
+    /*
     useEffect(() => {
         // When activeTab changes, restore the state for the new tab
         const newTabTableState = tabTableStates[activeTab];
@@ -261,6 +295,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
             setCurrentFile(null);
         }
     }, [activeTab, tabTableStates, tabFileNames, tabFiles]);
+    */
 
     const state: MainLayoutState = {
         activeTab,
@@ -279,8 +314,14 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         loadingStats
     };
 
+    // Enhanced setActiveTab that saves to localStorage
+    const enhancedSetActiveTab = (tab: string) => {
+        setActiveTab(tab);
+        localStorage.setItem('lastActiveTab', tab);
+    };
+
     const actions: MainLayoutActions = {
-        setActiveTab,
+        setActiveTab: enhancedSetActiveTab,
         setActiveRightTab,
         setActiveProject,
         customSetShowTable,

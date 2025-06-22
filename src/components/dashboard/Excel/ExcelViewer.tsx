@@ -712,6 +712,29 @@ export function ExcelViewer({
       window.removeEventListener('triggerExcelSave', handleSaveTrigger);
     };
   }, [modifiedData, file, handleSaveChanges]); // Dependencies for handleSaveChanges
+
+  // File validation after all hooks
+  if (!file) {
+    console.log('ExcelViewer: No file provided');
+    return (
+      <div className="w-full bg-white h-full flex flex-col p-8">
+        <div className="flex items-center justify-center flex-1">
+          <div className="text-center">
+            <h2 className="text-lg font-medium text-red-600 mb-4">No file provided</h2>
+            <button
+              onClick={onReturn}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Return
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  console.log('ExcelViewer: File provided:', file.name);
+
   // We'll only show the full-page loading spinner on initial load
   // For sheet changes, we'll handle the loading state differently
   if (loading && (!data.length || !sheetNames.length)) {
