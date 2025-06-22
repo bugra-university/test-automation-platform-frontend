@@ -233,6 +233,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                   onProjectSelect={actions.setActiveProject}
                   onDeleteExcel={actions.deleteExcel}
                   onUploadNewExcel={actions.uploadNewExcel}
+                  lastSaveInfo={state.lastSaveInfo}
+                  formatSaveTime={formatSaveTime}
                 />
               )}
               {state.activeRightTab === "last-activity" && (

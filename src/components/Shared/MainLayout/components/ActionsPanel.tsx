@@ -13,6 +13,12 @@ interface ActionsPanelProps {
   onProjectSelect: (project: Project | null) => void;
   onDeleteExcel?: (projectId: number) => void;
   onUploadNewExcel?: () => void;
+  lastSaveInfo: {
+    status: 'success' | 'error' | null;
+    timestamp: Date | null;
+    message?: string;
+  };
+  formatSaveTime: (timestamp: Date | null) => string;
 }
 
 export const ActionsPanel: React.FC<ActionsPanelProps> = ({
@@ -26,7 +32,9 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
   onSaveToDatabase,
   onProjectSelect,
   onDeleteExcel,
-  onUploadNewExcel
+  onUploadNewExcel,
+  lastSaveInfo,
+  formatSaveTime
 }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(false);
@@ -54,7 +62,7 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
       {/* Project Selection */}
       {showTable && currentFile && (
         <div className="p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-2">Select Target Project</h3>
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Select Target Project</h3>
           <div className="relative">
             <button
               onClick={() => setShowProjectDropdown(!showProjectDropdown)}
@@ -110,23 +118,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
             )}
           </div>
           
-          {activeProject && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="flex flex-wrap gap-y-2 gap-x-2">
-                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-blue-100 text-blue-800">
-                  Selected: {activeProject.name}
-                </div>
-                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
-                  Owner: {activeProject.owner_username || 'Unknown'}
-                </div>
-                {activeProject.description && (
-                  <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
-                    Description: {activeProject.description}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -135,34 +126,24 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
         <div className="mt-4 border-t border-gray-200"></div>
       )}
 
-      {/* File Information */}
-      {currentFileName && (
+      {/* Save Status */}
+      {showTable && (
         <div className="mt-4 p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">File Information</h3>
-          
-          {/* File Info Badges */}
-          <div className="flex flex-wrap gap-y-2 gap-x-2 mb-3">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Save Status</h3>
+          <div className="flex flex-wrap gap-y-2 gap-x-2">
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
-              Name: {currentFileName}
+              Status: {lastSaveInfo.status === 'success' ? 'Saved' : lastSaveInfo.status === 'error' ? 'Error' : 'Not saved'}
             </div>
-            <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-              isExcelEditMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              Edit Mode: {isExcelEditMode ? 'Enabled' : 'Disabled'}
-            </div>
-            <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-              showTable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              Table View: {showTable ? 'Visible' : 'Hidden'}
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
+              Last Save: {formatSaveTime(lastSaveInfo.timestamp)}
             </div>
           </div>
-          
         </div>
       )}
 
       {/* Actions - All buttons moved to bottom */}
       {showTable && (
-        <div className="mt-6 pt-4 border-t border-gray-200">
+        <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="p-3 rounded-lg">
             <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
             <div className="flex flex-wrap gap-2">
