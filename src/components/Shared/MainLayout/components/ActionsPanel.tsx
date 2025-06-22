@@ -163,7 +163,9 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
       {/* Actions - All buttons moved to bottom */}
       {showTable && (
         <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="flex flex-wrap gap-2">
+          <div className="p-3 rounded-lg">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
+            <div className="flex flex-wrap gap-2">
             {/* Edit Mode Toggle */}
             <button
               onClick={onEditModeToggle}
@@ -213,7 +215,8 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
               >
                 {isSaving ? 'Saving...' : !activeProject ? 'Select Project' : 'Save to DB'}
               </button>
-            )}
+                         )}
+            </div>
           </div>
         </div>
       )}

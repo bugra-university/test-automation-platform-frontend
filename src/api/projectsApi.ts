@@ -64,5 +64,16 @@ export const projectsApi = {
             throw new Error(response.data.message ?? 'Failed to update project');
         }
         return response.data.project;
+    },
+
+    // Get project database activity
+    getProjectDatabaseActivity: async (projectId: number) => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/database-activity`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching project database activity:', error);
+            throw error;
+        }
     }
 };
