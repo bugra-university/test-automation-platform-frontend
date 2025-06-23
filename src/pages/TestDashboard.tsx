@@ -71,7 +71,7 @@ export default function TestDashboard({
           loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
         />;
       case "test-suites":
-        return <TestSuitesTab />;      
+        return <TestSuitesTab activeProject={activeProject} />;      
       case "run-tests":
         // We need to get setCurrentFileName from props
         return <RunTestsTab 

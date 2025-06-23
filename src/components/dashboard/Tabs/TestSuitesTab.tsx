@@ -1,186 +1,8 @@
-import React, { useState } from "react";
-import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle } from 'lucide-react';
+import { testSuitesApi, TestSuite } from '../../../api/testSuitesApi';
 
-// Mock data based on actual Excel content
-const mockTestSuites = [
-  {
-    id: "US_01",
-    name: "User Registration to the Site",
-    description: "User registration to the Site (Customer)\n(Register)",
-    type: "user_story",
-    expanded: false,
-    status: "passed",
-    progress: { completed: 3, total: 5 },
-    lastRun: "2024-12-19",
-    duration: "2m 30s",
-    testCases: [
-      {
-        id: "TC01",
-        name: "Sign up when all areas are filled",
-        description: "Sign up when all areas are filled",
-        type: "test_case",
-        expanded: false,
-        status: "passed",
-        progress: { completed: 8, total: 8 },
-        lastRun: "2024-12-19",
-        duration: "45s",
-        steps: [
-          { id: 1, description: "Go to Site", status: "passed" },
-          { id: 2, description: "Click on the link", status: "passed" },
-          { id: 3, description: "Enter a username in the username box", status: "passed" },
-          { id: 4, description: "Enter an email to your email address box", status: "passed" },
-          { id: 5, description: "Enter a password in the password box", status: "passed" },
-          { id: 6, description: "I agree to privacy policy check box", status: "passed" },
-          { id: 7, description: "Click on Sign up button", status: "passed" },
-          { id: 8, description: "Validate the registration process", status: "passed" }
-        ]
-      },
-      {
-        id: "TC02",
-        name: "No registration without password",
-        description: "No registration is done without filling the password space",
-        type: "test_case",
-        expanded: false,
-        status: "passed",
-        progress: { completed: 8, total: 8 },
-        lastRun: "2024-12-19",
-        duration: "38s",
-        steps: [
-          { id: 1, description: "Go to Site", status: "passed" },
-          { id: 2, description: "Click on the link", status: "passed" },
-          { id: 3, description: "Empty the username box", status: "passed" },
-          { id: 4, description: "Enter an email to your email address box", status: "passed" },
-          { id: 5, description: "Enter a password in the password box", status: "passed" },
-          { id: 6, description: "I agree to privacy policy check box", status: "passed" },
-          { id: 7, description: "Click on Sign up button", status: "passed" },
-          { id: 8, description: "Verify that registration process does not happen", status: "passed" }
-        ]
-      },
-      {
-        id: "TC03",
-        name: "Registration with invalid email",
-        description: "Registration with invalid email format",
-        type: "test_case",
-        expanded: false,
-        status: "failed",
-        progress: { completed: 6, total: 8 },
-        lastRun: "2024-12-18",
-        duration: "42s",
-        steps: []
-      },
-      {
-        id: "TC04",
-        name: "Registration without privacy policy",
-        description: "Registration without accepting privacy policy",
-        type: "test_case",
-        expanded: false,
-        status: "blocked",
-        progress: { completed: 0, total: 7 },
-        lastRun: null,
-        duration: null,
-        steps: []
-      },
-      {
-        id: "TC05",
-        name: "Registration with weak password",
-        description: "Registration with password that doesn't meet requirements",
-        type: "test_case",
-        expanded: false,
-        status: "pending",
-        progress: { completed: 0, total: 8 },
-        lastRun: null,
-        duration: null,
-        steps: []
-      }
-    ]
-  },
-  {
-    id: "US_02",
-    name: "Login with Registered Information",
-    description: "The site should not be registered with the previously registered information.\n(Register)",
-    type: "user_story",
-    expanded: false,
-    status: "running",
-    progress: { completed: 1, total: 3 },
-    lastRun: "2024-12-19",
-    duration: "1m 15s",
-    testCases: [
-      {
-        id: "TC01",
-        name: "Sign up with a registered username",
-        description: "Sign up with a registered username",
-        type: "test_case",
-        expanded: false,
-        status: "passed",
-        progress: { completed: 6, total: 6 },
-        lastRun: "2024-12-19",
-        duration: "35s",
-        steps: []
-      },
-      {
-        id: "TC02",
-        name: "Not to log in with an unregistered User",
-        description: "Not to log in with an unregistered User",
-        type: "test_case",
-        expanded: false,
-        status: "running",
-        progress: { completed: 3, total: 6 },
-        lastRun: "2024-12-19",
-        duration: "20s",
-        steps: []
-      },
-      {
-        id: "TC03",
-        name: "Login with wrong password",
-        description: "Login with wrong password should fail",
-        type: "test_case",
-        expanded: false,
-        status: "pending",
-        progress: { completed: 0, total: 6 },
-        lastRun: null,
-        duration: null,
-        steps: []
-      }
-    ]
-  },
-  {
-    id: "US_03",
-    name: "User Billing Address",
-    description: "User Billing Address (. Address).\n(My Account - Addresssses - Billing Address)",
-    type: "user_story",
-    expanded: false,
-    status: "failed",
-    progress: { completed: 0, total: 2 },
-    lastRun: "2024-12-18",
-    duration: "0s",
-    testCases: [
-      {
-        id: "TC01",
-        name: "Add valid billing address",
-        description: "Add valid billing address with all required fields",
-        type: "test_case",
-        expanded: false,
-        status: "failed",
-        progress: { completed: 4, total: 8 },
-        lastRun: "2024-12-18",
-        duration: "1m 02s",
-        steps: []
-      },
-      {
-        id: "TC02",
-        name: "Add billing address without required fields",
-        description: "Attempt to add billing address without required fields",
-        type: "test_case",
-        expanded: false,
-        status: "pending",
-        progress: { completed: 0, total: 6 },
-        lastRun: null,
-        duration: null,
-        steps: []
-      }
-    ]
-  }
-];
+// Test Suites API integration complete - using real data from database
 
 const getStatusIcon = (status: string) => {
   switch (status) {
@@ -215,7 +37,13 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const TestSuitesTable = () => {
+interface TestSuitesTableProps {
+  testSuites: TestSuite[];
+  onRunTestSuite: (userStoryId: string) => void;
+  onRunTestCase: (testCaseId: number) => void;
+}
+
+const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase }: TestSuitesTableProps) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (id: string) => {
@@ -284,7 +112,11 @@ const TestSuitesTable = () => {
                   <Square className="h-4 w-4 text-red-600" />
                 </button>
               ) : (
-                <button className="p-1 hover:bg-gray-100 rounded" title="Run">
+                <button 
+                  onClick={() => onRunTestSuite(userStory.id)}
+                  className="p-1 hover:bg-gray-100 rounded" 
+                  title="Run"
+                >
                   <Play className="h-4 w-4 text-green-600" />
                 </button>
               )}
@@ -363,7 +195,11 @@ const TestSuitesTable = () => {
                   <Square className="h-3 w-3 text-red-600" />
                 </button>
               ) : (
-                <button className="p-1 hover:bg-gray-100 rounded" title="Run">
+                <button 
+                  onClick={() => onRunTestCase(Number(testCase.id))}
+                  className="p-1 hover:bg-gray-100 rounded" 
+                  title="Run"
+                >
                   <Play className="h-3 w-3 text-green-600" />
                 </button>
               )}
@@ -373,6 +209,12 @@ const TestSuitesTable = () => {
               <button className="p-1 hover:bg-gray-100 rounded" title="Edit">
                 <Edit className="h-3 w-3 text-gray-600" />
               </button>
+              {/* Warning icon for incomplete test cases */}
+              {!testCase.hasSteps && (
+                <span className="text-yellow-500" title="Test steps not defined">
+                  <AlertTriangle className="h-3 w-3" />
+                </span>
+              )}
             </div>
           </td>
         </tr>
@@ -451,7 +293,7 @@ const TestSuitesTable = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {mockTestSuites.map(userStory => renderUserStory(userStory))}
+            {testSuites.map(userStory => renderUserStory(userStory))}
           </tbody>
         </table>
       </div>
@@ -459,17 +301,151 @@ const TestSuitesTable = () => {
   );
 };
 
-export function TestSuitesTab() {
+interface TestSuitesTabProps {
+  activeProject?: {
+    id: number;
+    name: string;
+  } | null;
+}
+
+export function TestSuitesTab({ activeProject }: TestSuitesTabProps) {
+  const [testSuites, setTestSuites] = useState<TestSuite[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadTestSuites = async (projectId: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await testSuitesApi.getTestSuites(projectId);
+      if (response.success) {
+        setTestSuites(response.testSuites);
+      } else {
+        setError(response.message || 'Failed to load test suites');
+      }
+    } catch (error) {
+      console.error('Error loading test suites:', error);
+      setError('Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeProject?.id) {
+      loadTestSuites(activeProject.id);
+    } else {
+      // No project selected - clear data
+      setTestSuites([]);
+      setError(null);
+    }
+  }, [activeProject?.id]);
+
+  const handleRunTestSuite = async (userStoryId: string) => {
+    if (!activeProject?.id) return;
+    
+    try {
+      const response = await testSuitesApi.runTestSuite(activeProject.id, userStoryId);
+      if (response.success) {
+        console.log('Test suite started:', response.runResult);
+        // TODO: Update UI to show running status
+      }
+    } catch (error) {
+      console.error('Error running test suite:', error);
+    }
+  };
+
+  const handleRunTestCase = async (testCaseId: number) => {
+    if (!activeProject?.id) return;
+    
+    try {
+      const response = await testSuitesApi.runTestCase(activeProject.id, testCaseId);
+      if (response.success) {
+        console.log('Test case started:', response.runResult);
+        // TODO: Update UI to show running status
+      }
+    } catch (error) {
+      console.error('Error running test case:', error);
+    }
+  };
+
+  // Show empty state if no project selected
+  if (!activeProject) {
+    return (
+      <div className="w-full bg-white h-full flex flex-col p-8">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Test Suites</h2>
+          <p className="text-gray-600 text-sm">
+            Manage and execute your test suites. Each User Story contains multiple Test Cases with detailed test steps.
+          </p>
+        </div>
+        
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Project Selected</h3>
+            <p className="text-gray-600 text-sm max-w-sm">
+              Please select a project from the Projects tab to view and manage test suites.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-white h-full flex flex-col p-8">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Test Suites</h2>
         <p className="text-gray-600 text-sm">
-          Manage and execute your test suites. Each User Story contains multiple Test Cases with detailed test steps.
+          Manage and execute your test suites for project: <span className="font-medium text-blue-600">{activeProject.name}</span>
         </p>
       </div>
       
-      <TestSuitesTable />
+      {loading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading test suites...</p>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-red-600" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Test Suites</h3>
+            <p className="text-red-600 text-sm mb-4">{error}</p>
+            <button 
+              onClick={() => activeProject?.id && loadTestSuites(activeProject.id)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      ) : testSuites.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No Test Suites Found</h3>
+            <p className="text-gray-600 text-sm max-w-sm">
+              This project doesn't have any test suites yet. Upload an Excel file with test cases to get started.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <TestSuitesTable 
+          testSuites={testSuites}
+          onRunTestSuite={handleRunTestSuite}
+          onRunTestCase={handleRunTestCase}
+        />
+      )}
     </div>
   );
 }
