@@ -60,9 +60,8 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
   return (
     <div className="p-4">
       {/* Project Selection */}
-      {showTable && currentFile && (
-        <div className="p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Select Target Project</h3>
+      <div className="p-3 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Select Target Project</h3>
           <div className="relative">
             <button
               onClick={() => setShowProjectDropdown(!showProjectDropdown)}
@@ -119,7 +118,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
           </div>
           
         </div>
-      )}
 
       {/* Divider */}
       {showTable && currentFile && activeProject && (
@@ -127,26 +125,23 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
       )}
 
       {/* Save Status */}
-      {showTable && (
-        <div className="mt-4 p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Save Status</h3>
-          <div className="flex flex-wrap gap-y-2 gap-x-2">
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
-              Status: {lastSaveInfo.status === 'success' ? 'Saved' : lastSaveInfo.status === 'error' ? 'Error' : 'Not saved'}
-            </div>
-            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
-              Last Save: {formatSaveTime(lastSaveInfo.timestamp)}
-            </div>
+      <div className="mt-4 p-3 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Save Status</h3>
+        <div className="flex flex-wrap gap-y-2 gap-x-2">
+          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
+            Status: {lastSaveInfo.status === 'success' ? 'Saved' : lastSaveInfo.status === 'error' ? 'Error' : 'Not saved'}
+          </div>
+          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
+            Last Save: {formatSaveTime(lastSaveInfo.timestamp)}
           </div>
         </div>
-      )}
+      </div>
 
       {/* Actions - All buttons moved to bottom */}
-      {showTable && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="p-3 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
-            <div className="flex flex-wrap gap-2">
+      <div className="mt-4 pt-4 border-t border-gray-200">
+        <div className="p-3 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
+          <div className="flex flex-wrap gap-2">
             {/* Edit Mode Toggle */}
             <button
               onClick={onEditModeToggle}
@@ -200,7 +195,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
             </div>
           </div>
         </div>
-      )}
     </div>
   );
 }; 

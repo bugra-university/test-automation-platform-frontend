@@ -124,26 +124,71 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       )}
 
       {/* File Information */}
-      {currentFileName && (
-        <div className="mt-4 p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">File Information</h3>
-          
-          {/* File Info Badges */}
-          <div className="flex flex-wrap gap-y-2 gap-x-2">
+      <div className="mt-4 p-3 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">File Information</h3>
+        
+        {/* File Info Badges */}
+        <div className="flex flex-wrap gap-y-2 gap-x-2">
+          {currentFileName ? (
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
               Name: {currentFileName}
             </div>
-            <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-              isExcelEditMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              Edit Mode: {isExcelEditMode ? 'Enabled' : 'Disabled'}
+          ) : (
+            <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-600">
+              No file selected
             </div>
-            <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-              showTable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-            }`}>
-              Table View: {showTable ? 'Visible' : 'Hidden'}
-            </div>
+          )}
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
+            isExcelEditMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+          }`}>
+            Edit Mode: {isExcelEditMode ? 'Enabled' : 'Disabled'}
           </div>
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
+            showTable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+          }`}>
+            Table View: {showTable ? 'Visible' : 'Hidden'}
+          </div>
+        </div>
+      </div>
+
+      {/* Database Activity */}
+      {activeProject && (
+        <div className="mt-4 p-3 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Database Activity</h3>
+          
+          {loadingActivity ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="text-xs text-gray-500">Loading activity...</div>
+            </div>
+          ) : databaseActivity?.error ? (
+            <div className="text-xs text-red-500">{databaseActivity.error}</div>
+          ) : databaseActivity ? (
+            <div className="flex flex-wrap gap-y-2 gap-x-2">
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-blue-100 text-blue-800">
+                Project Created: {formatDatabaseDate(databaseActivity.projectCreatedAt)}
+              </div>
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
+                Last Updated: {formatDatabaseDate(databaseActivity.projectUpdatedAt)}
+              </div>
+              {databaseActivity.hasExcelFile && (
+                <>
+                  <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-green-100 text-green-800">
+                    Excel Parsed: {formatDatabaseDate(databaseActivity.lastExcelParseDate)}
+                  </div>
+                  <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-purple-100 text-purple-800">
+                    File Modified: {formatDatabaseDate(databaseActivity.excelLastModified)}
+                  </div>
+                </>
+              )}
+              {!databaseActivity.hasExcelFile && (
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-yellow-100 text-yellow-800">
+                  No Excel file uploaded
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-500">No activity data available</div>
+          )}
         </div>
       )}
     </div>
