@@ -177,21 +177,28 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
             </button>
 
             {/* Save to Database */}
-            {currentFile && (
-              <button
-                onClick={onSaveToDatabase}
-                disabled={isSaving || !currentFile || !activeProject}
-                className={`px-3 py-1 text-xs font-medium rounded-full ${
-                  !activeProject 
+            <button
+              onClick={onSaveToDatabase}
+              disabled={isSaving || !currentFile || !activeProject}
+              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                !currentFile
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : !activeProject 
                     ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
                     : isSaving 
                       ? 'bg-green-200 text-green-700 cursor-not-allowed'
                       : 'bg-green-100 text-green-700 hover:bg-green-200'
-                }`}
-              >
-                {isSaving ? 'Saving...' : !activeProject ? 'Select Project' : 'Save to DB'}
-              </button>
-                         )}
+              }`}
+            >
+              {isSaving 
+                ? 'Saving...' 
+                : !currentFile 
+                  ? 'Select File' 
+                  : !activeProject 
+                    ? 'Select Project' 
+                    : 'Save to DB'
+              }
+            </button>
             </div>
           </div>
         </div>

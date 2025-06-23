@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Project, projectsApi } from '../../../../api/projectsApi';
+import { testSuitesApi } from '../../../../api/testSuitesApi';
 
 interface InfoPanelProps {
   currentFileName: string;
@@ -33,6 +34,15 @@ interface DatabaseActivity {
   error?: string;
 }
 
+interface TestSuitesStats {
+  totalStories: number;
+  totalTestCases: number;
+  passedCount: number;
+  failedCount: number;
+  pendingCount: number;
+  notRunCount: number;
+}
+
 export const InfoPanel: React.FC<InfoPanelProps> = ({
   currentFileName,
   currentFile,
@@ -53,13 +63,17 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 }) => {
   const [databaseActivity, setDatabaseActivity] = useState<DatabaseActivity | null>(null);
   const [loadingActivity, setLoadingActivity] = useState(false);
+  const [testSuitesStats, setTestSuitesStats] = useState<TestSuitesStats | null>(null);
+  const [loadingTestStats, setLoadingTestStats] = useState(false);
 
-  // Fetch database activity when project changes
+  // Fetch database activity and test suites stats when project changes
   useEffect(() => {
     if (activeProject) {
       fetchDatabaseActivity();
+      fetchTestSuitesStats();
     } else {
       setDatabaseActivity(null);
+      setTestSuitesStats(null);
     }
   }, [activeProject]);
 
@@ -78,6 +92,24 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       console.error('Error fetching database activity:', error);
     } finally {
       setLoadingActivity(false);
+    }
+  };
+
+  const fetchTestSuitesStats = async () => {
+    if (!activeProject) return;
+    
+    setLoadingTestStats(true);
+    try {
+      const response = await testSuitesApi.getTestSuitesStatistics(activeProject.id);
+      if (response.success) {
+        setTestSuitesStats(response.statistics);
+      } else {
+        console.error('Failed to fetch test suites statistics:', response.message);
+      }
+    } catch (error) {
+      console.error('Error fetching test suites statistics:', error);
+    } finally {
+      setLoadingTestStats(false);
     }
   };
 
@@ -119,8 +151,8 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       )}
 
       {/* Divider */}
-      {activeProject && showTable && (
-        <div className="mt-4 border-t border-gray-200"></div>
+      {activeProject && (
+        <hr className="my-4 border-gray-200" />
       )}
 
       {/* File Information */}
@@ -150,6 +182,9 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Divider */}
+      <hr className="my-4 border-gray-200" />
 
       {/* Database Activity */}
       {activeProject && (
@@ -188,6 +223,66 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             </div>
           ) : (
             <div className="text-xs text-gray-500">No activity data available</div>
+          )}
+        </div>
+      )}
+
+      {/* Divider */}
+      {activeProject && (
+        <hr className="my-4 border-gray-200" />
+      )}
+
+      {/* Test Suites Information */}
+      {activeProject && (
+        <div className="mt-4 p-3 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Test Suites</h3>
+          
+          {loadingTestStats ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="text-xs text-gray-500">Loading statistics...</div>
+            </div>
+          ) : testSuitesStats ? (
+            <div className="flex flex-wrap gap-y-2 gap-x-2">
+              {/* Total Stories */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-blue-100 text-blue-800">
+                Stories: {testSuitesStats.totalStories}
+              </div>
+              
+              {/* Total Test Cases */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-purple-100 text-purple-800">
+                Test Cases: {testSuitesStats.totalTestCases}
+              </div>
+              
+              {/* Passed */}
+              {testSuitesStats.passedCount > 0 && (
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-green-100 text-green-800">
+                  Passed: {testSuitesStats.passedCount}
+                </div>
+              )}
+              
+              {/* Failed */}
+              {testSuitesStats.failedCount > 0 && (
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-red-100 text-red-800">
+                  Failed: {testSuitesStats.failedCount}
+                </div>
+              )}
+              
+              {/* Pending */}
+              {testSuitesStats.pendingCount > 0 && (
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-yellow-100 text-yellow-800">
+                  Pending: {testSuitesStats.pendingCount}
+                </div>
+              )}
+              
+              {/* Not Run */}
+              {testSuitesStats.notRunCount > 0 && (
+                <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
+                  Not Run: {testSuitesStats.notRunCount}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-xs text-gray-500">No test data available</div>
           )}
         </div>
       )}

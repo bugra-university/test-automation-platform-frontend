@@ -142,5 +142,29 @@ export const testSuitesApi = {
             console.error('Error running test case:', error);
             throw error;
         }
+    },
+
+    /**
+     * Get test suites statistics for a project
+     */
+    getTestSuitesStatistics: async (projectId: number): Promise<{
+        success: boolean;
+        statistics: {
+            totalStories: number;
+            totalTestCases: number;
+            passedCount: number;
+            failedCount: number;
+            pendingCount: number;
+            notRunCount: number;
+        };
+        message?: string;
+    }> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/statistics`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching test suites statistics:', error);
+            throw error;
+        }
     }
 }; 
