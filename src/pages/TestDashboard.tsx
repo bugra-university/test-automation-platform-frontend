@@ -37,6 +37,10 @@ interface TestDashboardProps {
   }) => void;
   readonly loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
   readonly onLogout?: () => void;
+  readonly testConfig?: {
+    isHeadless: boolean;
+    browser: string;
+  };
 }
 
 export default function TestDashboard({ 
@@ -52,7 +56,8 @@ export default function TestDashboard({
   setIsExcelEditMode,
   lastSaveInfo,  setLastSaveInfo,
   loadProjectExcelAndSwitchTab,
-  onLogout
+  onLogout,
+  testConfig
 }: TestDashboardProps) {
   const [activeTab, setActiveTab] = useState("projects");
   
@@ -71,7 +76,10 @@ export default function TestDashboard({
           loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
         />;
       case "test-suites":
-        return <TestSuitesTab activeProject={activeProject} />;      
+        return <TestSuitesTab 
+          selectedProjectId={activeProject?.id || null} 
+          testConfig={testConfig || { isHeadless: false, browser: 'chrome' }} 
+        />;      
       case "run-tests":
         // We need to get setCurrentFileName from props
         return <RunTestsTab 

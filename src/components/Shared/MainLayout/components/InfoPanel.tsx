@@ -100,12 +100,16 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
     
     setLoadingTestStats(true);
     try {
-      const response = await testSuitesApi.getTestSuitesStatistics(activeProject.id);
-      if (response.success) {
-        setTestSuitesStats(response.statistics);
-      } else {
-        console.error('Failed to fetch test suites statistics:', response.message);
-      }
+      const statistics = await testSuitesApi.getTestSuitesStatistics(activeProject.id);
+      // Map API response to local interface
+      setTestSuitesStats({
+        totalStories: statistics.totalStories,
+        totalTestCases: statistics.totalTestCases,
+        passedCount: statistics.statusCounts.passed,
+        failedCount: statistics.statusCounts.failed,
+        pendingCount: statistics.statusCounts.pending,
+        notRunCount: statistics.statusCounts.not_run
+      });
     } catch (error) {
       console.error('Error fetching test suites statistics:', error);
     } finally {

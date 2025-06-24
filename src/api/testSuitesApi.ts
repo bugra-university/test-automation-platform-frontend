@@ -67,6 +67,11 @@ export interface TestStepsResponse {
     message?: string;
 }
 
+export interface TestConfiguration {
+    isHeadless: boolean;
+    browser: string;
+}
+
 export interface RunTestResponse {
     success: boolean;
     message: string;
@@ -75,6 +80,38 @@ export interface RunTestResponse {
         testCaseId?: number;
         status: string;
         startTime: string;
+        configuration?: TestConfiguration;
+    };
+}
+
+export interface TestExecutionResult {
+    executionId?: string;
+    status: string;
+    startTime: string;
+    endTime?: string;
+    message: string;
+    configuration: TestConfiguration;
+    async?: boolean;
+}
+
+export interface ExecutionStatus {
+    found: boolean;
+    status?: string;
+    startTime?: string;
+    endTime?: string;
+    output?: string;
+    configuration?: TestConfiguration;
+    message?: string;
+}
+
+export interface TestSuitesStatistics {
+    totalStories: number;
+    totalTestCases: number;
+    statusCounts: {
+        passed: number;
+        failed: number;
+        pending: number;
+        not_run: number;
     };
 }
 
@@ -119,11 +156,11 @@ export const testSuitesApi = {
     },
 
     /**
-     * Run a test suite (User Story)
+     * Run a test suite (User Story) with configuration
      */
-    runTestSuite: async (projectId: number, userStoryId: string): Promise<RunTestResponse> => {
+    runTestSuite: async (projectId: number, userStoryId: string, config?: TestConfiguration): Promise<RunTestResponse> => {
         try {
-            const response = await apiClient.post(`${API_URL}/${projectId}/test-suites/${userStoryId}/run`);
+            const response = await apiClient.post(`${API_URL}/${projectId}/test-suites/${userStoryId}/run`, config);
             return response.data;
         } catch (error) {
             console.error('Error running test suite:', error);
@@ -132,11 +169,11 @@ export const testSuitesApi = {
     },
 
     /**
-     * Run a specific test case
+     * Run a specific test case with configuration
      */
-    runTestCase: async (projectId: number, testCaseId: number): Promise<RunTestResponse> => {
+    runTestCase: async (projectId: number, testCaseId: string, config?: TestConfiguration): Promise<RunTestResponse> => {
         try {
-            const response = await apiClient.post(`${API_URL}/${projectId}/test-suites/test-cases/${testCaseId}/run`);
+            const response = await apiClient.post(`${API_URL}/${projectId}/test-suites/test-cases/${testCaseId}/run`, config);
             return response.data;
         } catch (error) {
             console.error('Error running test case:', error);
@@ -145,26 +182,134 @@ export const testSuitesApi = {
     },
 
     /**
-     * Get test suites statistics for a project
+     * Download latest test report for a project
      */
-    getTestSuitesStatistics: async (projectId: number): Promise<{
-        success: boolean;
-        statistics: {
-            totalStories: number;
-            totalTestCases: number;
-            passedCount: number;
-            failedCount: number;
-            pendingCount: number;
-            notRunCount: number;
-        };
-        message?: string;
-    }> => {
+    downloadLatestReport: async (projectId: number): Promise<Blob> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/reports/latest/download`, {
+                responseType: 'blob'
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error downloading test report:', error);
+            throw error;
+        }
+    },
+
+    getExecutionStatus: async (projectId: number, executionId: string): Promise<ExecutionStatus> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/executions/${executionId}/status`);
+            return response.data.executionStatus;
+        } catch (error) {
+            console.error('Error fetching execution status:', error);
+            throw error;
+        }
+    },
+
+    getTestSuitesStatistics: async (projectId: number): Promise<TestSuitesStatistics> => {
         try {
             const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/statistics`);
-            return response.data;
+            return response.data.statistics;
         } catch (error) {
             console.error('Error fetching test suites statistics:', error);
             throw error;
         }
+    },
+
+    downloadLatestReportWithUI: async (projectId: number): Promise<void> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/reports/latest/download`, {
+                responseType: 'blob'
+            });
+            
+            // Create download link
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Extract filename from response headers or use default
+            const contentDisposition = response.headers['content-disposition'];
+            let filename = 'test-report.html';
+            if (contentDisposition && contentDisposition.includes('filename=')) {
+                filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+            }
+            
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading test report:', error);
+            throw error;
+        }
+    },
+
+    // Real-time execution tracking utilities
+    pollExecutionStatus: async (
+        projectId: number, 
+        executionId: string, 
+        onStatusUpdate: (status: ExecutionStatus) => void,
+        intervalMs: number = 2000,
+        maxAttempts: number = 60 // 2 minutes with 2 second intervals
+    ): Promise<void> => {
+        let attempts = 0;
+        
+        const poll = async () => {
+            try {
+                const status = await testSuitesApi.getExecutionStatus(projectId, executionId);
+                onStatusUpdate(status);
+                
+                // Continue polling if test is still running
+                if (status.found && status.status === 'RUNNING' && attempts < maxAttempts) {
+                    attempts++;
+                    setTimeout(poll, intervalMs);
+                }
+            } catch (error) {
+                console.error('Error polling execution status:', error);
+                onStatusUpdate({
+                    found: false,
+                    message: 'Failed to get execution status'
+                });
+            }
+        };
+        
+        // Start polling
+        poll();
+    },
+
+    // Start execution and return polling function
+    startTestSuiteWithPolling: async (
+        projectId: number,
+        userStoryId: string,
+        config: TestConfiguration,
+        onStatusUpdate: (status: ExecutionStatus) => void
+    ): Promise<{ executionId: string; result: RunTestResponse }> => {
+        const result = await testSuitesApi.runTestSuite(projectId, userStoryId, config);
+        
+        // Extract execution ID from result (we'll need to modify backend to return this)
+        const executionId = `${projectId}_${userStoryId}_${Date.now()}`;
+        
+        // Start polling for status updates
+        testSuitesApi.pollExecutionStatus(projectId, executionId, onStatusUpdate);
+        
+        return { executionId, result };
+    },
+
+    startTestCaseWithPolling: async (
+        projectId: number,
+        testCaseId: string,
+        config: TestConfiguration,
+        onStatusUpdate: (status: ExecutionStatus) => void
+    ): Promise<{ executionId: string; result: RunTestResponse }> => {
+        const result = await testSuitesApi.runTestCase(projectId, testCaseId, config);
+        
+        // Extract execution ID from result
+        const executionId = `${projectId}_TC_${testCaseId}_${Date.now()}`;
+        
+        // Start polling for status updates
+        testSuitesApi.pollExecutionStatus(projectId, executionId, onStatusUpdate);
+        
+        return { executionId, result };
     }
 }; 

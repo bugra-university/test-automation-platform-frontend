@@ -19,6 +19,11 @@ interface ActionsPanelProps {
     message?: string;
   };
   formatSaveTime: (timestamp: Date | null) => string;
+  testConfig: {
+    isHeadless: boolean;
+    browser: string;
+  };
+  onTestConfigChange: (config: { isHeadless: boolean; browser: string }) => void;
 }
 
 export const ActionsPanel: React.FC<ActionsPanelProps> = ({
@@ -34,11 +39,25 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
   onDeleteExcel,
   onUploadNewExcel,
   lastSaveInfo,
-  formatSaveTime
+  formatSaveTime,
+  testConfig,
+  onTestConfigChange
 }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(false);
   const [showProjectDropdown, setShowProjectDropdown] = useState<boolean>(false);
+
+  // Use testConfig from props instead of local state
+  const isHeadlessMode = testConfig.isHeadless;
+  const selectedBrowser = testConfig.browser;
+
+  const setIsHeadlessMode = (value: boolean) => {
+    onTestConfigChange({ ...testConfig, isHeadless: value });
+  };
+
+  const setSelectedBrowser = (value: string) => {
+    onTestConfigChange({ ...testConfig, browser: value });
+  };
 
   // Load projects when component mounts
   useEffect(() => {
@@ -137,10 +156,73 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
         </div>
       </div>
 
+      {/* Divider */}
+      <hr className="my-4 border-gray-200" />
+
+      {/* Test Configuration */}
+      <div className="p-3 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Test Configuration</h3>
+        
+        {/* Browser Mode Toggle */}
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-700 mb-2 block">Browser Mode</label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsHeadlessMode(true)}
+              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                isHeadlessMode
+                  ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Headless
+            </button>
+            <button
+              onClick={() => setIsHeadlessMode(false)}
+              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                !isHeadlessMode
+                  ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Show Browser
+            </button>
+          </div>
+        </div>
+
+        {/* Browser Selection */}
+        <div className="mb-3">
+          <label className="text-xs font-medium text-gray-700 mb-2 block">Browser Type</label>
+          <select
+            value={selectedBrowser}
+            onChange={(e) => setSelectedBrowser(e.target.value)}
+            className="w-full px-3 py-1.5 text-xs bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="chrome">Chrome</option>
+            <option value="firefox">Firefox</option>
+            <option value="edge">Edge</option>
+          </select>
+        </div>
+
+        {/* Current Settings Display */}
+        <div className="flex flex-wrap gap-2">
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
+            isHeadlessMode ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+          }`}>
+            Mode: {isHeadlessMode ? 'Headless' : 'Visible'}
+          </div>
+          <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
+            Browser: {selectedBrowser.charAt(0).toUpperCase() + selectedBrowser.slice(1)}
+          </div>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <hr className="my-4 border-gray-200" />
+
       {/* Actions - All buttons moved to bottom */}
-      <div className="mt-4 pt-4 border-t border-gray-200">
-        <div className="p-3 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
+      <div className="p-3 rounded-lg">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
           <div className="flex flex-wrap gap-2">
             {/* Edit Mode Toggle */}
             <button
@@ -199,7 +281,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
                     : 'Save to DB'
               }
             </button>
-            </div>
           </div>
         </div>
     </div>

@@ -140,7 +140,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
         setIsExcelEditMode: actions.setIsExcelEditMode,
         lastSaveInfo: state.lastSaveInfo,
         setLastSaveInfo: actions.setLastSaveInfo,
-        loadProjectExcelAndSwitchTab: actions.loadProjectExcelAndSwitchTab
+        loadProjectExcelAndSwitchTab: actions.loadProjectExcelAndSwitchTab,
+        testConfig: state.testConfig
       });
     }
     return child;
@@ -235,6 +236,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
                   onUploadNewExcel={actions.uploadNewExcel}
                   lastSaveInfo={state.lastSaveInfo}
                   formatSaveTime={formatSaveTime}
+                  testConfig={state.testConfig}
+                  onTestConfigChange={actions.setTestConfig}
                 />
               )}
               {state.activeRightTab === "last-activity" && (

@@ -30,6 +30,12 @@ export interface MainLayoutState {
     // Database states
     tableStats: any;
     loadingStats: boolean;
+
+    // Test configuration states
+    testConfig: {
+        isHeadless: boolean;
+        browser: string;
+    };
 }
 
 export interface MainLayoutActions {
@@ -46,6 +52,7 @@ export interface MainLayoutActions {
     loadProjectExcelAndSwitchTab: (project: Project) => Promise<void>;
     deleteExcel: (projectId: number) => Promise<void>;
     uploadNewExcel: () => void;
+    setTestConfig: (config: { isHeadless: boolean; browser: string }) => void;
 }
 
 export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
@@ -72,6 +79,10 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
 
     const [tableStats, setTableStats] = useState<any>(null);
     const [loadingStats, setLoadingStats] = useState<boolean>(false);
+    const [testConfig, setTestConfig] = useState<{ isHeadless: boolean; browser: string }>({
+        isHeadless: false,  // Changed to false for visible browser by default
+        browser: 'chrome'
+    });
 
     // Load last session state from localStorage on mount
     useEffect(() => {
@@ -313,7 +324,8 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         isSaving,
         lastSaveInfo,
         tableStats,
-        loadingStats
+        loadingStats,
+        testConfig
     };
 
     // Enhanced setActiveTab that saves to localStorage
@@ -401,7 +413,8 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         loadTableStatistics,
         loadProjectExcelAndSwitchTab,
         deleteExcel,
-        uploadNewExcel
+        uploadNewExcel,
+        setTestConfig
     };
 
     return [state, actions];
