@@ -380,12 +380,27 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
       const execution = newMap.get(executionId);
       
       if (execution) {
-        execution.status = status.status === 'COMPLETED' ? 'completed' : 
-                          status.status === 'FAILED' ? 'failed' : 'running';
+        const newStatus = status.status === 'COMPLETED' ? 'completed' : 
+                         status.status === 'FAILED' ? 'failed' : 'running';
+        execution.status = newStatus;
         execution.output = status.output;
         
         if (status.endTime) {
           execution.endTime = new Date(status.endTime);
+        }
+        
+        // Update test case status in UI
+        if (execution.type === 'test_case' && newStatus !== 'running') {
+          const uiStatus = newStatus === 'completed' ? 'passed' : 'failed';
+          setTestSuites(current => current.map(suite => ({
+            ...suite,
+            testCases: suite.testCases.map(tc =>
+              tc.id === execution.targetId
+                ? { ...tc, status: uiStatus as any }
+                : tc
+            )
+          })));
+          console.log(`✅ Updated test case ${execution.targetId} status to: ${uiStatus}`);
         }
         
         // Remove from tracking if completed

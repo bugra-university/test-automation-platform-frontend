@@ -206,6 +206,26 @@ export const testSuitesApi = {
         }
     },
 
+    getTestRunStatus: async (projectId: number, testRunId: number): Promise<any> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/test-runs/${testRunId}/status`);
+            return response.data.testRunStatus;
+        } catch (error) {
+            console.error('Error fetching test run status:', error);
+            throw error;
+        }
+    },
+
+    getLatestTestRuns: async (projectId: number): Promise<any> => {
+        try {
+            const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/test-runs/latest`);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching latest test runs:', error);
+            throw error;
+        }
+    },
+
     getTestSuitesStatistics: async (projectId: number): Promise<TestSuitesStatistics> => {
         try {
             const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/statistics`);
@@ -307,9 +327,74 @@ export const testSuitesApi = {
         // Extract execution ID from result
         const executionId = `${projectId}_TC_${testCaseId}_${Date.now()}`;
         
-        // Start polling for status updates
-        testSuitesApi.pollExecutionStatus(projectId, executionId, onStatusUpdate);
+        // Start polling for test runs (database-based polling)
+        testSuitesApi.pollLatestTestRuns(projectId, testCaseId, onStatusUpdate);
         
         return { executionId, result };
+    },
+
+    // Poll latest test runs to find test case execution status
+    pollLatestTestRuns: async (
+        projectId: number,
+        testCaseId: string,
+        onStatusUpdate: (status: ExecutionStatus) => void,
+        intervalMs: number = 3000,
+        maxAttempts: number = 40 // 2 minutes with 3 second intervals
+    ): Promise<void> => {
+        let attempts = 0;
+        
+        const poll = async () => {
+            try {
+                const response = await testSuitesApi.getLatestTestRuns(projectId);
+                const testRuns = response.testRuns || [];
+                
+                // Find test run for this test case
+                const relevantRun = testRuns.find((run: any) => {
+                    const params = run.parameters || {};
+                    return params.testCaseId === testCaseId;
+                });
+                
+                if (relevantRun) {
+                    // Convert database status to ExecutionStatus format
+                    const status: ExecutionStatus = {
+                        found: true,
+                        status: relevantRun.status, // RUNNING, COMPLETED, FAILED
+                        startTime: relevantRun.startTime,
+                        endTime: relevantRun.endTime,
+                        output: `Test run ID: ${relevantRun.id}`,
+                        configuration: relevantRun.parameters
+                    };
+                    
+                    onStatusUpdate(status);
+                    
+                    // Continue polling if test is still running
+                    if (relevantRun.status === 'RUNNING' && attempts < maxAttempts) {
+                        attempts++;
+                        setTimeout(poll, intervalMs);
+                    } else if (relevantRun.status === 'COMPLETED' || relevantRun.status === 'FAILED') {
+                        console.log(`✅ Test polling completed. Final status: ${relevantRun.status}`);
+                    }
+                } else if (attempts < maxAttempts) {
+                    // Test run not found yet, keep polling
+                    attempts++;
+                    setTimeout(poll, intervalMs);
+                } else {
+                    // Max attempts reached
+                    onStatusUpdate({
+                        found: false,
+                        message: 'Test run not found after polling timeout'
+                    });
+                }
+            } catch (error) {
+                console.error('Error polling latest test runs:', error);
+                onStatusUpdate({
+                    found: false,
+                    message: 'Failed to poll test run status'
+                });
+            }
+        };
+        
+        // Start polling after a short delay to allow test run creation
+        setTimeout(poll, 1000);
     }
 }; 
