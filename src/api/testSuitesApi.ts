@@ -39,6 +39,7 @@ export interface TestCase {
 
 export interface TestStep {
     id: number;
+    stepNumber: number;
     description: string;
     status: 'passed' | 'failed' | 'running' | 'blocked' | 'pending';
     progress?: {

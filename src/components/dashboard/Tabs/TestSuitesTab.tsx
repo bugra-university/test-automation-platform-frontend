@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle, Download, CheckCircle, XCircle, Clock, Loader } from 'lucide-react';
 import { testSuitesApi, TestSuite, ExecutionStatus, TestExecutionEvent, SSEConnectionManager } from '../../../api/testSuitesApi';
+import { stepTrackingApi, StepExecutionEvent, StepSSEConnectionManager } from '../../../api/stepTrackingApi';
 
 // Test Suites API integration complete - using real data from database
 
@@ -329,6 +330,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
 
   // SSE Connection Management
   const sseManagerRef = useRef<SSEConnectionManager | null>(null);
+  const stepSSEManagerRef = useRef<StepSSEConnectionManager | null>(null);
 
   const loadTestSuites = async (projectId: number) => {
     setIsLoading(true);
@@ -348,6 +350,80 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
       setIsLoading(false);
     }
   };
+
+  // Handle real-time step execution events
+  const handleStepExecutionEvent = useCallback((event: StepExecutionEvent) => {
+    console.log('[TestSuitesTab] Received Step SSE event:', event.eventType, event.data);
+
+    switch (event.eventType) {
+      case 'step_connected':
+        console.log('[TestSuitesTab] Step tracking connected successfully');
+        break;
+
+      case 'step_started':
+        if (event.data.testCaseId && event.data.stepNumber) {
+          setTestSuites(prev => prev.map(suite => ({
+            ...suite,
+            testCases: suite.testCases.map(tc =>
+              tc.id === String(event.data.testCaseId)
+                ? {
+                    ...tc,
+                    steps: tc.steps?.map(step =>
+                      step.stepNumber === event.data.stepNumber
+                        ? { ...step, status: 'running' as const }
+                        : step
+                    ) || tc.steps
+                  }
+                : tc
+            )
+          })));
+        }
+        break;
+
+      case 'step_completed':
+        if (event.data.testCaseId && event.data.stepNumber) {
+          setTestSuites(prev => prev.map(suite => ({
+            ...suite,
+            testCases: suite.testCases.map(tc =>
+              tc.id === String(event.data.testCaseId)
+                ? {
+                    ...tc,
+                    steps: tc.steps?.map(step =>
+                      step.stepNumber === event.data.stepNumber
+                        ? { ...step, status: 'passed' as const }
+                        : step
+                    ) || tc.steps
+                  }
+                : tc
+            )
+          })));
+        }
+        break;
+
+      case 'step_failed':
+        if (event.data.testCaseId && event.data.stepNumber) {
+          setTestSuites(prev => prev.map(suite => ({
+            ...suite,
+            testCases: suite.testCases.map(tc =>
+              tc.id === String(event.data.testCaseId)
+                ? {
+                    ...tc,
+                    steps: tc.steps?.map(step =>
+                      step.stepNumber === event.data.stepNumber
+                        ? { ...step, status: 'failed' as const }
+                        : step
+                    ) || tc.steps
+                  }
+                : tc
+            )
+          })));
+        }
+        break;
+
+      default:
+        console.log('[TestSuitesTab] Unknown step event type:', event.eventType);
+    }
+  }, []);
 
   // Handle real-time test execution events
   const handleTestExecutionEvent = useCallback((event: TestExecutionEvent) => {
@@ -403,13 +479,19 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   // Set up SSE connection when project changes
   useEffect(() => {
     if (selectedProjectId) {
-      console.log('[TestSuitesTab] Setting up SSE connection for project:', selectedProjectId);
+      // console.log('[TestSuitesTab] Setting up SSE connection for project:', selectedProjectId);
       
       // Create SSE manager
       sseManagerRef.current = testSuitesApi.createEventStream(selectedProjectId, handleTestExecutionEvent);
       
       // Connect to SSE
       sseManagerRef.current.connect(selectedProjectId, handleTestExecutionEvent);
+
+      // Create Step SSE manager
+      stepSSEManagerRef.current = stepTrackingApi.createStepEventStream(selectedProjectId, handleStepExecutionEvent);
+      
+      // Connect to Step SSE
+      stepSSEManagerRef.current.connect(selectedProjectId, handleStepExecutionEvent);
       
       // Load initial data
       loadTestSuites(selectedProjectId);
@@ -419,6 +501,13 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
         console.log('[TestSuitesTab] Disconnecting SSE');
         sseManagerRef.current.disconnect();
         sseManagerRef.current = null;
+      }
+
+      // Disconnect Step SSE
+      if (stepSSEManagerRef.current) {
+        console.log('[TestSuitesTab] Disconnecting Step SSE');
+        stepSSEManagerRef.current.disconnect();
+        stepSSEManagerRef.current = null;
       }
       
       // Clear data
@@ -433,8 +522,14 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
         sseManagerRef.current.disconnect();
         sseManagerRef.current = null;
       }
+
+      if (stepSSEManagerRef.current) {
+        console.log('[TestSuitesTab] Cleanup: Disconnecting Step SSE');
+        stepSSEManagerRef.current.disconnect();
+        stepSSEManagerRef.current = null;
+      }
     };
-  }, [selectedProjectId, handleTestExecutionEvent]);
+      }, [selectedProjectId, handleTestExecutionEvent, handleStepExecutionEvent]);
 
   // Remove polling and execution tracking related code since we use SSE now
 
