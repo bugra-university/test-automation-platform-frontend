@@ -11,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
+// Excel viewer styles for consistent look
+import "../../../styles/dashboard/excel-viewer/index.css";
 import {
   Table,
   TableBody,
@@ -74,19 +76,19 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     header: ({ table }) => (
       <input
         type="checkbox"
+        className="regular-checkbox"
         checked={table.getIsAllPageRowsSelected()}
         onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
         aria-label="Select all"
-        className="h-4 w-4"
       />
     ),
     cell: ({ row }) => (
       <input
         type="checkbox"
+        className="regular-checkbox"
         checked={row.getIsSelected()}
         onChange={(e) => row.toggleSelected(e.target.checked)}
         aria-label="Select row"
-        className="h-4 w-4"
       />
     ),
     size: 28,
@@ -94,19 +96,27 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Project Name</div>
+      <div className="header-content">
+        <span>PROJECT NAME</span>
+      </div>
     ),
     accessorKey: "name",
-    cell: ({ row }) => <div className="font-medium text-blue-600">{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="cell-content font-medium text-blue-600">
+        {row.getValue("name")}
+      </div>
+    ),
     size: 250,
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Description</div>
+      <div className="header-content">
+        <span>DESCRIPTION</span>
+      </div>
     ),
     accessorKey: "description",
     cell: ({ row }) => (
-      <div className="max-w-xs truncate text-gray-600">
+      <div className="cell-content text-gray-600">
         {row.getValue("description") || "No description"}
       </div>
     ),
@@ -114,11 +124,13 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Created Date</div>
+      <div className="header-content">
+        <span>CREATED DATE</span>
+      </div>
     ),
     accessorKey: "createdAt",
     cell: ({ row }) => (
-      <div className="text-sm text-gray-500">
+      <div className="cell-content text-gray-500">
         {formatDate(row.getValue("createdAt"))}
       </div>
     ),
@@ -126,11 +138,13 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Updated Date</div>
+      <div className="header-content">
+        <span>UPDATED DATE</span>
+      </div>
     ), 
     accessorKey: "updatedAt",
     cell: ({ row }) => (
-      <div className="text-sm text-gray-500">
+      <div className="cell-content text-gray-500">
         {formatDate(row.getValue("updatedAt"))}
       </div>
     ),
@@ -138,50 +152,58 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600">Status</div>
+      <div className="header-content">
+        <span>STATUS</span>
+      </div>
     ),
     accessorKey: "status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string || "Active";
       return (
-        <Badge className={cn(getStatusBadgeClass(status))}>
-          {status}
-        </Badge>
+        <div className="cell-content">
+          <Badge className={cn(getStatusBadgeClass(status))}>
+            {status}
+          </Badge>
+        </div>
       );
     },
     size: 120,
   },
   {
     header: ({ column }) => (
-      <div className="text-sm font-medium text-gray-600 text-center">Actions</div>
+      <div className="header-content">
+        <span>ACTIONS</span>
+      </div>
     ),
     id: "actions",
     cell: ({ row }) => (
-      <div className="flex items-center justify-center gap-2">
-        <button
-          className="p-1 hover:bg-gray-100 rounded"
-          title="Edit project"
-          onClick={(e) => {
-            e.stopPropagation();
-            onEditProject?.(row.original);
-          }}
-        >
-          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-        <button
-          className="p-1 hover:bg-gray-100 rounded"
-          title="Delete project"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeleteProject?.(row.original);
-          }}
-        >
-          <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+      <div className="cell-content">
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="p-1 hover:bg-gray-100 rounded"
+            title="Edit project"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditProject?.(row.original);
+            }}
+          >
+            <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+          <button
+            className="p-1 hover:bg-gray-100 rounded"
+            title="Delete project"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteProject?.(row.original);
+            }}
+          >
+            <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     ),
     size: 100,
@@ -216,95 +238,89 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
 
   return (
     <div className="space-y-4">
-      <div className="overflow-hidden rounded-lg border bg-card">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-border/40">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{ width: header.getSize() }}
-                      className="h-12 px-4 text-left align-middle font-medium text-muted-foreground"
-                    >
-                      {header.isPlaceholder ? null : (
-                        header.column.id === "actions" ? (
-                          <div className="flex items-center justify-center w-full">
-                            <span>
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                            </span>
-                          </div>
-                        ) : (
-                          <div
-                            className={cn(
-                              "flex items-center space-x-2",
-                              header.column.getCanSort() &&
-                                "cursor-pointer select-none hover:text-foreground",
-                            )}
-                            onClick={header.column.getToggleSortingHandler()}
-                          >
+      <div className="table-container">
+        <div className="table-scroll-container" style={{ borderRadius: '0.5rem', borderTop: '1px solid #e5e7eb' }}>
+          <table className="excel-table">
+            <thead className="excel-table-header">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header, index) => {
+                    return (
+                      <th
+                        key={header.id}
+                        style={{ 
+                          width: header.getSize(),
+                          ...(index === 0 ? { borderTopLeftRadius: '0.5rem' } : {}),
+                          ...(index === headerGroup.headers.length - 1 ? { borderTopRightRadius: '0.5rem' } : {})
+                        }}
+                        className={cn(
+                          header.column.id === "select" ? "checkbox-column" : "",
+                          header.column.getCanSort() && "cursor-pointer"
+                        )}
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {header.isPlaceholder ? null : (
+                          <div className="flex items-center justify-between">
                             <span>
                               {flexRender(header.column.columnDef.header, header.getContext())}
                             </span>
                             {header.column.getCanSort() && (
-                              <div className="flex flex-col">
-                                <ChevronUp
-                                  className={cn(
-                                    "h-3 w-3",
-                                    header.column.getIsSorted() === "asc"
-                                      ? "text-foreground"
-                                      : "text-muted-foreground/30",
-                                  )}
-                                />
-                                <ChevronDown
-                                  className={cn(
-                                    "h-3 w-3",
-                                    header.column.getIsSorted() === "desc"
-                                      ? "text-foreground"
-                                      : "text-muted-foreground/30",
-                                  )}
-                                />
+                              <div className="sort-indicator-container">
+                                {header.column.getIsSorted() === "asc" ? (
+                                  <ChevronUp className="h-3 w-3 sort-arrow" />
+                                ) : header.column.getIsSorted() === "desc" ? (
+                                  <ChevronDown className="h-3 w-3 sort-arrow" />
+                                ) : (
+                                  <div className="sort-arrow-default">
+                                    <ChevronUp className="h-3 w-3 default-arrow" />
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
-                        )
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="border-b border-border/40 hover:bg-muted/50 cursor-pointer"
-                  onClick={() => onProjectSelect(row.original)}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{ width: cell.column.getSize() }}
-                      className="px-4 py-3"
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No projects found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                        )}
+                      </th>
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody className="excel-table-body">
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={cn(
+                      row.getIsSelected() && "selected-row",
+                      "cursor-pointer"
+                    )}
+                    onClick={() => onProjectSelect(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={{ width: cell.column.getSize() }}
+                        className={cn(
+                          "content-cell",
+                          cell.column.id === "select" ? "checkbox-column" : ""
+                        )}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={columns.length} className="content-cell text-center">
+                    <div className="cell-content">No projects found.</div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="flex items-center justify-between px-2 pagination-controls">
