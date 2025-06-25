@@ -41,6 +41,12 @@ export interface TestStep {
     id: number;
     description: string;
     status: 'passed' | 'failed' | 'running' | 'blocked' | 'pending';
+    progress?: {
+        completed: number;
+        total: number;
+    };
+    lastRun?: string | null;
+    duration?: string | null;
     testData?: string;
     expectedResult?: string;
     actualResult?: string;

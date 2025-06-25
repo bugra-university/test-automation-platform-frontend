@@ -477,7 +477,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
                 });
                 
                 // Calculate duration properly
-                let calculatedDuration = null;
+                let calculatedDuration: string | null = null;
                 if (latestTestCaseRun.duration) {
                   // If duration is already in milliseconds
                   calculatedDuration = `${Math.round(latestTestCaseRun.duration / 1000)}s`;
@@ -492,11 +492,26 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
                 const newStatus = latestTestCaseRun.status === 'COMPLETED' ? 'passed' : 
                                  latestTestCaseRun.status === 'FAILED' ? 'failed' : 'running';
                 
+                // Update test steps within this test case
+                const updatedSteps = testCase.steps.map(step => ({
+                  ...step,
+                  status: (newStatus === 'passed' ? 'passed' : 
+                          newStatus === 'failed' ? 'failed' : 
+                          newStatus === 'running' ? 'running' : 'pending') as 'passed' | 'failed' | 'running' | 'blocked' | 'pending',
+                  progress: {
+                    completed: 1, // This step is completed if test case passed
+                    total: 1
+                  },
+                  lastRun: new Date(latestTestCaseRun.startTime).toLocaleString(),
+                  duration: calculatedDuration
+                }));
+
                 return {
                   ...testCase,
                   status: newStatus,
                   lastRun: new Date(latestTestCaseRun.startTime).toLocaleString(),
-                  duration: calculatedDuration
+                  duration: calculatedDuration,
+                  steps: updatedSteps
                   // Remove individual test case progress - it should inherit from parent
                 };
               }
@@ -514,14 +529,64 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
               total: totalTestCases
             };
             
-            // Update all test cases to inherit parent progress
-            updatedSuite.testCases = updatedSuite.testCases.map(testCase => ({
-              ...testCase,
-              progress: {
-                completed: passedTestCases,
-                total: totalTestCases
-              }
-            }));
+            // Update user story status and timing
+            if (runningTestCases > 0) {
+              updatedSuite.status = 'running';
+            } else if (passedTestCases > 0 && failedTestCases === 0) {
+              updatedSuite.status = 'passed';
+            } else if (failedTestCases > 0) {
+              updatedSuite.status = 'failed';
+            } else {
+              updatedSuite.status = 'pending';
+            }
+            
+            // Set user story lastRun as the most recent test case run
+            const testCasesWithRuns = updatedSuite.testCases.filter(tc => tc.lastRun && tc.lastRun !== 'Never');
+            if (testCasesWithRuns.length > 0) {
+              // Find the most recent test case run
+              const mostRecentRun = testCasesWithRuns.reduce((latest, current) => {
+                const latestTime = new Date(latest.lastRun!).getTime();
+                const currentTime = new Date(current.lastRun!).getTime();
+                return currentTime > latestTime ? current : latest;
+              });
+              updatedSuite.lastRun = mostRecentRun.lastRun;
+            }
+            
+            // Set user story duration as sum of all executed test case durations
+            const testCasesWithDuration = updatedSuite.testCases.filter(tc => tc.duration && tc.duration !== '-');
+            if (testCasesWithDuration.length > 0) {
+              const totalDurationSeconds = testCasesWithDuration.reduce((sum, tc) => {
+                const durationMatch = tc.duration!.match(/(\d+)s/);
+                return sum + (durationMatch ? parseInt(durationMatch[1]) : 0);
+              }, 0);
+              updatedSuite.duration = `${totalDurationSeconds}s`;
+            }
+            
+            // Update all test cases to inherit parent progress and update their steps
+            updatedSuite.testCases = updatedSuite.testCases.map(testCase => {
+              // Update steps status based on test case status
+              const updatedSteps = testCase.steps.map(step => ({
+                ...step,
+                status: (testCase.status === 'passed' ? 'passed' : 
+                        testCase.status === 'failed' ? 'failed' : 
+                        testCase.status === 'running' ? 'running' : 'pending') as 'passed' | 'failed' | 'running' | 'blocked' | 'pending',
+                progress: {
+                  completed: testCase.status === 'passed' ? 1 : 0,
+                  total: 1
+                },
+                lastRun: testCase.lastRun || 'Never',
+                duration: testCase.duration || '-'
+              }));
+
+              return {
+                ...testCase,
+                progress: {
+                  completed: passedTestCases,
+                  total: totalTestCases
+                },
+                steps: updatedSteps
+              };
+            });
             
             // Update user story status based on test case results
             if (passedTestCases === totalTestCases && totalTestCases > 0) {
