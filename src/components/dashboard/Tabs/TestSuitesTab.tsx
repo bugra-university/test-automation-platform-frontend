@@ -280,14 +280,10 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
               </span>
             </td>
             <td className="px-6 py-2">
-              <span className="text-xs text-gray-500">
-                {formatLastRun(step.lastRun)}
-              </span>
+              <span className="text-xs text-gray-400">-</span>
             </td>
             <td className="px-6 py-2">
-              <span className="text-xs text-gray-500">
-                {formatDuration(step.duration)}
-              </span>
+              <span className="text-xs text-gray-400">-</span>
             </td>
             <td className="px-6 py-2">
               <div className="flex items-center space-x-1">
