@@ -333,6 +333,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [runningExecutions, setRunningExecutions] = useState<Map<string, ExecutionTracker>>(new Map());
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   const loadTestSuites = async (projectId: number) => {
     setIsLoading(true);
@@ -418,6 +419,142 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
       return newMap;
     });
   }, []);
+
+  // Polling function to check for test run updates from database
+    const startPolling = useCallback(() => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+
+    const interval = setInterval(async () => {
+      if (!selectedProjectId) return;
+
+      try {
+        console.log('Polling for test run updates...');
+        const latestRuns = await testSuitesApi.pollLatestTestRuns(selectedProjectId);
+        
+        if (latestRuns && latestRuns.length > 0) {
+          console.log('Got latest test runs:', latestRuns);
+          console.log('First run parameters:', latestRuns[0]?.parameters);
+          
+          // Update test suites with latest run information
+          setTestSuites(prev => prev.map(suite => {
+            const updatedSuite = { ...suite };
+            
+            // Update test cases within the suite
+            updatedSuite.testCases = suite.testCases.map(testCase => {
+              const testCaseRuns = latestRuns.filter(run => {
+                // Check if testCaseId matches directly
+                if (run.testCaseId === testCase.id) {
+                  return true;
+                }
+                
+                // Check parameters - handle different data types safely
+                if (run.parameters) {
+                  try {
+                    // If parameters is a string, try to parse it as JSON
+                    if (typeof run.parameters === 'string') {
+                      const params = JSON.parse(run.parameters);
+                      return params.testCaseId === testCase.id;
+                    }
+                    // If parameters is an object, check testCaseId property
+                    else if (typeof run.parameters === 'object') {
+                      return run.parameters.testCaseId === testCase.id;
+                    }
+                  } catch (error) {
+                    console.warn('Error parsing parameters:', run.parameters);
+                  }
+                }
+                
+                return false;
+              });
+              
+              if (testCaseRuns.length > 0) {
+                const latestTestCaseRun = testCaseRuns[0];
+                console.log('Processing test case run:', {
+                  testCaseId: testCase.id,
+                  run: latestTestCaseRun
+                });
+                
+                // Calculate duration properly
+                let calculatedDuration = null;
+                if (latestTestCaseRun.duration) {
+                  // If duration is already in milliseconds
+                  calculatedDuration = `${Math.round(latestTestCaseRun.duration / 1000)}s`;
+                } else if (latestTestCaseRun.startTime && latestTestCaseRun.endTime) {
+                  // Calculate from start/end times
+                  const start = new Date(latestTestCaseRun.startTime);
+                  const end = new Date(latestTestCaseRun.endTime);
+                  const durationMs = end.getTime() - start.getTime();
+                  calculatedDuration = `${Math.round(durationMs / 1000)}s`;
+                }
+                
+                const newStatus = latestTestCaseRun.status === 'COMPLETED' ? 'passed' : 
+                                 latestTestCaseRun.status === 'FAILED' ? 'failed' : 'running';
+                
+                return {
+                  ...testCase,
+                  status: newStatus,
+                  lastRun: new Date(latestTestCaseRun.startTime).toLocaleString(),
+                  duration: calculatedDuration,
+                  progress: {
+                    ...testCase.progress,
+                    completed: newStatus === 'passed' ? 1 : 0
+                  }
+                };
+              }
+              return testCase;
+            });
+
+            // Update user story progress based on test case results
+            const passedTestCases = updatedSuite.testCases.filter(tc => tc.status === 'passed').length;
+            const totalTestCases = updatedSuite.testCases.length;
+            
+            updatedSuite.progress = {
+              completed: passedTestCases,
+              total: totalTestCases
+            };
+            
+            // Update user story status based on test case results
+            if (passedTestCases === totalTestCases && totalTestCases > 0) {
+              updatedSuite.status = 'passed';
+            } else if (updatedSuite.testCases.some(tc => tc.status === 'failed')) {
+              updatedSuite.status = 'failed';
+            } else if (updatedSuite.testCases.some(tc => tc.status === 'running')) {
+              updatedSuite.status = 'running';
+            }
+
+            return updatedSuite;
+          }));
+        }
+      } catch (error) {
+        console.error('Polling error:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    setPollingInterval(interval);
+  }, []); // Remove dependencies to prevent infinite loop
+
+  const stopPolling = useCallback(() => {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      setPollingInterval(null);
+    }
+  }, []); // Remove dependencies to prevent infinite loop
+
+  // Start polling when component mounts or project changes
+  useEffect(() => {
+    if (selectedProjectId) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      stopPolling();
+    };
+  }, [selectedProjectId]); // Remove startPolling, stopPolling from dependencies
 
   const handleRunTestSuite = async (userStoryId: string) => {
     if (!selectedProjectId) {

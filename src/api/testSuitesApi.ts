@@ -328,13 +328,24 @@ export const testSuitesApi = {
         const executionId = `${projectId}_TC_${testCaseId}_${Date.now()}`;
         
         // Start polling for test runs (database-based polling)
-        testSuitesApi.pollLatestTestRuns(projectId, testCaseId, onStatusUpdate);
+        testSuitesApi.pollLatestTestRunsWithCallback(projectId, testCaseId, onStatusUpdate);
         
         return { executionId, result };
     },
 
-    // Poll latest test runs to find test case execution status
-    pollLatestTestRuns: async (
+    // Get latest test runs (for direct polling)
+    pollLatestTestRuns: async (projectId: number): Promise<any[]> => {
+        try {
+            const response = await testSuitesApi.getLatestTestRuns(projectId);
+            return response.testRuns || [];
+        } catch (error) {
+            console.error('Error polling latest test runs:', error);
+            return [];
+        }
+    },
+
+    // Poll latest test runs to find test case execution status (with callback)
+    pollLatestTestRunsWithCallback: async (
         projectId: number,
         testCaseId: string,
         onStatusUpdate: (status: ExecutionStatus) => void,
