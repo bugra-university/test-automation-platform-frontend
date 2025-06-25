@@ -846,17 +846,38 @@ export function ExcelViewer({
                       <td className="row-number">
                         {idx + 1}
                       </td>
-                      {/* Checkbox column */}
+                      {/* Checkbox column - only show for test case rows (with USER ID) */}
                       <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-                        <input 
-                          type="checkbox" 
-                          className="regular-checkbox"
-                          id={`row-checkbox-${idx}`}
-                          aria-label={`Select row ${idx + 1}`}
-                          title={`Select row ${idx + 1}`}
-                          checked={!!selectedRows[idx]} 
-                          onChange={() => handleCheckboxToggle(idx)}
-                        />
+                        {(() => {
+                          // Check if this row has any merged cells in the first data column (USER ID column)
+                          const mergeInfo = getMergeInfoForCell(idx, 0); // Check first data column
+                          
+                          // Get the value from the USER ID column (first data column after #)
+                          const userIdValue = getMergedCellValueByIndex(idx, 0);
+                          
+                          // Check if USER ID column has meaningful content
+                          const hasUserIdContent = userIdValue && String(userIdValue).trim() !== '';
+                          
+                          // Show checkbox only if:
+                          // 1. This is the main cell of a merged range AND has USER ID content, OR
+                          // 2. This is a non-merged cell AND has data in USER ID column
+                          const shouldShowCheckbox = hasUserIdContent && (
+                            (mergeInfo.isMerged && mergeInfo.isMainCell) || 
+                            !mergeInfo.isMerged
+                          );
+                          
+                          return shouldShowCheckbox ? (
+                            <input 
+                              type="checkbox" 
+                              className="regular-checkbox"
+                              id={`row-checkbox-${idx}`}
+                              aria-label={`Select row ${idx + 1}`}
+                              title={`Select row ${idx + 1}`}
+                              checked={!!selectedRows[idx]} 
+                              onChange={() => handleCheckboxToggle(idx)}
+                            />
+                          ) : null;
+                        })()}
                       </td>
                       {/* Data cells for other columns - now with merged cell support */}
                       {tableHeaders.slice(1).map((column, colIndex) => {
