@@ -105,14 +105,10 @@ export default function TestDashboard({
       case "reports":
         return (
           <div className="w-full bg-white h-full flex flex-col">
-            <div className="mb-6 p-8 pb-0">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Reports & Analytics</h2>
-              <p className="text-gray-600 text-sm">
-                Comprehensive testing reports and analytics dashboard for your projects.
-              </p>
-            </div>
-            
-            <div className="flex-1 overflow-auto">
+            <div 
+              className="flex-1 overflow-auto reports-scroll-wrapper" 
+              style={{ scrollbarWidth: 'thin' }}
+            >
               <FeaturesSectionWithCardGradient />
             </div>
           </div>
