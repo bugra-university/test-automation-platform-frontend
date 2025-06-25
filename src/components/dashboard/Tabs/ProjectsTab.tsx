@@ -179,11 +179,8 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab }: P
 
     return (
         <div className="w-full bg-white h-full flex flex-col p-8">
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-medium text-gray-600">Projects</h2>
-                </div>
-                <Button onClick={() => setShowCreateForm(true)} className="gap-2">
+            <div className="flex items-center justify-end mb-6">
+                <Button onClick={() => setShowCreateForm(true)} className="gap-2 rounded-lg">
                     <Plus className="h-4 w-4" />
                     New Project
                 </Button>

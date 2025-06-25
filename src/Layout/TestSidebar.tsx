@@ -136,7 +136,7 @@ const TestSidebar: React.FC = () => {
       </nav>
 
       {/* Bottom Section with thin separator */}
-      <div className="pt-48">
+      <div>
         {/* Thin separator line */}
         <div className="mx-6 border-t border-gray-200 my-3"></div>
           {/* Bottom menu items */}
