@@ -5,6 +5,30 @@ import { stepTrackingApi, StepExecutionEvent, StepSSEConnectionManager } from '.
 
 // Test Suites API integration complete - using real data from database
 
+// Utility functions for formatting
+const formatDuration = (durationMs: number | null) => {
+  if (!durationMs) return '-';
+  const seconds = Math.round(durationMs / 1000);
+  return `${seconds}s`;
+};
+
+const formatLastRun = (lastRun: string | null) => {
+  if (!lastRun) return 'Never';
+  const date = new Date(lastRun);
+  return date.toLocaleString('tr-TR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const formatProgress = (progress: any) => {
+  if (!progress || typeof progress !== 'object') return '-';
+  return `${progress.completed || 0}/${progress.total || 0}`;
+};
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'passed': return <span className="w-2 h-2 rounded-full bg-green-500"></span>;
@@ -96,17 +120,17 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
           </td>
           <td className="px-6 py-4">
             <span className="text-sm text-gray-600">
-              {userStory.progress.completed}/{userStory.progress.total}
+              {formatProgress(userStory.progress)}
             </span>
           </td>
           <td className="px-6 py-4">
             <span className="text-sm text-gray-600">
-              {userStory.lastRun || 'Never'}
+              {formatLastRun(userStory.lastRun)}
             </span>
           </td>
           <td className="px-6 py-4">
             <span className="text-sm text-gray-600">
-              {userStory.duration || '-'}
+              {formatDuration(userStory.duration)}
             </span>
           </td>
           <td className="px-6 py-4">
@@ -183,17 +207,17 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
           </td>
           <td className="px-6 py-3">
             <span className="text-sm text-gray-600">
-              {testCase.progress.completed}/{testCase.progress.total}
+              {formatProgress(testCase.progress)}
             </span>
           </td>
           <td className="px-6 py-3">
             <span className="text-sm text-gray-600">
-              {testCase.lastRun || 'Never'}
+              {formatLastRun(testCase.lastRun)}
             </span>
           </td>
           <td className="px-6 py-3">
             <span className="text-sm text-gray-600">
-              {testCase.duration || '-'}
+              {formatDuration(testCase.duration)}
             </span>
           </td>
           <td className="px-6 py-3">
@@ -251,13 +275,19 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
               </div>
             </td>
             <td className="px-6 py-2">
-              <span className="text-xs text-gray-500">-</span>
+              <span className="text-xs text-gray-500">
+                {step.progress || '-'}
+              </span>
             </td>
             <td className="px-6 py-2">
-              <span className="text-xs text-gray-500">-</span>
+              <span className="text-xs text-gray-500">
+                {formatLastRun(step.lastRun)}
+              </span>
             </td>
             <td className="px-6 py-2">
-              <span className="text-xs text-gray-500">-</span>
+              <span className="text-xs text-gray-500">
+                {formatDuration(step.duration)}
+              </span>
             </td>
             <td className="px-6 py-2">
               <div className="flex items-center space-x-1">
