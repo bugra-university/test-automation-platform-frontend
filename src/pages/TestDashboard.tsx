@@ -6,6 +6,7 @@ import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
 
 import { SchedulesTab } from "../components/dashboard/Tabs/SchedulesTab";
+import { FeaturesSectionWithCardGradient } from "../components/ui/features-section-with-card-gradient";
 import { Project } from "@/api/projectsApi";
 
 import "../styles/dashboard/tabs/test-dashboard.css";
@@ -103,21 +104,16 @@ export default function TestDashboard({
         return <TestRunsTab />;      
       case "reports":
         return (
-          <div className="w-full bg-white h-full flex flex-col p-8">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Reports</h2>
+          <div className="w-full bg-white h-full flex flex-col">
+            <div className="mb-6 p-8 pb-0">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Reports & Analytics</h2>
               <p className="text-gray-600 text-sm">
-                Reports section - content will be added later.
+                Comprehensive testing reports and analytics dashboard for your projects.
               </p>
             </div>
             
-            <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Coming Soon</h3>
-                <p className="text-gray-600 text-sm">
-                  Reports functionality will be implemented here.
-                </p>
-              </div>
+            <div className="flex-1 overflow-auto">
+              <FeaturesSectionWithCardGradient />
             </div>
           </div>
         );      
