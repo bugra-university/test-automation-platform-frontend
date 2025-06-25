@@ -54,7 +54,8 @@ export default function TestDashboard({
   setCurrentFile,
   isExcelEditMode,
   setIsExcelEditMode,
-  lastSaveInfo,  setLastSaveInfo,
+  lastSaveInfo,
+  setLastSaveInfo,
   loadProjectExcelAndSwitchTab,
   onLogout,
   testConfig
@@ -68,7 +69,10 @@ export default function TestDashboard({
   useEffect(() => {
     if (activeTabFromHeader) {
       setActiveTab(activeTabFromHeader);
-    }  }, [activeTabFromHeader]);  const renderActiveTab = () => {
+    }
+  }, [activeTabFromHeader]);
+
+  const renderActiveTab = () => {
     switch (activeTab) {
       case "projects":
         return <ProjectsTab 
@@ -96,8 +100,9 @@ export default function TestDashboard({
       case "test-cases":
         return <TestCasesTab />;
       case "test-runs":
-        return <TestRunsTab />;      case "reports":
-        return <ReportsTab />;      
+        return <TestRunsTab />;      
+      case "reports":
+        return <ReportsTab selectedProjectId={activeProject?.id || null} />;      
       case "schedules":
         return <SchedulesTab />;
       case "deprecated":        
@@ -116,6 +121,7 @@ export default function TestDashboard({
         />;
     }
   };
+
   return (
     <div className="flex-1 flex flex-col api-dashboard overflow-hidden">
       <main className="flex-1">

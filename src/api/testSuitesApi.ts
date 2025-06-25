@@ -121,6 +121,26 @@ export interface TestSuitesStatistics {
     };
 }
 
+export interface TestExecutionEvent {
+    eventType: 'test_suite_started' | 'test_suite_completed' | 'test_case_started' | 'test_case_completed' | 'connected';
+    data: {
+        userStoryId?: string;
+        testCaseId?: string;
+        executionId?: string;
+        status?: string;
+        startTime?: string;
+        endTime?: string;
+        duration?: number;
+        configuration?: TestConfiguration;
+    };
+}
+
+export interface SSEConnectionManager {
+    connect: (projectId: number, onEvent: (event: TestExecutionEvent) => void) => void;
+    disconnect: () => void;
+    isConnected: () => boolean;
+}
+
 export const testSuitesApi = {
     /**
      * Get all test suites (User Stories with Test Cases) for a project
@@ -413,5 +433,124 @@ export const testSuitesApi = {
         
         // Start polling after a short delay to allow test run creation
         setTimeout(poll, 1000);
+    },
+
+    /**
+     * Create Server-Sent Events connection for real-time test execution updates
+     */
+    createEventStream: (projectId: number, onEvent: (event: TestExecutionEvent) => void): SSEConnectionManager => {
+        let eventSource: EventSource | null = null;
+        let isConnected = false;
+
+            const connect = (projectId: number, onEvent: (event: TestExecutionEvent) => void) => {
+      if (eventSource) {
+        eventSource.close();
+      }
+
+      // Use full URL with backend address
+      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const url = `${baseURL}/api/projects/${projectId}/test-suites/events`;
+      console.log('[SSE] Connecting to:', url);
+            
+            eventSource = new EventSource(url);
+            
+            // Handle connection opened
+            eventSource.onopen = () => {
+                console.log('[SSE] Connection established for project', projectId);
+                isConnected = true;
+            };
+
+            // Handle specific events
+            eventSource.addEventListener('connected', (event) => {
+                console.log('[SSE] Connected:', event.data);
+                onEvent({
+                    eventType: 'connected',
+                    data: { }
+                });
+            });
+
+            eventSource.addEventListener('test_suite_started', (event) => {
+                console.log('[SSE] Test suite started:', event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    onEvent({
+                        eventType: 'test_suite_started',
+                        data: data
+                    });
+                } catch (e) {
+                    console.error('[SSE] Error parsing test_suite_started event:', e);
+                }
+            });
+
+            eventSource.addEventListener('test_suite_completed', (event) => {
+                console.log('[SSE] Test suite completed:', event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    onEvent({
+                        eventType: 'test_suite_completed',
+                        data: data
+                    });
+                } catch (e) {
+                    console.error('[SSE] Error parsing test_suite_completed event:', e);
+                }
+            });
+
+            eventSource.addEventListener('test_case_started', (event) => {
+                console.log('[SSE] Test case started:', event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    onEvent({
+                        eventType: 'test_case_started',
+                        data: data
+                    });
+                } catch (e) {
+                    console.error('[SSE] Error parsing test_case_started event:', e);
+                }
+            });
+
+            eventSource.addEventListener('test_case_completed', (event) => {
+                console.log('[SSE] Test case completed:', event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    onEvent({
+                        eventType: 'test_case_completed',
+                        data: data
+                    });
+                } catch (e) {
+                    console.error('[SSE] Error parsing test_case_completed event:', e);
+                }
+            });
+
+            // Handle errors
+            eventSource.onerror = (error) => {
+                console.error('[SSE] Connection error:', error);
+                isConnected = false;
+                
+                // Attempt to reconnect after 3 seconds
+                setTimeout(() => {
+                    if (!isConnected) {
+                        console.log('[SSE] Attempting to reconnect...');
+                        connect(projectId, onEvent);
+                    }
+                }, 3000);
+            };
+        };
+
+        const disconnect = () => {
+            if (eventSource) {
+                console.log('[SSE] Disconnecting...');
+                eventSource.close();
+                eventSource = null;
+                isConnected = false;
+            }
+        };
+
+        const isConnectedFn = () => isConnected;
+
+        return {
+            connect,
+            disconnect,
+            isConnected: isConnectedFn
+        };
     }
 }; 

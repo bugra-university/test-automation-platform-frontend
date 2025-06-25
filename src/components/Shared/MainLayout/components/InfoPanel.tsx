@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Project, projectsApi } from '../../../../api/projectsApi';
 import { testSuitesApi } from '../../../../api/testSuitesApi';
+import { reportsApi, ReportsStatistics } from '../../../../api/reportsApi';
 
 interface InfoPanelProps {
   currentFileName: string;
@@ -65,15 +66,19 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const [loadingActivity, setLoadingActivity] = useState(false);
   const [testSuitesStats, setTestSuitesStats] = useState<TestSuitesStats | null>(null);
   const [loadingTestStats, setLoadingTestStats] = useState(false);
+  const [reportsStats, setReportsStats] = useState<ReportsStatistics | null>(null);
+  const [loadingReportsStats, setLoadingReportsStats] = useState(false);
 
-  // Fetch database activity and test suites stats when project changes
+  // Fetch database activity, test suites stats, and reports stats when project changes
   useEffect(() => {
     if (activeProject) {
       fetchDatabaseActivity();
       fetchTestSuitesStats();
+      fetchReportsStats();
     } else {
       setDatabaseActivity(null);
       setTestSuitesStats(null);
+      setReportsStats(null);
     }
   }, [activeProject]);
 
@@ -114,6 +119,51 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
       console.error('Error fetching test suites statistics:', error);
     } finally {
       setLoadingTestStats(false);
+    }
+  };
+
+  const fetchReportsStats = async () => {
+    if (!activeProject) return;
+    
+    setLoadingReportsStats(true);
+    try {
+      // Test suites verilerinden reports istatistiklerini hesapla
+      const testSuitesStatistics = await testSuitesApi.getTestSuitesStatistics(activeProject.id);
+      // Debug log removed
+      
+      // Test suites'deki passed ve failed sayılarından reports istatistiklerini türet
+      const passedReports = testSuitesStatistics.statusCounts.passed;
+      const failedReports = testSuitesStatistics.statusCounts.failed;
+      const totalReports = passedReports + failedReports;
+      
+      // Debug log removed
+      
+      // Reports API'sinden de gerçek dosya sayısını al (eğer mevcut dosyalar varsa)
+      try {
+        const reportsResponse = await reportsApi.getReports(activeProject.id);
+        const actualTotalReports = reportsResponse.reports.length;
+        
+                 // Gerçek dosya sayısını kullan, ama passed/failed Test Suites'den al
+         setReportsStats({
+           totalReports: Math.max(actualTotalReports, totalReports),
+           passedReports: passedReports,
+           failedReports: failedReports,
+           totalSize: "Calculating..." // Dosya boyutu için placeholder
+         });
+       } catch (error) {
+         // Reports API başarısız olursa sadece Test Suites verilerini kullan
+         setReportsStats({
+           totalReports: totalReports,
+           passedReports: passedReports,
+           failedReports: failedReports,
+           totalSize: "Not available"
+         });
+      }
+    } catch (error) {
+      console.error('Test suites verilerinden reports istatistikleri alınamadı:', error);
+      setReportsStats(null);
+    } finally {
+      setLoadingReportsStats(false);
     }
   };
 
@@ -287,6 +337,48 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
             </div>
           ) : (
             <div className="text-xs text-gray-500">No test data available</div>
+          )}
+        </div>
+      )}
+
+      {/* Divider */}
+      {activeProject && (
+        <hr className="my-4 border-gray-200" />
+      )}
+
+      {/* Reports Information */}
+      {activeProject && (
+        <div className="mt-4 p-3 rounded-lg">
+          <h3 className="text-sm font-medium text-gray-900 mb-3">Reports</h3>
+          
+          {loadingReportsStats ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="text-xs text-gray-500">Loading statistics...</div>
+            </div>
+          ) : reportsStats ? (
+            <div className="flex flex-wrap gap-y-2 gap-x-2">
+              {/* Total Reports */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-blue-100 text-blue-800">
+                Total Reports: {reportsStats.totalReports}
+              </div>
+              
+              {/* Passed Reports - Always show */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-green-100 text-green-800">
+                Passed: {reportsStats.passedReports}
+              </div>
+              
+              {/* Failed Reports - Always show */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-red-100 text-red-800">
+                Failed: {reportsStats.failedReports}
+              </div>
+              
+              {/* Total Size */}
+              <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
+                Total Size: {reportsStats.totalSize}
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-500">No reports data available</div>
           )}
         </div>
       )}
