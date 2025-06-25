@@ -9,7 +9,8 @@
     border-radius: 0.5rem;
     border: 1px solid rgb(229 231 235);
     width: 256px; /* w-64 equivalent */
-    height: 100%;
+    height: calc(100vh - 112px - 88px); /* Ana container boyuna kadar uzasın */
+    margin-top: 80px; /* Yukarıdan boşluk */
     padding: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
