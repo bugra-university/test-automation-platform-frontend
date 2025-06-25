@@ -496,11 +496,8 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
                   ...testCase,
                   status: newStatus,
                   lastRun: new Date(latestTestCaseRun.startTime).toLocaleString(),
-                  duration: calculatedDuration,
-                  progress: {
-                    ...testCase.progress,
-                    completed: newStatus === 'passed' ? 1 : 0
-                  }
+                  duration: calculatedDuration
+                  // Remove individual test case progress - it should inherit from parent
                 };
               }
               return testCase;
@@ -508,6 +505,8 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
 
             // Update user story progress based on test case results
             const passedTestCases = updatedSuite.testCases.filter(tc => tc.status === 'passed').length;
+            const failedTestCases = updatedSuite.testCases.filter(tc => tc.status === 'failed').length;
+            const runningTestCases = updatedSuite.testCases.filter(tc => tc.status === 'running').length;
             const totalTestCases = updatedSuite.testCases.length;
             
             updatedSuite.progress = {
@@ -515,13 +514,52 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
               total: totalTestCases
             };
             
+            // Update all test cases to inherit parent progress
+            updatedSuite.testCases = updatedSuite.testCases.map(testCase => ({
+              ...testCase,
+              progress: {
+                completed: passedTestCases,
+                total: totalTestCases
+              }
+            }));
+            
             // Update user story status based on test case results
             if (passedTestCases === totalTestCases && totalTestCases > 0) {
               updatedSuite.status = 'passed';
-            } else if (updatedSuite.testCases.some(tc => tc.status === 'failed')) {
+            } else if (failedTestCases > 0) {
               updatedSuite.status = 'failed';
-            } else if (updatedSuite.testCases.some(tc => tc.status === 'running')) {
+            } else if (runningTestCases > 0) {
               updatedSuite.status = 'running';
+            } else if (passedTestCases > 0) {
+              // Some tests passed, some not run yet
+              updatedSuite.status = 'pending';
+            }
+            
+            // Update user story last run - use the most recent test run
+            const testCaseRuns = updatedSuite.testCases
+              .filter(tc => tc.lastRun && tc.lastRun !== 'Never')
+              .map(tc => tc.lastRun)
+              .filter((run): run is string => run !== null);
+            
+            if (testCaseRuns.length > 0) {
+              // Find the most recent run
+              const mostRecentRun = testCaseRuns.sort((a, b) => 
+                new Date(b).getTime() - new Date(a).getTime()
+              )[0];
+              updatedSuite.lastRun = mostRecentRun;
+            }
+            
+            // Update user story duration - sum of all test case durations
+            const testCaseDurations = updatedSuite.testCases
+              .filter(tc => tc.duration && tc.duration !== '-' && tc.duration !== null)
+              .map(tc => {
+                const match = tc.duration!.match(/(\d+)s/);
+                return match ? parseInt(match[1]) : 0;
+              });
+            
+            if (testCaseDurations.length > 0) {
+              const totalDuration = testCaseDurations.reduce((sum, duration) => sum + duration, 0);
+              updatedSuite.duration = `${totalDuration}s`;
             }
 
             return updatedSuite;
