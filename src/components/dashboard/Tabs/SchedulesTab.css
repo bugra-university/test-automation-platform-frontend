@@ -5,8 +5,54 @@
     background: #2e78d6;
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 10pt;
     padding: 5px;
     opacity: 0.8;
+}
+
+/* Calendar main container - rounded corners like other tables */
+.calendar_default_main {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+/* Navigator rounded corners */
+.navigator_default_main {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+}
+
+/* Calendar içindeki tüm scrollbar'ları incelt */
+.calendar_default_main *::-webkit-scrollbar,
+.calendar_default_main::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.calendar_default_main *::-webkit-scrollbar-track,
+.calendar_default_main::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.calendar_default_main *::-webkit-scrollbar-thumb,
+.calendar_default_main::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.calendar_default_main *::-webkit-scrollbar-thumb:hover,
+.calendar_default_main::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Firefox için ince scrollbar */
+.calendar_default_main,
+.calendar_default_main * {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
 } 

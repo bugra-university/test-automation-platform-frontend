@@ -241,10 +241,22 @@ const SchedulesTab: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: "20px", background: "#f8f9fa" }}>
+    <div style={{ 
+      width: "100%", 
+      height: "100%", 
+      display: "flex", 
+      flexDirection: "column", 
+      overflow: "hidden",
+      background: "#ffffff"
+    }}>
       {/* Header */}
-      <div style={styles.header}>
-        <h2 style={{ margin: 0, color: "#2c3e50", fontWeight: 600 }}>Test Schedules</h2>
+      <div style={{
+        display: "flex",
+        justifyContent: "flex-end",
+        alignItems: "center",
+        padding: "24px 24px 1rem 24px",
+        background: "#ffffff"
+      }}>
         <button
           onClick={handleCreateSchedule}
           style={{
@@ -263,7 +275,12 @@ const SchedulesTab: React.FC = () => {
       </div>
 
       {/* Calendar Layout */}
-      <div style={styles.wrap}>
+      <div style={{
+        ...styles.wrap, 
+        padding: "0 24px 24px 24px", 
+        flex: 1,
+        overflow: "hidden"
+      }}>
         <div style={styles.left}>
           <DayPilotNavigator
             selectMode={"Week"}
