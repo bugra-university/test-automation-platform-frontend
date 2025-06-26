@@ -114,7 +114,7 @@ export default function TestDashboard({
           </div>
         );      
       case "schedules":
-        return <SchedulesTab />;
+        return <SchedulesTab selectedProjectId={activeProject?.id || null} />;
       case "deprecated":        
       default:
         return <RunTestsTab 

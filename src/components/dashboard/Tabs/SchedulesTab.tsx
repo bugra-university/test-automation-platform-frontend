@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
+import { testSuitesApi, TestSuite, TestCase } from '../../../api/testSuitesApi';
 import "./SchedulesTab.css";
 
 const styles = {
@@ -38,7 +39,11 @@ interface TestSchedule {
   };
 }
 
-const SchedulesTab: React.FC = () => {
+interface SchedulesTabProps {
+  selectedProjectId: number | null;
+}
+
+const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
   const [calendar, setCalendar] = useState<any>(null);
   const [schedules, setSchedules] = useState<TestSchedule[]>([]);
   const [startDate, setStartDate] = useState<any>(DayPilot.Date.today());
@@ -305,7 +310,7 @@ const SchedulesTab: React.FC = () => {
         </div>
       </div>
 
-      {/* TODO: Test Schedule Modal */}
+      {/* Test Schedule Modal */}
       {scheduleModal.isOpen && (
         <div style={{
           position: "fixed",
@@ -323,28 +328,394 @@ const SchedulesTab: React.FC = () => {
             background: "white",
             borderRadius: "12px",
             padding: "24px",
-            minWidth: "400px",
-            maxWidth: "600px"
+            minWidth: "500px",
+            maxWidth: "700px",
+            maxHeight: "80vh",
+            overflow: "auto"
           }}>
-            <h3>{scheduleModal.mode === 'create' ? 'Create New Schedule' : 'Edit Schedule'}</h3>
-            <p>Modal content will be implemented in next step...</p>
-            <button
-              onClick={() => setScheduleModal({ ...scheduleModal, isOpen: false })}
-              style={{
-                background: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "6px",
-                padding: "8px 16px",
-                cursor: "pointer"
+            <h3 style={{ 
+              marginBottom: "20px", 
+              fontSize: "18px", 
+              fontWeight: "600",
+              color: "#333"
+            }}>
+              {scheduleModal.mode === 'create' ? 'Create New Test Schedule' : 'Edit Test Schedule'}
+            </h3>
+            
+            <ScheduleForm 
+              mode={scheduleModal.mode}
+              schedule={scheduleModal.schedule}
+              startTime={scheduleModal.startTime}
+              endTime={scheduleModal.endTime}
+              selectedProjectId={selectedProjectId}
+              onSave={(newSchedule) => {
+                if (scheduleModal.mode === 'create') {
+                  setSchedules(prev => [...prev, newSchedule]);
+                } else {
+                  setSchedules(prev => prev.map(s => 
+                    s.id === newSchedule.id ? newSchedule : s
+                  ));
+                }
+                setScheduleModal({ ...scheduleModal, isOpen: false });
               }}
-            >
-              Close
-            </button>
+              onCancel={() => setScheduleModal({ ...scheduleModal, isOpen: false })}
+            />
           </div>
         </div>
       )}
     </div>
+  );
+};
+
+// ScheduleForm Component
+interface ScheduleFormProps {
+  mode: 'create' | 'edit';
+  schedule: TestSchedule | null;
+  startTime: string;
+  endTime: string;
+  selectedProjectId: number | null;
+  onSave: (schedule: TestSchedule) => void;
+  onCancel: () => void;
+}
+
+const ScheduleForm: React.FC<ScheduleFormProps> = ({ 
+  mode, 
+  schedule, 
+  startTime, 
+  endTime, 
+  selectedProjectId,
+  onSave, 
+  onCancel 
+}) => {
+  const [formData, setFormData] = useState({
+    title: schedule?.text || '',
+    userStory: schedule?.userStory || '',
+    testCases: schedule?.testCases || [],
+    scheduleType: schedule?.scheduleType || 'once' as const,
+    status: schedule?.status || 'scheduled' as const,
+    startDateTime: schedule?.start || startTime,
+    endDateTime: schedule?.end || endTime,
+    description: ''
+  });
+
+  const [selectedTestCases, setSelectedTestCases] = useState<string[]>(
+    schedule?.testCases || []
+  );
+
+  // API data states
+  const [userStories, setUserStories] = useState<TestSuite[]>([]);
+  const [testCasesByUserStory, setTestCasesByUserStory] = useState<{ [key: string]: TestCase[] }>({});
+  const [loadingUserStories, setLoadingUserStories] = useState(false);
+  const [loadingTestCases, setLoadingTestCases] = useState(false);
+
+  // Load user stories from API
+  useEffect(() => {
+    if (!selectedProjectId) return;
+
+    const loadUserStories = async () => {
+      setLoadingUserStories(true);
+      try {
+        const response = await testSuitesApi.getTestSuites(selectedProjectId);
+        if (response.success) {
+          setUserStories(response.testSuites);
+        }
+      } catch (error) {
+        console.error('Error loading user stories:', error);
+      } finally {
+        setLoadingUserStories(false);
+      }
+    };
+
+    loadUserStories();
+  }, [selectedProjectId]);
+
+  const handleUserStoryChange = async (userStoryId: string) => {
+    setFormData(prev => ({ ...prev, userStory: userStoryId }));
+    // Reset test cases when user story changes
+    setSelectedTestCases([]);
+    
+    // Load test cases for selected user story
+    if (selectedProjectId && userStoryId) {
+      setLoadingTestCases(true);
+      try {
+        const response = await testSuitesApi.getTestCases(selectedProjectId, userStoryId);
+        if (response.success) {
+          setTestCasesByUserStory(prev => ({
+            ...prev,
+            [userStoryId]: response.testCases
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading test cases:', error);
+      } finally {
+        setLoadingTestCases(false);
+      }
+    }
+  };
+
+  const handleTestCaseToggle = (testCaseId: string) => {
+    setSelectedTestCases(prev => 
+      prev.includes(testCaseId) 
+        ? prev.filter(tc => tc !== testCaseId)
+        : [...prev, testCaseId]
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const newSchedule: TestSchedule = {
+      id: schedule?.id || `schedule_${Date.now()}`,
+      text: formData.title || formData.userStory,
+      start: formData.startDateTime,
+      end: formData.endDateTime,
+      userStory: formData.userStory,
+      testCases: selectedTestCases,
+      scheduleType: formData.scheduleType,
+      status: formData.status
+    };
+
+    onSave(newSchedule);
+  };
+
+  const formatDateTime = (dateTimeString: string) => {
+    if (!dateTimeString) return '';
+    const date = new Date(dateTimeString);
+    return date.toISOString().slice(0, 16); // Format for datetime-local input
+  };
+
+  return (
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* Title */}
+      <div>
+        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+          Schedule Title
+        </label>
+        <input
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          placeholder="Enter schedule title (optional - will use User Story if empty)"
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: '6px',
+            fontSize: '14px'
+          }}
+        />
+      </div>
+
+      {/* User Story */}
+      <div>
+        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+          User Story *
+        </label>
+        <select
+          value={formData.userStory}
+          onChange={(e) => handleUserStoryChange(e.target.value)}
+          required
+          disabled={loadingUserStories}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: '6px',
+            fontSize: '14px'
+          }}
+        >
+          <option value="">{loadingUserStories ? 'Loading...' : 'Select User Story'}</option>
+          {userStories.map(us => (
+            <option key={us.id} value={us.id}>{us.id} - {us.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Test Cases */}
+      {formData.userStory && (
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+            Test Cases *
+          </label>
+          <div style={{ 
+            border: '1px solid #ddd', 
+            borderRadius: '6px', 
+            padding: '12px',
+            maxHeight: '120px',
+            overflow: 'auto'
+          }}>
+            {loadingTestCases ? (
+              <p style={{ color: '#666', fontSize: '14px' }}>Loading test cases...</p>
+            ) : testCasesByUserStory[formData.userStory]?.map(testCase => (
+              <label 
+                key={testCase.id}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedTestCases.includes(testCase.id)}
+                  onChange={() => handleTestCaseToggle(testCase.id)}
+                  style={{ marginRight: '8px' }}
+                />
+                <span style={{ fontSize: '14px' }}>{testCase.id} - {testCase.name}</span>
+              </label>
+            )) || <p style={{ color: '#666', fontSize: '14px' }}>No test cases available</p>}
+          </div>
+          {selectedTestCases.length > 0 && (
+            <p style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+              {selectedTestCases.length} test case(s) selected
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Date Time */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+            Start Time *
+          </label>
+          <input
+            type="datetime-local"
+            value={formatDateTime(formData.startDateTime)}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              startDateTime: new Date(e.target.value).toISOString() 
+            }))}
+            required
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '14px'
+            }}
+          />
+        </div>
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+            End Time *
+          </label>
+          <input
+            type="datetime-local"
+            value={formatDateTime(formData.endDateTime)}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              endDateTime: new Date(e.target.value).toISOString() 
+            }))}
+            required
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '14px'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Schedule Type */}
+      <div>
+        <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+          Repeat Schedule
+        </label>
+        <select
+          value={formData.scheduleType}
+          onChange={(e) => setFormData(prev => ({ 
+            ...prev, 
+            scheduleType: e.target.value as 'once' | 'daily' | 'weekly' | 'monthly' 
+          }))}
+          style={{
+            width: '100%',
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: '6px',
+            fontSize: '14px'
+          }}
+        >
+          <option value="once">Run Once</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+
+      {/* Status (only for edit mode) */}
+      {mode === 'edit' && (
+        <div>
+          <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>
+            Status
+          </label>
+          <select
+            value={formData.status}
+            onChange={(e) => setFormData(prev => ({ 
+              ...prev, 
+              status: e.target.value as TestSchedule['status']
+            }))}
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              border: '1px solid #ddd',
+              borderRadius: '6px',
+              fontSize: '14px'
+            }}
+          >
+            <option value="scheduled">Scheduled</option>
+            <option value="running">Running</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '12px', 
+        marginTop: '20px',
+        justifyContent: 'flex-end'
+      }}>
+        <button
+          type="button"
+          onClick={onCancel}
+          style={{
+            padding: '10px 20px',
+            border: '1px solid #ddd',
+            borderRadius: '6px',
+            background: 'white',
+            color: '#666',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={!formData.userStory || selectedTestCases.length === 0}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '6px',
+            background: formData.userStory && selectedTestCases.length > 0 ? '#1976d2' : '#ccc',
+            color: 'white',
+            cursor: formData.userStory && selectedTestCases.length > 0 ? 'pointer' : 'not-allowed',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          {mode === 'create' ? 'Create Schedule' : 'Update Schedule'}
+        </button>
+      </div>
+    </form>
   );
 };
 
