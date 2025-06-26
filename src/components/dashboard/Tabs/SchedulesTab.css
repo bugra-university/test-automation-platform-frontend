@@ -23,7 +23,7 @@
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid #e0e0e0;
-    border-top: none;
+    border-top: none !important;
 }
 
 /* Calendar içindeki tüm scrollbar'ları incelt */
@@ -55,4 +55,36 @@
 .calendar_default_main * {
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+/* Hide main scrollbar for Schedules tab - override container-content */
+.schedules-tab-container {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+/* Target the parent container when schedules tab is active */
+.container-content:has(.schedules-tab-container) {
+  overflow: hidden !important;
+}
+
+.container-content:has(.schedules-tab-container)::-webkit-scrollbar {
+  display: none !important;
+}
+
+.container-content:has(.schedules-tab-container) {
+  scrollbar-width: none !important;
+}
+
+/* Hide main page scrollbar for Schedules tab only */
+body:has(.schedules-tab-container) {
+  overflow: hidden !important;
+}
+
+body:has(.schedules-tab-container)::-webkit-scrollbar {
+  display: none !important;
+}
+
+body:has(.schedules-tab-container) {
+  scrollbar-width: none !important;
 } 

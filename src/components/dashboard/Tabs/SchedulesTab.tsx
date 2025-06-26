@@ -241,13 +241,13 @@ const SchedulesTab: React.FC = () => {
   };
 
   return (
-    <div style={{ 
+    <div className="schedules-tab-container" style={{ 
       width: "100%", 
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
       overflow: "hidden",
-      background: "#ffffff"
+      background: "#f8f9fa"
     }}>
       {/* Header */}
       <div style={{
@@ -255,19 +255,22 @@ const SchedulesTab: React.FC = () => {
         justifyContent: "flex-end",
         alignItems: "center",
         padding: "24px 24px 1rem 24px",
-        background: "#ffffff"
+        background: "#f8f9fa"
       }}>
         <button
           onClick={handleCreateSchedule}
           style={{
-            background: "#007bff",
+            background: "#1976d2",
             color: "white",
             border: "none",
             borderRadius: "8px",
             padding: "10px 20px",
             cursor: "pointer",
             fontWeight: 500,
-            fontSize: "14px"
+            fontSize: "14px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           }}
         >
           + New Schedule
