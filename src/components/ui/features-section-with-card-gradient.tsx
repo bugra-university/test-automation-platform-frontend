@@ -199,21 +199,25 @@ export function FeaturesSectionWithCardGradient() {
             >
               <Grid size={20} />
               <div className="flex-1 flex flex-col">
-                <p className="text-base font-bold text-neutral-800 dark:text-white relative z-20 truncate">
+                <p className="text-neutral-800 dark:text-white relative z-20 truncate" style={{ fontSize: '1rem', fontWeight: '600' }}>
                   {feature.title}
                 </p>
 
-                <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
+                <p className="text-neutral-600 dark:text-neutral-400 mt-2 relative z-20 overflow-hidden" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical'
+                  WebkitBoxOrient: 'vertical',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
                 }}>
                   {feature.description}
                 </p>
-                <p className="text-neutral-500 dark:text-neutral-500 mt-2 text-sm font-normal relative z-20 flex-1 overflow-hidden" style={{
+                <p className="text-neutral-500 dark:text-neutral-500 mt-2 relative z-20 flex-1 overflow-hidden" style={{
                   display: '-webkit-box',
                   WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical'
+                  WebkitBoxOrient: 'vertical',
+                  fontSize: '0.85rem',
+                  fontWeight: '400'
                 }}>
                   {feature.testCase}
                 </p>
