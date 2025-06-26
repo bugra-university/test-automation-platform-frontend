@@ -5,7 +5,7 @@ import { RunTestsTab } from "../components/dashboard/Tabs/RunTestsTab";
 import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
 
-import { SchedulesTab } from "../components/dashboard/Tabs/SchedulesTab";
+import SchedulesTab from "../components/dashboard/Tabs/SchedulesTab";
 import { FeaturesSectionWithCardGradient } from "../components/ui/features-section-with-card-gradient";
 import { Project } from "@/api/projectsApi";
 
