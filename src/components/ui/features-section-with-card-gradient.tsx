@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { cn } from "../../lib/utils";
 import { Grid } from "./grid";
+import { mockTestReports, TestReport } from "../../data/mockReports";
 
 interface GridItem {
   title: string;
@@ -10,16 +12,74 @@ interface GridItem {
   totalCount?: number;
   executedAt?: string;
   isTestReport?: boolean;
+  skeleton?: boolean;
 }
 
 export function FeaturesSectionWithCardGradient() {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+
+  const handleActionClick = (e: React.MouseEvent, action: string, report: TestReport) => {
+    e.stopPropagation();
+    console.log(`${action} action for report:`, report.fileName);
+    // TODO: Implement actual actions
+  };
+
+  const formatExecutionTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('tr-TR', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  // Convert mock reports to grid format
+  const reportCards: GridItem[] = mockTestReports.slice(0, 8).map(report => ({
+    title: report.title,
+    description: report.description,
+    testCase: report.testCase,
+    status: report.status,
+    passedCount: report.passedCount,
+    totalCount: report.totalCount,
+    executedAt: formatExecutionTime(report.executedAt),
+    isTestReport: true
+  }));
+
+  // Static feature cards for remaining slots
+  const staticFeatures: GridItem[] = [
+    {
+      title: "Real-time Test Monitoring",
+      description: "Monitor your test executions in real-time with live updates and progress tracking.",
+      skeleton: true,
+    },
+    {
+      title: "Advanced Test Analytics", 
+      description: "Get detailed insights into test performance, trends, and failure patterns.",
+      skeleton: true,
+    },
+    {
+      title: "Test Scheduling",
+      description: "Schedule automated test runs at specific times or intervals.",
+      skeleton: true,
+    },
+    {
+      title: "Team Collaboration",
+      description: "Share test results and collaborate with your team members effectively.",
+      skeleton: true,
+    },
+  ];
+
+  // Combine all cards
+  const grid = [...reportCards, ...staticFeatures];
+
   return (
     <div className="p-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 md:gap-2 max-w-7xl mx-auto">
-        {grid.map((feature) => (
+        {grid.map((feature, idx) => (
           <div
-            key={feature.title}
+            key={feature.isTestReport ? `report-${idx}` : `static-${idx}`}
             className="relative bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white p-6 rounded-3xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-200 cursor-pointer h-72 flex flex-col"
             onClick={() => setSelectedCard(selectedCard === feature.title ? null : feature.title)}
           >
@@ -28,7 +88,7 @@ export function FeaturesSectionWithCardGradient() {
               <p className="text-base font-bold text-neutral-800 dark:text-white relative z-20 truncate">
                 {feature.title}
               </p>
-              
+
               {feature.isTestReport ? (
                 <>
                   <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
@@ -45,7 +105,7 @@ export function FeaturesSectionWithCardGradient() {
                   }}>
                     {feature.testCase}
                   </p>
-                  
+
                   {/* Status Badge and Date */}
                   <div className="mt-4 flex items-center justify-between relative z-20">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
@@ -59,9 +119,9 @@ export function FeaturesSectionWithCardGradient() {
                       {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
                       ({feature.passedCount}/{feature.totalCount})
                     </span>
-                                      <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
-                    {feature.executedAt}
-                  </span>
+                    <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+                      {feature.executedAt}
+                    </span>
                   </div>
                 </>
               ) : (
@@ -74,7 +134,7 @@ export function FeaturesSectionWithCardGradient() {
                 </p>
               )}
             </div>
-            
+
             {/* Action Bar */}
             {selectedCard === feature.title && feature.isTestReport && (
               <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 p-4 rounded-b-3xl animate-in slide-in-from-bottom-2 duration-200 z-30">
@@ -82,8 +142,8 @@ export function FeaturesSectionWithCardGradient() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Handle view action
-                      console.log('View report:', feature.title);
+                      const report = mockTestReports[idx];
+                      if (report) handleActionClick(e, 'view', report);
                     }}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
@@ -97,8 +157,8 @@ export function FeaturesSectionWithCardGradient() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Handle download action
-                      console.log('Download report:', feature.title);
+                      const report = mockTestReports[idx];
+                      if (report) handleActionClick(e, 'download', report);
                     }}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-300 hover:bg-neutral-400 dark:bg-neutral-600 dark:hover:bg-neutral-500 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
@@ -111,8 +171,8 @@ export function FeaturesSectionWithCardGradient() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      // Handle delete action
-                      console.log('Delete report:', feature.title);
+                      const report = mockTestReports[idx];
+                      if (report) handleActionClick(e, 'delete', report);
                     }}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-400 hover:bg-neutral-500 dark:bg-neutral-500 dark:hover:bg-neutral-400 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
