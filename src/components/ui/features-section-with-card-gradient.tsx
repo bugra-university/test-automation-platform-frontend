@@ -59,9 +59,9 @@ export function FeaturesSectionWithCardGradient() {
                       {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
                       ({feature.passedCount}/{feature.totalCount})
                     </span>
-                    <span className="text-neutral-500 dark:text-neutral-400 text-xs">
-                      {feature.executedAt}
-                    </span>
+                                      <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+                    {feature.executedAt}
+                  </span>
                   </div>
                 </>
               ) : (
