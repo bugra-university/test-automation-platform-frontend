@@ -26,6 +26,24 @@
     border-top: none !important;
 }
 
+/* Override DayPilot navigator border-top more aggressively */
+.navigator_default_main,
+.navigator_default_main *,
+.navigator_default_main::before,
+.navigator_default_main::after {
+    border-top: none !important;
+}
+
+/* Target specific DayPilot navigator elements */
+div[class*="navigator_default"] {
+    border-top: none !important;
+}
+
+div[class*="navigator_default"]:before,
+div[class*="navigator_default"]:after {
+    border-top: none !important;
+}
+
 /* Calendar içindeki tüm scrollbar'ları incelt */
 .calendar_default_main *::-webkit-scrollbar,
 .calendar_default_main::-webkit-scrollbar {
