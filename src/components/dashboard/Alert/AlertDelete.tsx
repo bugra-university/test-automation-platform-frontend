@@ -18,6 +18,7 @@ interface AlertDeleteProps {
   onConfirm: () => void;
   title: string;
   isDeleting?: boolean; // Add optional loading state
+  type?: 'project' | 'report'; // Add type to customize content
 }
 
 // Özel DialogContent bileşeni - X butonu olmayan versiyon
@@ -43,6 +44,7 @@ const CustomDialogContent = React.forwardRef<
  * @param onClose - Function to call when canceling/closing the dialog
  * @param onConfirm - Function to call when confirming deletion
  * @param title - Title/name of the item being deleted
+ * @param type - Type of item being deleted (project or report)
  */
 const AlertDelete: React.FC<AlertDeleteProps> = ({
   isOpen,
@@ -50,12 +52,42 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
   onConfirm,
   title,
   isDeleting = false,
-}) => {return (
+  type = 'project',
+}) => {
+  const getContent = () => {
+    if (type === 'report') {
+      return {
+        description: `Are you sure you want to delete "${title}"?`,
+        details: "This will permanently remove the test report file from the system.",
+        items: [
+          "HTML report file",
+          "Test execution data",
+          "Screenshots and attachments (if any)"
+        ]
+      };
+    } else {
+      return {
+        description: `Are you sure you want to delete "${title}"?`,
+        details: "This will permanently remove the project and all associated data including:",
+        items: [
+          "All Excel files and sheets",
+          "Product backlog items and test cases", 
+          "Test runs and results",
+          "Screenshots and attachments"
+        ]
+      };
+    }
+  };
+
+  const content = getContent();
+
+  return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogPortal>
         <DialogOverlay />
         <CustomDialogContent className="sm:max-w-[560px] p-0 gap-0 border-none bg-white overflow-hidden">
-          <div className="p-6 w-full relative">            <button 
+          <div className="p-6 w-full relative">            
+            <button 
               onClick={onClose}
               className="absolute right-6 top-6 rounded-full p-1.5 hover:bg-gray-100 border border-[#e0e0e0]"
               title="Close dialog"
@@ -68,23 +100,32 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
               <DialogTitle className="text-left text-3xl font-medium text-[#3c3c3c]">
                 Confirm delete
               </DialogTitle>
-            </DialogHeader>              <div className="py-2">
+            </DialogHeader>              
+            
+            <div className="py-2">
               <p className="text-left text-base text-gray-700">
-                Are you sure you want to delete "<span className="font-medium">{title}</span>"?
-              </p>              <p className="text-left text-base text-gray-700 mt-2">
-                This will permanently remove the project and all associated data including:
+                {content.description}
+              </p>              
+              
+              <p className="text-left text-base text-gray-700 mt-2">
+                {content.details}
               </p>
-              <ul className="text-left text-sm text-gray-700 mt-2 ml-4 list-disc">
-                <li>All Excel files and sheets</li>
-                <li>Product backlog items and test cases</li>
-                <li>Test runs and results</li>
-                <li>Screenshots and attachments</li>
-              </ul>
+              
+              {content.items.length > 0 && (
+                <ul className="text-left text-sm text-gray-700 mt-2 ml-4 list-disc">
+                  {content.items.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              )}
+              
               <p className="text-left text-base text-red-600 mt-2 font-medium">
                 This action cannot be undone.
               </p>
             </div>
-          </div>          <div className="flex flex-row gap-3 p-6 pt-0">
+          </div>          
+          
+          <div className="flex flex-row gap-3 p-6 pt-0">
             <Button 
               onClick={onConfirm}
               disabled={isDeleting}

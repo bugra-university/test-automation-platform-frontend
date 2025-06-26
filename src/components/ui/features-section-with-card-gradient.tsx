@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { cn } from "../../lib/utils";
 import { Grid } from "./grid";
 import { getAllReports, downloadReport, viewReport, deleteReport, TestReport } from "../../api/reportApi";
+import AlertDelete from "../dashboard/Alert/AlertDelete";
 
 interface GridItem {
   title: string;
@@ -20,6 +21,14 @@ export function FeaturesSectionWithCardGradient() {
   const [reports, setReports] = useState<TestReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Delete alert state
+  const [deleteAlert, setDeleteAlert] = useState({
+    isOpen: false,
+    reportId: '',
+    reportTitle: '',
+    isDeleting: false
+  });
 
   // Load reports on component mount
   useEffect(() => {
@@ -52,18 +61,52 @@ export function FeaturesSectionWithCardGradient() {
           await downloadReport(reportId);
           break;
         case 'delete':
-          if (window.confirm('Are you sure you want to delete this report?')) {
-            await deleteReport(reportId);
-            // Reload reports after deletion
-            await loadReports();
-            setSelectedCard(null);
-          }
+          // Find report title for the alert
+          const report = reports.find(r => r.id === reportId);
+          setDeleteAlert({
+            isOpen: true,
+            reportId: reportId,
+            reportTitle: report?.title || 'Unknown Report',
+            isDeleting: false
+          });
           break;
       }
     } catch (err) {
       console.error(`Error ${action} report:`, err);
       alert(`Failed to ${action} report. Please try again.`);
     }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      setDeleteAlert(prev => ({ ...prev, isDeleting: true }));
+      await deleteReport(deleteAlert.reportId);
+      
+      // Reload reports after deletion
+      await loadReports();
+      setSelectedCard(null);
+      
+      // Close delete alert
+      setDeleteAlert({
+        isOpen: false,
+        reportId: '',
+        reportTitle: '',
+        isDeleting: false
+      });
+    } catch (err) {
+      console.error('Error deleting report:', err);
+      alert('Failed to delete report. Please try again.');
+      setDeleteAlert(prev => ({ ...prev, isDeleting: false }));
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteAlert({
+      isOpen: false,
+      reportId: '',
+      reportTitle: '',
+      isDeleting: false
+    });
   };
 
   const formatExecutionTime = (dateString: string) => {
@@ -145,96 +188,108 @@ export function FeaturesSectionWithCardGradient() {
   }
 
   return (
-    <div className="p-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 md:gap-2 max-w-7xl mx-auto">
-        {reportCards.map((feature, idx) => (
-          <div
-            key={`report-${feature.reportId}`}
-            className="relative bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white p-6 rounded-3xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-200 cursor-pointer h-72 flex flex-col"
-            onClick={() => setSelectedCard(selectedCard === feature.reportId ? null : feature.reportId || null)}
-          >
-            <Grid size={20} />
-            <div className="flex-1 flex flex-col">
-              <p className="text-base font-bold text-neutral-800 dark:text-white relative z-20 truncate">
-                {feature.title}
-              </p>
+    <>
+      <div className="p-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 md:gap-2 max-w-7xl mx-auto">
+          {reportCards.map((feature, idx) => (
+            <div
+              key={`report-${feature.reportId}`}
+              className="relative bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white p-6 rounded-3xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-200 cursor-pointer h-72 flex flex-col"
+              onClick={() => setSelectedCard(selectedCard === feature.reportId ? null : feature.reportId || null)}
+            >
+              <Grid size={20} />
+              <div className="flex-1 flex flex-col">
+                <p className="text-base font-bold text-neutral-800 dark:text-white relative z-20 truncate">
+                  {feature.title}
+                </p>
 
-              <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical'
-              }}>
-                {feature.description}
-              </p>
-              <p className="text-neutral-500 dark:text-neutral-500 mt-2 text-sm font-normal relative z-20 flex-1 overflow-hidden" style={{
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical'
-              }}>
-                {feature.testCase}
-              </p>
+                <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {feature.description}
+                </p>
+                <p className="text-neutral-500 dark:text-neutral-500 mt-2 text-sm font-normal relative z-20 flex-1 overflow-hidden" style={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical'
+                }}>
+                  {feature.testCase}
+                </p>
 
-              {/* Status Badge and Date */}
-              <div className="mt-4 flex items-center justify-between relative z-20">
-                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                  feature.status === 'passed' 
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                    : feature.status === 'failed'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                }`}>
-                  {feature.status === 'passed' ? '✅' : feature.status === 'failed' ? '❌' : '⚠️'} 
-                  {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
-                  ({feature.passedCount}/{feature.totalCount})
-                </span>
-                <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
-                  {feature.executedAt}
-                </span>
-              </div>
-            </div>
-
-            {/* Action Bar - sadece seçili kart için göster */}
-            {selectedCard === feature.reportId && feature.reportId && (
-              <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 p-4 rounded-b-3xl animate-in slide-in-from-bottom-2 duration-200 z-30">
-                <div className="flex items-center justify-center gap-2">
-                  <button
-                    onClick={(e) => handleActionClick(e, 'view', feature.reportId!)}
-                    className="report-action-btn inline-flex items-center gap-1 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
-                    style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    View
-                  </button>
-                  <button
-                    onClick={(e) => handleActionClick(e, 'download', feature.reportId!)}
-                    className="report-action-btn inline-flex items-center gap-1 bg-neutral-300 hover:bg-neutral-400 dark:bg-neutral-600 dark:hover:bg-neutral-500 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
-                    style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Download
-                  </button>
-                  <button
-                    onClick={(e) => handleActionClick(e, 'delete', feature.reportId!)}
-                    className="report-action-btn inline-flex items-center gap-1 bg-neutral-400 hover:bg-neutral-500 dark:bg-neutral-500 dark:hover:bg-neutral-400 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
-                    style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
-                  >
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Delete
-                  </button>
+                {/* Status Badge and Date */}
+                <div className="mt-4 flex items-center justify-between relative z-20">
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                    feature.status === 'passed' 
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                      : feature.status === 'failed'
+                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                  }`}>
+                    {feature.status === 'passed' ? '✅' : feature.status === 'failed' ? '❌' : '⚠️'} 
+                    {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
+                    ({feature.passedCount}/{feature.totalCount})
+                  </span>
+                  <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+                    {feature.executedAt}
+                  </span>
                 </div>
               </div>
-            )}
-          </div>
-        ))}
+
+              {/* Action Bar - sadece seçili kart için göster */}
+              {selectedCard === feature.reportId && feature.reportId && (
+                <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 p-4 rounded-b-3xl animate-in slide-in-from-bottom-2 duration-200 z-30">
+                  <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={(e) => handleActionClick(e, 'view', feature.reportId!)}
+                      className="report-action-btn inline-flex items-center gap-1 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
+                      style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      View
+                    </button>
+                    <button
+                      onClick={(e) => handleActionClick(e, 'download', feature.reportId!)}
+                      className="report-action-btn inline-flex items-center gap-1 bg-neutral-300 hover:bg-neutral-400 dark:bg-neutral-600 dark:hover:bg-neutral-500 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
+                      style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download
+                    </button>
+                    <button
+                      onClick={(e) => handleActionClick(e, 'delete', feature.reportId!)}
+                      className="report-action-btn inline-flex items-center gap-1 bg-neutral-400 hover:bg-neutral-500 dark:bg-neutral-500 dark:hover:bg-neutral-400 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
+                      style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
+                    >
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* Delete Confirmation Alert */}
+      <AlertDelete
+        isOpen={deleteAlert.isOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={deleteAlert.reportTitle}
+        isDeleting={deleteAlert.isDeleting}
+        type="report"
+      />
+    </>
   );
 }
 
