@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { cn } from "../../lib/utils";
 import { Grid } from "./grid";
-import { mockTestReports, TestReport } from "../../data/mockReports";
+import { getAllReports, downloadReport, viewReport, deleteReport, TestReport } from "../../api/reportApi";
 
 interface GridItem {
   title: string;
@@ -12,16 +12,58 @@ interface GridItem {
   totalCount?: number;
   executedAt?: string;
   isTestReport?: boolean;
-  skeleton?: boolean;
+  reportId?: string;
 }
 
 export function FeaturesSectionWithCardGradient() {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [reports, setReports] = useState<TestReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleActionClick = (e: React.MouseEvent, action: string, report: TestReport) => {
+  // Load reports on component mount
+  useEffect(() => {
+    loadReports();
+  }, []);
+
+  const loadReports = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllReports();
+      setReports(data);
+    } catch (err) {
+      setError('Failed to load test reports');
+      console.error('Error loading reports:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleActionClick = async (e: React.MouseEvent, action: string, reportId: string) => {
     e.stopPropagation();
-    console.log(`${action} action for report:`, report.fileName);
-    // TODO: Implement actual actions
+    
+    try {
+      switch (action) {
+        case 'view':
+          await viewReport(reportId);
+          break;
+        case 'download':
+          await downloadReport(reportId);
+          break;
+        case 'delete':
+          if (window.confirm('Are you sure you want to delete this report?')) {
+            await deleteReport(reportId);
+            // Reload reports after deletion
+            await loadReports();
+            setSelectedCard(null);
+          }
+          break;
+      }
+    } catch (err) {
+      console.error(`Error ${action} report:`, err);
+      alert(`Failed to ${action} report. Please try again.`);
+    }
   };
 
   const formatExecutionTime = (dateString: string) => {
@@ -35,8 +77,8 @@ export function FeaturesSectionWithCardGradient() {
     });
   };
 
-  // Convert mock reports to grid format
-  const reportCards: GridItem[] = mockTestReports.slice(0, 8).map(report => ({
+  // Convert API reports to grid format - sadece gerçek raporlar
+  const reportCards: GridItem[] = reports.map(report => ({
     title: report.title,
     description: report.description,
     testCase: report.testCase,
@@ -44,44 +86,72 @@ export function FeaturesSectionWithCardGradient() {
     passedCount: report.passedCount,
     totalCount: report.totalCount,
     executedAt: formatExecutionTime(report.executedAt),
-    isTestReport: true
+    isTestReport: true,
+    reportId: report.id
   }));
 
-  // Static feature cards for remaining slots
-  const staticFeatures: GridItem[] = [
-    {
-      title: "Real-time Test Monitoring",
-      description: "Monitor your test executions in real-time with live updates and progress tracking.",
-      skeleton: true,
-    },
-    {
-      title: "Advanced Test Analytics", 
-      description: "Get detailed insights into test performance, trends, and failure patterns.",
-      skeleton: true,
-    },
-    {
-      title: "Test Scheduling",
-      description: "Schedule automated test runs at specific times or intervals.",
-      skeleton: true,
-    },
-    {
-      title: "Team Collaboration",
-      description: "Share test results and collaborate with your team members effectively.",
-      skeleton: true,
-    },
-  ];
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-neutral-600 dark:text-neutral-400">Loading test reports...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Combine all cards
-  const grid = [...reportCards, ...staticFeatures];
+  if (error) {
+    return (
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
+            <button 
+              onClick={loadReports}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (reportCards.length === 0) {
+    return (
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-neutral-500 mb-4">
+              <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <p className="text-neutral-600 dark:text-neutral-400">No test reports found</p>
+            <p className="text-neutral-500 dark:text-neutral-500 text-sm mt-2">Run some tests to generate reports</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 md:gap-2 max-w-7xl mx-auto">
-        {grid.map((feature, idx) => (
+        {reportCards.map((feature, idx) => (
           <div
-            key={feature.isTestReport ? `report-${idx}` : `static-${idx}`}
+            key={`report-${feature.reportId}`}
             className="relative bg-gradient-to-b dark:from-neutral-900 from-neutral-100 dark:to-neutral-950 to-white p-6 rounded-3xl overflow-hidden hover:transform hover:-translate-y-1 transition-all duration-200 cursor-pointer h-72 flex flex-col"
-            onClick={() => setSelectedCard(selectedCard === feature.title ? null : feature.title)}
+            onClick={() => setSelectedCard(selectedCard === feature.reportId ? null : feature.reportId || null)}
           >
             <Grid size={20} />
             <div className="flex-1 flex flex-col">
@@ -89,62 +159,46 @@ export function FeaturesSectionWithCardGradient() {
                 {feature.title}
               </p>
 
-              {feature.isTestReport ? (
-                <>
-                  <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical'
-                  }}>
-                    {feature.description}
-                  </p>
-                  <p className="text-neutral-500 dark:text-neutral-500 mt-2 text-sm font-normal relative z-20 flex-1 overflow-hidden" style={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical'
-                  }}>
-                    {feature.testCase}
-                  </p>
+              <p className="text-neutral-600 dark:text-neutral-400 mt-2 text-sm font-medium relative z-20 overflow-hidden" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical'
+              }}>
+                {feature.description}
+              </p>
+              <p className="text-neutral-500 dark:text-neutral-500 mt-2 text-sm font-normal relative z-20 flex-1 overflow-hidden" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical'
+              }}>
+                {feature.testCase}
+              </p>
 
-                  {/* Status Badge and Date */}
-                  <div className="mt-4 flex items-center justify-between relative z-20">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                      feature.status === 'passed' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                        : feature.status === 'failed'
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}>
-                      {feature.status === 'passed' ? '✅' : feature.status === 'failed' ? '❌' : '⚠️'} 
-                      {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
-                      ({feature.passedCount}/{feature.totalCount})
-                    </span>
-                    <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
-                      {feature.executedAt}
-                    </span>
-                  </div>
-                </>
-              ) : (
-                <p className="text-neutral-600 dark:text-neutral-400 mt-4 text-base font-normal relative z-20 overflow-hidden" style={{
-                  display: '-webkit-box',
-                  WebkitLineClamp: 4,
-                  WebkitBoxOrient: 'vertical'
-                }}>
-                  {feature.description}
-                </p>
-              )}
+              {/* Status Badge and Date */}
+              <div className="mt-4 flex items-center justify-between relative z-20">
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                  feature.status === 'passed' 
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                    : feature.status === 'failed'
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                }`}>
+                  {feature.status === 'passed' ? '✅' : feature.status === 'failed' ? '❌' : '⚠️'} 
+                  {feature.status === 'passed' ? 'Passed' : feature.status === 'failed' ? 'Failed' : 'Mixed'} 
+                  ({feature.passedCount}/{feature.totalCount})
+                </span>
+                <span className="text-neutral-500 dark:text-neutral-400 text-xs font-medium">
+                  {feature.executedAt}
+                </span>
+              </div>
             </div>
 
-            {/* Action Bar */}
-            {selectedCard === feature.title && feature.isTestReport && (
+            {/* Action Bar - sadece seçili kart için göster */}
+            {selectedCard === feature.reportId && feature.reportId && (
               <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-700 p-4 rounded-b-3xl animate-in slide-in-from-bottom-2 duration-200 z-30">
                 <div className="flex items-center justify-center gap-2">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const report = mockTestReports[idx];
-                      if (report) handleActionClick(e, 'view', report);
-                    }}
+                    onClick={(e) => handleActionClick(e, 'view', feature.reportId!)}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
                   >
@@ -155,11 +209,7 @@ export function FeaturesSectionWithCardGradient() {
                     View
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const report = mockTestReports[idx];
-                      if (report) handleActionClick(e, 'download', report);
-                    }}
+                    onClick={(e) => handleActionClick(e, 'download', feature.reportId!)}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-300 hover:bg-neutral-400 dark:bg-neutral-600 dark:hover:bg-neutral-500 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
                   >
@@ -169,11 +219,7 @@ export function FeaturesSectionWithCardGradient() {
                     Download
                   </button>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const report = mockTestReports[idx];
-                      if (report) handleActionClick(e, 'delete', report);
-                    }}
+                    onClick={(e) => handleActionClick(e, 'delete', feature.reportId!)}
                     className="report-action-btn inline-flex items-center gap-1 bg-neutral-400 hover:bg-neutral-500 dark:bg-neutral-500 dark:hover:bg-neutral-400 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
                     style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
                   >
