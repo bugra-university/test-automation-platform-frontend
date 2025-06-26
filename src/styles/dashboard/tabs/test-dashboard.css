@@ -192,6 +192,14 @@
     color: #6b7280;
 }
 
+/* Report action buttons - override general button styles */
+.report-action-btn {
+    padding: 4px 12px !important;
+    height: auto !important;
+    border-radius: 9999px !important;
+    font-size: 0.8rem !important;
+}
+
 /* Pagination controls - specific styling to override other rules */
 .pagination-controls p,
 .pagination-controls div,
