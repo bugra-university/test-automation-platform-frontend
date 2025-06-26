@@ -440,9 +440,17 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
       try {
         const response = await testSuitesApi.getTestCases(selectedProjectId, userStoryId);
         if (response.success) {
+          // Sort test cases by ID numerically (TC01, TC02, TC03...)
+          const sortedTestCases = response.testCases.sort((a, b) => {
+            // Extract number from TC01, TC02 etc.
+            const aNum = parseInt(a.id.replace(/^TC0?/, ''));
+            const bNum = parseInt(b.id.replace(/^TC0?/, ''));
+            return aNum - bNum;
+          });
+          
           setTestCasesByUserStory(prev => ({
             ...prev,
-            [userStoryId]: response.testCases
+            [userStoryId]: sortedTestCases
           }));
         }
       } catch (error) {
@@ -693,7 +701,10 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             color: '#666',
             cursor: 'pointer',
             fontSize: '14px',
-            fontWeight: '500'
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           Cancel
@@ -709,7 +720,10 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
             color: 'white',
             cursor: formData.userStory && selectedTestCases.length > 0 ? 'pointer' : 'not-allowed',
             fontSize: '14px',
-            fontWeight: '500'
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           {mode === 'create' ? 'Create Schedule' : 'Update Schedule'}
