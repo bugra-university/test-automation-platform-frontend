@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import { testSuitesApi, TestSuite, TestCase } from '../../../api/testSuitesApi';
 import { scheduleApi } from '../../../api/scheduleApi';
+import AlertDelete from '../Alert/AlertDelete';
 import "./SchedulesTab.css";
 
 const styles = {
@@ -54,6 +55,12 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
     schedule: null as TestSchedule | null,
     startTime: '',
     endTime: ''
+  });
+
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    schedule: null as TestSchedule | null,
+    isDeleting: false
   });
 
   const getStatusColor = (status: string) => {
@@ -135,22 +142,29 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
               // Reload schedules to show updated status
               const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
               if (response.success && response.schedules) {
-                const calendarSchedules = response.schedules.map(schedule => ({
-                  id: schedule.id?.toString() || 'temp',
-                  text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
-                  start: schedule.startTime,
-                  end: schedule.endTime,
-                  userStory: schedule.userStoryId,
-                  testCases: schedule.testCaseIds,
-                  scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
-                  status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
-                  backColor: getStatusColor(schedule.status),
-                  nextRun: schedule.nextRunTime,
-                  lastRun: schedule.lastRunTime ? {
-                    date: schedule.lastRunTime,
-                    status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
-                  } : undefined
-                }));
+                const calendarSchedules = response.schedules.map(schedule => {
+                  // Convert UTC times to Turkey timezone for display
+                  const startUTC = new Date(schedule.startTime);
+                  const endUTC = new Date(schedule.endTime);
+                  const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
+                  
+                  return {
+                    id: schedule.id?.toString() || 'temp',
+                    text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+                    start: new Date(startUTC.getTime() + turkeyOffset).toISOString(),
+                    end: new Date(endUTC.getTime() + turkeyOffset).toISOString(),
+                    userStory: schedule.userStoryId,
+                    testCases: schedule.testCaseIds,
+                    scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+                    status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+                    backColor: getStatusColor(schedule.status),
+                    nextRun: schedule.nextRunTime,
+                    lastRun: schedule.lastRunTime ? {
+                      date: schedule.lastRunTime,
+                      status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+                    } : undefined
+                  };
+                });
                 setSchedules(calendarSchedules);
               }
             } catch (error) {
@@ -182,18 +196,13 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
           onClick: async (args: any) => {
             if (!selectedProjectId) return;
             
-            if (window.confirm("Are you sure you want to delete this schedule?")) {
-              try {
-                const scheduleId = parseInt(args.source.id());
-                await scheduleApi.deleteSchedule(selectedProjectId, scheduleId);
-                console.log("Schedule deleted successfully");
-                
-                // Remove from local state
-                setSchedules(prev => prev.filter(s => s.id !== args.source.id()));
-              } catch (error) {
-                console.error("Error deleting schedule:", error);
-                // Could add toast notification here
-              }
+            const schedule = schedules.find(s => s.id === args.source.id());
+            if (schedule) {
+              setDeleteModal({
+                isOpen: true,
+                schedule: schedule,
+                isDeleting: false
+              });
             }
           },
         }
@@ -246,22 +255,29 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
         const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
         if (response.success && response.schedules) {
           // Convert API schedules to calendar format
-          const calendarSchedules = response.schedules.map(schedule => ({
-            id: schedule.id?.toString() || 'temp',
-            text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
-            start: schedule.startTime,
-            end: schedule.endTime,
-            userStory: schedule.userStoryId,
-            testCases: schedule.testCaseIds,
-            scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
-            status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
-            backColor: getStatusColor(schedule.status),
-            nextRun: schedule.nextRunTime,
-            lastRun: schedule.lastRunTime ? {
-              date: schedule.lastRunTime,
-              status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
-            } : undefined
-          }));
+          const calendarSchedules = response.schedules.map(schedule => {
+            // Convert UTC times to Turkey timezone for display
+            const startUTC = new Date(schedule.startTime);
+            const endUTC = new Date(schedule.endTime);
+            const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
+            
+            return {
+              id: schedule.id?.toString() || 'temp',
+              text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+              start: new Date(startUTC.getTime() + turkeyOffset).toISOString(),
+              end: new Date(endUTC.getTime() + turkeyOffset).toISOString(),
+              userStory: schedule.userStoryId,
+              testCases: schedule.testCaseIds,
+              scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+              status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+              backColor: getStatusColor(schedule.status),
+              nextRun: schedule.nextRunTime,
+              lastRun: schedule.lastRunTime ? {
+                date: schedule.lastRunTime,
+                status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+              } : undefined
+            };
+          });
           setSchedules(calendarSchedules);
         }
       } catch (error) {
@@ -286,6 +302,32 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
       startTime: new Date().toISOString(),
       endTime: new Date(Date.now() + 30 * 60 * 1000).toISOString()
     });
+  };
+
+  const handleDeleteSchedule = async () => {
+    if (!selectedProjectId || !deleteModal.schedule) return;
+    
+    setDeleteModal(prev => ({ ...prev, isDeleting: true }));
+    
+    try {
+      const scheduleId = parseInt(deleteModal.schedule.id);
+      await scheduleApi.deleteSchedule(selectedProjectId, scheduleId);
+      console.log("Schedule deleted successfully");
+      
+      // Remove from local state
+      setSchedules(prev => prev.filter(s => s.id !== deleteModal.schedule?.id));
+      
+      // Close modal
+      setDeleteModal({
+        isOpen: false,
+        schedule: null,
+        isDeleting: false
+      });
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+      setDeleteModal(prev => ({ ...prev, isDeleting: false }));
+      // Could add toast notification here
+    }
   };
 
   return (
@@ -407,22 +449,29 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
                   try {
                     const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
                     if (response.success && response.schedules) {
-                      const calendarSchedules = response.schedules.map(schedule => ({
-                        id: schedule.id?.toString() || 'temp',
-                        text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
-                        start: schedule.startTime,
-                        end: schedule.endTime,
-                        userStory: schedule.userStoryId,
-                        testCases: schedule.testCaseIds,
-                        scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
-                        status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
-                        backColor: getStatusColor(schedule.status),
-                        nextRun: schedule.nextRunTime,
-                        lastRun: schedule.lastRunTime ? {
-                          date: schedule.lastRunTime,
-                          status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
-                        } : undefined
-                      }));
+                      const calendarSchedules = response.schedules.map(schedule => {
+                        // Convert UTC times to Turkey timezone for display
+                        const startUTC = new Date(schedule.startTime);
+                        const endUTC = new Date(schedule.endTime);
+                        const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
+                        
+                        return {
+                          id: schedule.id?.toString() || 'temp',
+                          text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+                          start: new Date(startUTC.getTime() + turkeyOffset).toISOString(),
+                          end: new Date(endUTC.getTime() + turkeyOffset).toISOString(),
+                          userStory: schedule.userStoryId,
+                          testCases: schedule.testCaseIds,
+                          scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+                          status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+                          backColor: getStatusColor(schedule.status),
+                          nextRun: schedule.nextRunTime,
+                          lastRun: schedule.lastRunTime ? {
+                            date: schedule.lastRunTime,
+                            status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+                          } : undefined
+                        };
+                      });
                       setSchedules(calendarSchedules);
                     }
                   } catch (error) {
@@ -435,6 +484,16 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <AlertDelete
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, schedule: null, isDeleting: false })}
+        onConfirm={handleDeleteSchedule}
+        title={deleteModal.schedule?.text || 'this schedule'}
+        isDeleting={deleteModal.isDeleting}
+        type="schedule"
+      />
     </div>
   );
 };

@@ -18,7 +18,7 @@ interface AlertDeleteProps {
   onConfirm: () => void;
   title: string;
   isDeleting?: boolean; // Add optional loading state
-  type?: 'project' | 'report'; // Add type to customize content
+  type?: 'project' | 'report' | 'schedule'; // Add type to customize content
 }
 
 // Özel DialogContent bileşeni - X butonu olmayan versiyon
@@ -63,6 +63,17 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
           "HTML report file",
           "Test execution data",
           "Screenshots and attachments (if any)"
+        ]
+      };
+    } else if (type === 'schedule') {
+      return {
+        description: `Are you sure you want to delete "${title}"?`,
+        details: "This will permanently remove the test schedule and all associated data including:",
+        items: [
+          "Schedule configuration",
+          "Test execution history",
+          "Recurring schedule settings",
+          "Associated test results"
         ]
       };
     } else {
