@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import { testSuitesApi, TestSuite, TestCase } from '../../../api/testSuitesApi';
+import { scheduleApi } from '../../../api/scheduleApi';
 import "./SchedulesTab.css";
 
 const styles = {
@@ -72,6 +73,12 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
     timeRangeSelectedHandling: "Enabled" as const,
     
     onTimeRangeSelected: async (args: any) => {
+      if (!selectedProjectId) {
+        console.warn('No project selected');
+        calendar.clearSelection();
+        return;
+      }
+      
       // Custom modal açacağız (DayPilot.Modal.prompt yerine)
       setScheduleModal({
         isOpen: true,
@@ -117,8 +124,39 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
         {
           text: "Run Now",
           onClick: async (args: any) => {
-            console.log("Running test schedule:", args.source.id());
-            // TODO: Implement run now functionality
+            if (!selectedProjectId) return;
+            
+            try {
+              const scheduleId = parseInt(args.source.id());
+              await scheduleApi.runScheduleNow(selectedProjectId, scheduleId);
+              console.log("Schedule run request sent successfully");
+              // Could add toast notification here
+              
+              // Reload schedules to show updated status
+              const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
+              if (response.success && response.schedules) {
+                const calendarSchedules = response.schedules.map(schedule => ({
+                  id: schedule.id?.toString() || 'temp',
+                  text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+                  start: schedule.startTime,
+                  end: schedule.endTime,
+                  userStory: schedule.userStoryId,
+                  testCases: schedule.testCaseIds,
+                  scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+                  status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+                  backColor: getStatusColor(schedule.status),
+                  nextRun: schedule.nextRunTime,
+                  lastRun: schedule.lastRunTime ? {
+                    date: schedule.lastRunTime,
+                    status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+                  } : undefined
+                }));
+                setSchedules(calendarSchedules);
+              }
+            } catch (error) {
+              console.error("Error running schedule:", error);
+              // Could add toast notification here
+            }
           },
         },
         {
@@ -142,8 +180,20 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
         {
           text: "Delete",
           onClick: async (args: any) => {
+            if (!selectedProjectId) return;
+            
             if (window.confirm("Are you sure you want to delete this schedule?")) {
-              setSchedules(prev => prev.filter(s => s.id !== args.source.id()));
+              try {
+                const scheduleId = parseInt(args.source.id());
+                await scheduleApi.deleteSchedule(selectedProjectId, scheduleId);
+                console.log("Schedule deleted successfully");
+                
+                // Remove from local state
+                setSchedules(prev => prev.filter(s => s.id !== args.source.id()));
+              } catch (error) {
+                console.error("Error deleting schedule:", error);
+                // Could add toast notification here
+              }
             }
           },
         }
@@ -187,55 +237,48 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
     }
   };
 
-  // Mock test schedules data
+  // Load schedules from API
   useEffect(() => {
-    const today = new Date();
-    const mockSchedules: TestSchedule[] = [
-      {
-        id: "schedule_1",
-        text: "US_01 - User Registration",
-        start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0).toISOString(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30).toISOString(),
-        userStory: "US_01",
-        testCases: ["TC01", "TC02", "TC03"],
-        scheduleType: "daily",
-        status: "scheduled"
-      },
-      {
-        id: "schedule_2", 
-        text: "US_03 - Billing Address",
-        start: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 14, 0).toISOString(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1, 14, 45).toISOString(),
-        userStory: "US_03",
-        testCases: ["TC01", "TC02"],
-        scheduleType: "weekly",
-        status: "completed"
-      },
-      {
-        id: "schedule_3",
-        text: "US_08 - Shopping Cart", 
-        start: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2, 10, 30).toISOString(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 2, 11, 15).toISOString(),
-        userStory: "US_08",
-        testCases: ["TC01", "TC02", "TC03", "TC04"],
-        scheduleType: "once",
-        status: "failed"
-      },
-      {
-        id: "schedule_4",
-        text: "US_02 - Invalid Registration",
-        start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 0).toISOString(),
-        end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 30).toISOString(),
-        userStory: "US_02", 
-        testCases: ["TC01", "TC02"],
-        scheduleType: "daily",
-        status: "running"
+    if (!selectedProjectId) return;
+
+    const loadSchedules = async () => {
+      try {
+        const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
+        if (response.success && response.schedules) {
+          // Convert API schedules to calendar format
+          const calendarSchedules = response.schedules.map(schedule => ({
+            id: schedule.id?.toString() || 'temp',
+            text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+            start: schedule.startTime,
+            end: schedule.endTime,
+            userStory: schedule.userStoryId,
+            testCases: schedule.testCaseIds,
+            scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+            status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+            backColor: getStatusColor(schedule.status),
+            nextRun: schedule.nextRunTime,
+            lastRun: schedule.lastRunTime ? {
+              date: schedule.lastRunTime,
+              status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+            } : undefined
+          }));
+          setSchedules(calendarSchedules);
+        }
+      } catch (error) {
+        console.error('Error loading schedules:', error);
+        // Keep existing schedules or show empty state
       }
-    ];
-    setSchedules(mockSchedules);
-  }, []);
+    };
+
+    loadSchedules();
+  }, [selectedProjectId]);
 
   const handleCreateSchedule = () => {
+    if (!selectedProjectId) {
+      console.warn('No project selected');
+      return;
+    }
+    
     setScheduleModal({
       isOpen: true,
       mode: 'create',
@@ -264,13 +307,14 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
       }}>
         <button
           onClick={handleCreateSchedule}
+          disabled={!selectedProjectId}
           style={{
-            background: "#1976d2",
+            background: selectedProjectId ? "#1976d2" : "#ccc",
             color: "white",
             border: "none",
             borderRadius: "8px",
             padding: "10px 20px",
-            cursor: "pointer",
+            cursor: selectedProjectId ? "pointer" : "not-allowed",
             fontWeight: 500,
             fontSize: "14px",
             display: "flex",
@@ -348,7 +392,7 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
               startTime={scheduleModal.startTime}
               endTime={scheduleModal.endTime}
               selectedProjectId={selectedProjectId}
-              onSave={(newSchedule) => {
+              onSave={async (newSchedule) => {
                 if (scheduleModal.mode === 'create') {
                   setSchedules(prev => [...prev, newSchedule]);
                 } else {
@@ -357,6 +401,34 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
                   ));
                 }
                 setScheduleModal({ ...scheduleModal, isOpen: false });
+                
+                // Reload schedules from API to ensure consistency
+                if (selectedProjectId) {
+                  try {
+                    const response = await scheduleApi.getSchedulesByProject(selectedProjectId);
+                    if (response.success && response.schedules) {
+                      const calendarSchedules = response.schedules.map(schedule => ({
+                        id: schedule.id?.toString() || 'temp',
+                        text: schedule.title || `${schedule.userStoryId} - Test Schedule`,
+                        start: schedule.startTime,
+                        end: schedule.endTime,
+                        userStory: schedule.userStoryId,
+                        testCases: schedule.testCaseIds,
+                        scheduleType: schedule.scheduleType.toLowerCase() as 'once' | 'daily' | 'weekly' | 'monthly',
+                        status: schedule.status.toLowerCase() as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused',
+                        backColor: getStatusColor(schedule.status),
+                        nextRun: schedule.nextRunTime,
+                        lastRun: schedule.lastRunTime ? {
+                          date: schedule.lastRunTime,
+                          status: schedule.status === 'COMPLETED' ? 'passed' as const : 'failed' as const
+                        } : undefined
+                      }));
+                      setSchedules(calendarSchedules);
+                    }
+                  } catch (error) {
+                    console.error('Error reloading schedules:', error);
+                  }
+                }
               }}
               onCancel={() => setScheduleModal({ ...scheduleModal, isOpen: false })}
             />
@@ -469,27 +541,60 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newSchedule: TestSchedule = {
-      id: schedule?.id || `schedule_${Date.now()}`,
-      text: formData.title || formData.userStory,
-      start: formData.startDateTime,
-      end: formData.endDateTime,
-      userStory: formData.userStory,
-      testCases: selectedTestCases,
-      scheduleType: formData.scheduleType,
-      status: formData.status
-    };
+    if (!selectedProjectId) {
+      console.error('No project selected');
+      return;
+    }
 
-    onSave(newSchedule);
+    try {
+      const scheduleData = {
+        title: formData.title || undefined,
+        userStoryId: formData.userStory,
+        testCaseIds: selectedTestCases,
+        startTime: formData.startDateTime,
+        endTime: formData.endDateTime,
+        scheduleType: formData.scheduleType.toUpperCase() as 'ONCE' | 'DAILY' | 'WEEKLY' | 'MONTHLY',
+        status: formData.status.toUpperCase() as 'SCHEDULED' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'PAUSED',
+        description: formData.description || undefined
+      };
+
+      let response;
+      if (mode === 'create') {
+        response = await scheduleApi.createSchedule(selectedProjectId, scheduleData);
+      } else if (schedule?.id) {
+        response = await scheduleApi.updateSchedule(selectedProjectId, parseInt(schedule.id), scheduleData);
+      }
+
+      if (response?.success) {
+        // Convert response to calendar format and notify parent
+        const calendarSchedule = {
+          id: response.schedule?.id?.toString() || `schedule_${Date.now()}`,
+          text: response.schedule?.title || `${response.schedule?.userStoryId} - Test Schedule`,
+          start: response.schedule?.startTime || formData.startDateTime,
+          end: response.schedule?.endTime || formData.endDateTime,
+          userStory: response.schedule?.userStoryId || formData.userStory,
+          testCases: response.schedule?.testCaseIds || selectedTestCases,
+          scheduleType: (response.schedule?.scheduleType?.toLowerCase() || formData.scheduleType) as 'once' | 'daily' | 'weekly' | 'monthly',
+          status: (response.schedule?.status?.toLowerCase() || formData.status) as 'scheduled' | 'running' | 'completed' | 'failed' | 'paused'
+        };
+
+        onSave(calendarSchedule);
+      }
+    } catch (error) {
+      console.error('Error saving schedule:', error);
+      // Could add toast notification here
+    }
   };
 
   const formatDateTime = (dateTimeString: string) => {
     if (!dateTimeString) return '';
     const date = new Date(dateTimeString);
-    return date.toISOString().slice(0, 16); // Format for datetime-local input
+    // Get local timezone offset and adjust the date
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    return localDate.toISOString().slice(0, 16); // Format for datetime-local input
   };
 
   return (
