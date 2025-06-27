@@ -549,6 +549,11 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
         const response = await testSuitesApi.getTestSuites(selectedProjectId);
         if (response.success) {
           setUserStories(response.testSuites);
+          
+          // If in edit mode and schedule has a user story, load its test cases
+          if (mode === 'edit' && schedule?.userStory) {
+            await loadTestCasesForUserStory(schedule.userStory);
+          }
         }
       } catch (error) {
         console.error('Error loading user stories:', error);
@@ -558,37 +563,46 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
     };
 
     loadUserStories();
-  }, [selectedProjectId]);
+  }, [selectedProjectId, mode, schedule]);
+
+  // Helper function to load test cases for a user story
+  const loadTestCasesForUserStory = async (userStoryId: string) => {
+    if (!selectedProjectId) return;
+    
+    setLoadingTestCases(true);
+    try {
+      const response = await testSuitesApi.getTestCases(selectedProjectId, userStoryId);
+      if (response.success) {
+        // Sort test cases by ID numerically (TC01, TC02, TC03...)
+        const sortedTestCases = response.testCases.sort((a, b) => {
+          // Extract number from TC01, TC02 etc.
+          const aNum = parseInt(a.id.replace(/^TC0?/, ''));
+          const bNum = parseInt(b.id.replace(/^TC0?/, ''));
+          return aNum - bNum;
+        });
+        
+        setTestCasesByUserStory(prev => ({
+          ...prev,
+          [userStoryId]: sortedTestCases
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading test cases:', error);
+    } finally {
+      setLoadingTestCases(false);
+    }
+  };
 
   const handleUserStoryChange = async (userStoryId: string) => {
     setFormData(prev => ({ ...prev, userStory: userStoryId }));
-    // Reset test cases when user story changes
-    setSelectedTestCases([]);
+    // Reset test cases when user story changes (only in create mode)
+    if (mode === 'create') {
+      setSelectedTestCases([]);
+    }
     
     // Load test cases for selected user story
-    if (selectedProjectId && userStoryId) {
-      setLoadingTestCases(true);
-      try {
-        const response = await testSuitesApi.getTestCases(selectedProjectId, userStoryId);
-        if (response.success) {
-          // Sort test cases by ID numerically (TC01, TC02, TC03...)
-          const sortedTestCases = response.testCases.sort((a, b) => {
-            // Extract number from TC01, TC02 etc.
-            const aNum = parseInt(a.id.replace(/^TC0?/, ''));
-            const bNum = parseInt(b.id.replace(/^TC0?/, ''));
-            return aNum - bNum;
-          });
-          
-          setTestCasesByUserStory(prev => ({
-            ...prev,
-            [userStoryId]: sortedTestCases
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading test cases:', error);
-      } finally {
-        setLoadingTestCases(false);
-      }
+    if (userStoryId) {
+      await loadTestCasesForUserStory(userStoryId);
     }
   };
 
