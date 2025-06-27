@@ -665,8 +665,11 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
   const formatDateTime = (dateTimeString: string) => {
     if (!dateTimeString) return '';
     const date = new Date(dateTimeString);
-    // Get local timezone offset and adjust the date
-    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    // For edit modal, we need to show the actual calendar time (which is already UTC+3)
+    // So we need to subtract the Turkey offset to get the original time
+    const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
+    const originalTime = new Date(date.getTime() - turkeyOffset);
+    const localDate = new Date(originalTime.getTime() - originalTime.getTimezoneOffset() * 60000);
     return localDate.toISOString().slice(0, 16); // Format for datetime-local input
   };
 
