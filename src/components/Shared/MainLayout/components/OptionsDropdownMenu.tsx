@@ -111,7 +111,7 @@ export const OptionsDropdownMenu: React.FC<OptionsDropdownMenuProps> = ({
             <span>Archive</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem onSelect={onDelete} className="text-destructive focus:text-destructive">
+        <DropdownMenuItem onSelect={onDelete} className="text-delete focus:text-delete">
           <Trash size={16} strokeWidth={2} aria-hidden="true" />
           <span>Delete</span>
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>

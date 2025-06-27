@@ -268,7 +268,7 @@ export function FeaturesSectionWithCardGradient() {
                     </button>
                     <button
                       onClick={(e) => handleActionClick(e, 'delete', feature.reportId!)}
-                      className="report-action-btn inline-flex items-center gap-1 bg-neutral-400 hover:bg-neutral-500 dark:bg-neutral-500 dark:hover:bg-neutral-400 text-neutral-600 dark:text-neutral-300 rounded-full text-xs font-semibold transition-colors"
+                      className="report-action-btn inline-flex items-center gap-1 bg-delete hover:bg-delete/80 dark:bg-delete dark:hover:bg-delete/80 text-delete-foreground dark:text-delete-foreground rounded-full text-xs font-semibold transition-colors"
                       style={{ padding: '4px 12px !important', height: 'auto !important', borderRadius: '9999px !important' }}
                     >
                       <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

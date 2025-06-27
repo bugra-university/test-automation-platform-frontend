@@ -16,6 +16,10 @@ module.exports = {
           DEFAULT: "#ef4444",
           foreground: "#ffffff",
         },
+        delete: {
+          DEFAULT: "#ff8a80", // Açık somon/coral pastel rengi
+          foreground: "#5d4037", // Koyu kahverengi text için kontrast
+        },
         background: "#ffffff",
         accent: "#f0f2f5",
         input: "#e2e8f0",

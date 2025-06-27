@@ -140,7 +140,7 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
             <Button 
               onClick={onConfirm}
               disabled={isDeleting}
-              className="px-6 py-2 rounded-3xl bg-[#f44336] hover:bg-[#d32f2f] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 rounded-3xl bg-delete hover:bg-delete/80 text-delete-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isDeleting ? (
                 <div className="flex items-center">
