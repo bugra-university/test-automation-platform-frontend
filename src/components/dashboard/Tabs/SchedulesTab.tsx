@@ -664,13 +664,32 @@ const ScheduleForm: React.FC<ScheduleFormProps> = ({
 
   const formatDateTime = (dateTimeString: string) => {
     if (!dateTimeString) return '';
-    const date = new Date(dateTimeString);
-    // For edit modal, we need to show the actual calendar time (which is already UTC+3)
-    // So we need to subtract the Turkey offset to get the original time
-    const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
-    const originalTime = new Date(date.getTime() - turkeyOffset);
-    const localDate = new Date(originalTime.getTime() - originalTime.getTimezoneOffset() * 60000);
-    return localDate.toISOString().slice(0, 16); // Format for datetime-local input
+    
+    // For edit mode, the dateTimeString comes from calendar which is already adjusted
+    // We need to subtract the Turkey offset to get the original UTC time
+    if (mode === 'edit' && schedule) {
+      const date = new Date(dateTimeString);
+      const turkeyOffset = 3 * 60 * 60 * 1000; // UTC+3 in milliseconds
+      const originalTime = new Date(date.getTime() - turkeyOffset);
+      
+      const year = originalTime.getFullYear();
+      const month = String(originalTime.getMonth() + 1).padStart(2, '0');
+      const day = String(originalTime.getDate()).padStart(2, '0');
+      const hours = String(originalTime.getHours()).padStart(2, '0');
+      const minutes = String(originalTime.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    } else {
+      // For create mode, use the time as-is (browser local time)
+      const date = new Date(dateTimeString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
   };
 
   return (
