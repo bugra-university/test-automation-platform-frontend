@@ -457,7 +457,7 @@ export const testSuitesApi = {
             
             // Handle connection opened
             eventSource.onopen = () => {
-                console.log('[SSE] Connection established for project', projectId);
+                console.log('[SSE] ✅ Connection established for project', projectId);
                 isConnected = true;
             };
 
@@ -524,13 +524,14 @@ export const testSuitesApi = {
 
             // Handle errors
             eventSource.onerror = (error) => {
-                console.error('[SSE] Connection error:', error);
+                console.error('[SSE] ❌ Connection error:', error);
+                console.error('[SSE] ❌ EventSource readyState:', eventSource?.readyState);
                 isConnected = false;
                 
                 // Attempt to reconnect after 3 seconds
                 setTimeout(() => {
                     if (!isConnected) {
-                        console.log('[SSE] Attempting to reconnect...');
+                        console.log('[SSE] 🔄 Attempting to reconnect...');
                         connect(projectId, onEvent);
                     }
                 }, 3000);

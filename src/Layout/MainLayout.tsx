@@ -1,8 +1,10 @@
-import React, { cloneElement, ReactElement, useEffect } from 'react';
+import React, { cloneElement, ReactElement, useEffect, useRef, useCallback } from 'react';
 import TestSidebar from './TestSidebar';
 import { MainNav } from '../components/Shared/MainNav';
 import FullScreen from '../components/dashboard/Settings/FullScreen';
 import Delete, { DeleteDialog } from '../components/dashboard/Settings/Delete';
+import { testSuitesApi } from '../api/testSuitesApi';
+import { stepTrackingApi } from '../api/stepTrackingApi';
 import '../styles/Layout/right-container.css';
 import '../styles/Layout/left-container.css';
 import '../styles/Layout/main-layout.css';
@@ -31,6 +33,66 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
   const [state, actions] = useMainLayoutState();
   const { handleTabClick, handleRightTabClick } = useTabHandlers(state, actions);
   const { toast } = useToast();
+
+  // Global SSE managers (persistent across tab changes)
+  const globalSSEManagerRef = useRef<any>(null);
+  const globalStepSSEManagerRef = useRef<any>(null);
+
+  // Global SSE event handler
+  const handleGlobalSSEEvent = useCallback((event: any) => {
+    console.log('[MainLayout] 🌐 Global SSE event received:', event.eventType, event.data);
+    
+    // Broadcast to all components that might be interested
+    window.dispatchEvent(new CustomEvent('globalSSEEvent', { 
+      detail: { eventType: event.eventType, data: event.data } 
+    }));
+  }, []);
+
+  // Global Step SSE event handler
+  const handleGlobalStepSSEEvent = useCallback((event: any) => {
+    console.log('[MainLayout] 🌐 Global Step SSE event received:', event.eventType, event.data);
+    
+    // Broadcast to all components that might be interested
+    window.dispatchEvent(new CustomEvent('globalStepSSEEvent', { 
+      detail: { eventType: event.eventType, data: event.data } 
+    }));
+  }, []);
+
+  // Setup global SSE connections when active project changes
+  useEffect(() => {
+    if (state.activeProject?.id) {
+      const projectId = state.activeProject.id;
+      console.log('[MainLayout] 🔌 Setting up global SSE connections for project:', projectId);
+
+      // Cleanup existing connections
+      if (globalSSEManagerRef.current) {
+        globalSSEManagerRef.current.disconnect();
+      }
+      if (globalStepSSEManagerRef.current) {
+        globalStepSSEManagerRef.current.disconnect();
+      }
+
+      // Create new global SSE connections
+      globalSSEManagerRef.current = testSuitesApi.createEventStream(projectId, handleGlobalSSEEvent);
+      globalStepSSEManagerRef.current = stepTrackingApi.createStepEventStream(projectId, handleGlobalStepSSEEvent);
+
+      // Connect
+      globalSSEManagerRef.current.connect(projectId, handleGlobalSSEEvent);
+      globalStepSSEManagerRef.current.connect(projectId, handleGlobalStepSSEEvent);
+
+      return () => {
+        console.log('[MainLayout] 🔌 Cleaning up global SSE connections');
+        if (globalSSEManagerRef.current) {
+          globalSSEManagerRef.current.disconnect();
+          globalSSEManagerRef.current = null;
+        }
+        if (globalStepSSEManagerRef.current) {
+          globalStepSSEManagerRef.current.disconnect();
+          globalStepSSEManagerRef.current = null;
+        }
+      };
+    }
+  }, [state.activeProject?.id, handleGlobalSSEEvent, handleGlobalStepSSEEvent]);
 
   // Load table statistics on component mount
   useEffect(() => {

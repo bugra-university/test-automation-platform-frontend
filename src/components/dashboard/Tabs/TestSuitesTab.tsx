@@ -499,11 +499,12 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
 
   // Handle real-time test execution events
   const handleTestExecutionEvent = useCallback((event: TestExecutionEvent) => {
-    console.log('[TestSuitesTab] Received SSE event:', event.eventType, event.data);
+    console.log('[TestSuitesTab] 🔔 Received SSE event:', event.eventType, event.data);
+    console.log('[TestSuitesTab] Current selectedProjectId:', selectedProjectId);
 
     switch (event.eventType) {
       case 'connected':
-        console.log('[TestSuitesTab] SSE Connected successfully');
+        console.log('[TestSuitesTab] ✅ SSE Connected successfully');
         break;
 
       case 'test_suite_started':
@@ -530,16 +531,24 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
         break;
 
       case 'test_suite_completed':
+        console.log('[TestSuitesTab] Test suite completed - refreshing data...', event.data);
         if (event.data.userStoryId && selectedProjectId) {
-          // Refresh data to get updated test results
-          loadTestSuites(selectedProjectId);
+          // Force refresh data to get updated test results
+          console.log('[TestSuitesTab] Calling loadTestSuites for project:', selectedProjectId);
+          setTimeout(() => {
+            loadTestSuites(selectedProjectId);
+          }, 1000); // Small delay to ensure backend has processed the completion
         }
         break;
 
       case 'test_case_completed':
+        console.log('[TestSuitesTab] Test case completed - refreshing data...', event.data);
         if (event.data.testCaseId && selectedProjectId) {
-          // Refresh data to get updated test results
-          loadTestSuites(selectedProjectId);
+          // Force refresh data to get updated test results
+          console.log('[TestSuitesTab] Calling loadTestSuites for project:', selectedProjectId);
+          setTimeout(() => {
+            loadTestSuites(selectedProjectId);
+          }, 1000); // Small delay to ensure backend has processed the completion
         }
         break;
 
@@ -548,60 +557,41 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
     }
   }, [selectedProjectId]);
 
-  // Set up SSE connection when project changes
+  // Listen to global SSE events from MainLayout
+  useEffect(() => {
+    const handleGlobalSSEEvent = (event: any) => {
+      const { eventType, data } = event.detail;
+      console.log('[TestSuitesTab] 🌐 Received global SSE event:', eventType, data);
+      handleTestExecutionEvent({ eventType, data });
+    };
+
+    const handleGlobalStepSSEEvent = (event: any) => {
+      const { eventType, data } = event.detail;
+      console.log('[TestSuitesTab] 🌐 Received global Step SSE event:', eventType, data);
+      handleStepExecutionEvent({ eventType, data });
+    };
+
+    // Listen to global SSE events
+    window.addEventListener('globalSSEEvent', handleGlobalSSEEvent);
+    window.addEventListener('globalStepSSEEvent', handleGlobalStepSSEEvent);
+
+    return () => {
+      window.removeEventListener('globalSSEEvent', handleGlobalSSEEvent);
+      window.removeEventListener('globalStepSSEEvent', handleGlobalStepSSEEvent);
+    };
+  }, [handleTestExecutionEvent, handleStepExecutionEvent]);
+
+  // Load data when project changes
   useEffect(() => {
     if (selectedProjectId) {
-      // console.log('[TestSuitesTab] Setting up SSE connection for project:', selectedProjectId);
-      
-      // Create SSE manager
-      sseManagerRef.current = testSuitesApi.createEventStream(selectedProjectId, handleTestExecutionEvent);
-      
-      // Connect to SSE
-      sseManagerRef.current.connect(selectedProjectId, handleTestExecutionEvent);
-
-      // Create Step SSE manager
-      stepSSEManagerRef.current = stepTrackingApi.createStepEventStream(selectedProjectId, handleStepExecutionEvent);
-      
-      // Connect to Step SSE
-      stepSSEManagerRef.current.connect(selectedProjectId, handleStepExecutionEvent);
-      
-      // Load initial data
+      console.log('[TestSuitesTab] 📊 Loading test suites for project:', selectedProjectId);
       loadTestSuites(selectedProjectId);
     } else {
-      // Disconnect SSE when no project selected
-      if (sseManagerRef.current) {
-        console.log('[TestSuitesTab] Disconnecting SSE');
-        sseManagerRef.current.disconnect();
-        sseManagerRef.current = null;
-      }
-
-      // Disconnect Step SSE
-      if (stepSSEManagerRef.current) {
-        console.log('[TestSuitesTab] Disconnecting Step SSE');
-        stepSSEManagerRef.current.disconnect();
-        stepSSEManagerRef.current = null;
-      }
-      
-      // Clear data
+      // Clear data when no project selected
       setTestSuites([]);
       setError(null);
     }
-
-    // Cleanup on unmount or project change
-    return () => {
-      if (sseManagerRef.current) {
-        console.log('[TestSuitesTab] Cleanup: Disconnecting SSE');
-        sseManagerRef.current.disconnect();
-        sseManagerRef.current = null;
-      }
-
-      if (stepSSEManagerRef.current) {
-        console.log('[TestSuitesTab] Cleanup: Disconnecting Step SSE');
-        stepSSEManagerRef.current.disconnect();
-        stepSSEManagerRef.current = null;
-      }
-    };
-      }, [selectedProjectId, handleTestExecutionEvent, handleStepExecutionEvent]);
+  }, [selectedProjectId]);
 
   // Remove polling and execution tracking related code since we use SSE now
 
