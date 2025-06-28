@@ -120,7 +120,7 @@ export function TestRunsTab() {
       <div key={testRun.id}>
         <div
           ref={itemRef}
-          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg ml-2 mr-4 bg-gray-100 ${
+          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg ml-2 mr-1 bg-gray-100 ${
             isSelected
               ? "border-l-4 border-primary/60"
               : isHovered
