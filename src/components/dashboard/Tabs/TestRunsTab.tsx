@@ -67,9 +67,10 @@ export function TestRunsTab() {
     isChild?: boolean;
     isSelected: boolean;
     onSelect: () => void;
+    isLastChild?: boolean;
   }
 
-  function TestRunListItem({ testRun, isChild = false, isSelected, onSelect }: TestRunListItemProps) {
+  function TestRunListItem({ testRun, isChild = false, isSelected, onSelect, isLastChild = false }: TestRunListItemProps) {
     const [isHovered, setIsHovered] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
     const hasChildren = testRun.children && testRun.children.length > 0;
@@ -204,14 +205,15 @@ export function TestRunsTab() {
               isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="mt-2 mb-1">
-              {testRun.children!.map((child) => (
+            <div className="mt-2 mb-3">
+              {testRun.children!.map((child, index) => (
                 <TestRunListItem
                   key={child.id}
                   testRun={child}
                   isChild={true}
                   isSelected={selectedTestRun?.id === child.id}
                   onSelect={() => handleTestRunSelect(child)}
+                  isLastChild={index === testRun.children!.length - 1}
                 />
               ))}
             </div>
