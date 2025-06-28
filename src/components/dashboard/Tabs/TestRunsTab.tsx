@@ -27,7 +27,7 @@ export function TestRunsTab() {
   // Panel sizes - load from localStorage or use default
   const [panelSizes, setPanelSizes] = useState<number[]>(() => {
     const saved = localStorage.getItem('testRunsPanelSizes');
-    return saved ? JSON.parse(saved) : [60, 40]; // Default: 60% left, 40% right
+    return saved ? JSON.parse(saved) : [60, 40]; // Default: 62% left, 38% right
   });
 
   // Filter test runs based on search query - only show User Stories in main list
@@ -120,13 +120,13 @@ export function TestRunsTab() {
       <div key={testRun.id}>
         <div
           ref={itemRef}
-          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg mx-2 ${
+          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg ml-2 mr-4 ${
             isSelected
               ? "bg-primary/10 border-l-4 border-primary/60 shadow-sm"
               : isHovered
                 ? "bg-muted/50 border-l-4 border-primary/60"
-                : "border-l-4 border-transparent"
-          } ${isChild ? "ml-6 bg-primary/5 mt-1.5" : "mb-1"}`}
+                : "bg-gray-100 border-l-4 border-transparent"
+          } ${isChild ? "ml-6 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -165,13 +165,13 @@ export function TestRunsTab() {
                   )}
                 </div>
               </div>
-              <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+              <div className="text-xs text-muted-foreground font-medium whitespace-nowrap ml-2">
                 {formatDistanceToNow(new Date(testRun.timestamp))}
               </div>
             </div>
 
             {/* Preview of description */}
-            <div className="text-xs text-muted-foreground truncate mb-2">
+            <div className="text-xs text-muted-foreground font-medium truncate mb-2">
               {testRun.description.substring(0, 100)}...
             </div>
 
@@ -388,7 +388,7 @@ export function TestRunsTab() {
       >
         {/* Left Panel - Test Run List */}
         <ResizablePanel defaultSize={panelSizes[0]} minSize={25}>
-          <div className="h-full flex flex-col border-r border-border/50">
+          <div className="h-full flex flex-col border-r border-border/50 pr-2">
             {/* Header with Search */}
             <div className="p-4 flex items-center gap-2">
               <Input
@@ -418,7 +418,7 @@ export function TestRunsTab() {
                   <p>No test runs found</p>
                 </div>
               ) : (
-                <div className="p-2">
+                <div className="pl-2 pr-6">
                   {filteredTestRuns.map((testRun) => (
                     <TestRunListItem
                       key={testRun.id}
@@ -438,7 +438,9 @@ export function TestRunsTab() {
 
         {/* Right Panel - Test Run Details */}
         <ResizablePanel defaultSize={panelSizes[1]}>
-          {renderASCIICard(selectedTestRun)}
+          <div className="pl-2">
+            {renderASCIICard(selectedTestRun)}
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
