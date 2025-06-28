@@ -23,6 +23,12 @@ export function TestRunsTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTestRun, setSelectedTestRun] = useState<TestRun | null>(mockTestRuns.find(t => t.type === 'user_story') || null);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  
+  // Panel sizes - load from localStorage or use default
+  const [panelSizes, setPanelSizes] = useState<number[]>(() => {
+    const saved = localStorage.getItem('testRunsPanelSizes');
+    return saved ? JSON.parse(saved) : [60, 40]; // Default: 60% left, 40% right
+  });
 
   // Filter test runs based on search query - only show User Stories in main list
   const filteredTestRuns = useMemo(() => {
@@ -48,6 +54,12 @@ export function TestRunsTab() {
 
   const handleTestRunSelect = (testRun: TestRun) => {
     setSelectedTestRun(testRun);
+  };
+
+  // Handle panel layout changes and save to localStorage
+  const handlePanelLayout = (sizes: number[]) => {
+    setPanelSizes(sizes);
+    localStorage.setItem('testRunsPanelSizes', JSON.stringify(sizes));
   };
 
   interface TestRunListItemProps {
@@ -76,9 +88,9 @@ export function TestRunsTab() {
 
       // Add trigger type badge with pastel colors
       if (testRun.trigger === "manual") {
-        badges.push({ label: "Manual", className: "bg-blue-50 text-blue-600" });
+        badges.push({ label: "Manual", className: "bg-blue-50 text-blue-600 hover:bg-blue-100" });
       } else if (testRun.trigger === "schedule") {
-        badges.push({ label: "Schedule", className: "bg-gray-50 text-gray-600" });
+        badges.push({ label: "Schedule", className: "bg-gray-50 text-gray-600 hover:bg-gray-100" });
       }
 
       // Add results badge if available
@@ -90,12 +102,12 @@ export function TestRunsTab() {
         if (failedTests > 0) {
           badges.push({
             label: `${passedTests} passed, ${failedTests} failed`,
-            className: "bg-red-50 text-red-600",
+            className: "bg-red-50 text-red-600 hover:bg-red-100",
           });
         } else {
           badges.push({
             label: `${totalTests} test${totalTests > 1 ? 's' : ''} passed`,
-            className: "bg-green-50 text-green-600",
+            className: "bg-green-50 text-green-600 hover:bg-green-100",
           });
         }
       }
@@ -111,7 +123,7 @@ export function TestRunsTab() {
             isSelected
               ? "bg-primary/10 border-l-4 border-primary/60 shadow-sm"
               : isHovered
-                ? "bg-muted/50 border-l-4 border-gray-600"
+                ? "bg-muted/50 border-l-4 border-primary/60"
                 : "border-l-4 border-transparent"
           } ${isChild ? "ml-6 bg-primary/5 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
@@ -141,7 +153,7 @@ export function TestRunsTab() {
                         e.stopPropagation();
                         toggleExpanded(testRun.id);
                       }}
-                      className="p-1 hover:bg-accent rounded-full ml-1"
+                      className="p-1.5 hover:bg-accent rounded-full ml-1 w-6 h-6 flex items-center justify-center"
                     >
                       {isExpanded ? (
                         <ChevronDown className="h-3 w-3 text-muted-foreground" />
@@ -165,17 +177,17 @@ export function TestRunsTab() {
             {/* Badges */}
             <div className="flex flex-wrap gap-1.5">
               {getBadges().map((badge, index) => (
-                <Badge key={index} className={`text-xs px-1.5 py-0 ${badge.className} hover:opacity-80 transition-opacity`}>
+                <Badge key={index} className={`text-xs px-1.5 py-0 ${badge.className} transition-colors cursor-pointer`}>
                   {badge.label}
                 </Badge>
               ))}
               {testRun.status === "running" && (
-                <Badge className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0 hover:bg-blue-100 transition-colors">
+                <Badge className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0 hover:bg-blue-100 transition-colors cursor-pointer">
                   Live
                 </Badge>
               )}
               {testRun.status === "failed" && (
-                <Badge className="bg-red-50 text-red-600 text-xs px-1.5 py-0 hover:bg-red-100 transition-colors">
+                <Badge className="bg-red-50 text-red-600 text-xs px-1.5 py-0 hover:bg-red-100 transition-colors cursor-pointer">
                   Failed
                 </Badge>
               )}
@@ -361,9 +373,13 @@ export function TestRunsTab() {
 
   return (
     <div className="h-full flex flex-col">
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="flex-1"
+        onLayout={handlePanelLayout}
+      >
         {/* Left Panel - Test Run List */}
-        <ResizablePanel defaultSize={45} minSize={30}>
+        <ResizablePanel defaultSize={panelSizes[0]} minSize={25}>
           <div className="h-full flex flex-col border-r border-border/50">
             {/* Header with Search */}
             <div className="p-4 flex items-center gap-2">
@@ -413,7 +429,7 @@ export function TestRunsTab() {
         <ResizableHandle withHandle />
 
         {/* Right Panel - Test Run Details */}
-        <ResizablePanel defaultSize={65}>
+        <ResizablePanel defaultSize={panelSizes[1]}>
           {renderASCIICard(selectedTestRun)}
         </ResizablePanel>
       </ResizablePanelGroup>
