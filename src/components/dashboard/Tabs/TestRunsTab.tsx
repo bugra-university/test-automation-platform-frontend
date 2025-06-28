@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Search, MoreHorizontal, ChevronDown, ChevronRight, Play, Square, BarChart3, Eye, Trash2, Archive } from "lucide-react";
+import { Search, MoreHorizontal, ChevronDown, ChevronRight, Play, Square, BarChart3, Eye, Trash2 } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
@@ -55,12 +55,9 @@ export function TestRunsTab() {
     isChild?: boolean;
     isSelected: boolean;
     onSelect: () => void;
-    onArchive: () => void;
-    onDelete: () => void;
-    onRunAgain: () => void;
   }
 
-  function TestRunListItem({ testRun, isChild = false, isSelected, onSelect, onArchive, onDelete, onRunAgain }: TestRunListItemProps) {
+  function TestRunListItem({ testRun, isChild = false, isSelected, onSelect }: TestRunListItemProps) {
     const [isHovered, setIsHovered] = useState(false);
     const itemRef = useRef<HTMLDivElement>(null);
     const hasChildren = testRun.children && testRun.children.length > 0;
@@ -123,7 +120,7 @@ export function TestRunsTab() {
         >
           {/* Avatar */}
           <div className="relative">
-            <Avatar className="h-10 w-10">
+            <Avatar className={testRun.type === 'user_story' ? "h-11 w-11" : "h-9 w-9"}>
               <AvatarFallback className={getAvatarColor(testRun.type)}>
                 {testRun.type === 'user_story' ? testRun.userStoryId : testRun.testCaseId}
               </AvatarFallback>
@@ -183,46 +180,7 @@ export function TestRunsTab() {
             </div>
           </div>
 
-          {/* Action buttons - positioned absolutely to not affect row height */}
-          {isHovered && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1 bg-muted/80 backdrop-blur-sm px-1 py-0.5 rounded-md">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onArchive();
-                }}
-              >
-                <Archive className="h-4 w-4" />
-              </Button>
 
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRunAgain();
-                }}
-              >
-                <Play className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Render children if expanded */}
@@ -235,9 +193,6 @@ export function TestRunsTab() {
                 isChild={true}
                 isSelected={selectedTestRun?.id === child.id}
                 onSelect={() => handleTestRunSelect(child)}
-                onArchive={() => console.log('Archive', child.id)}
-                onDelete={() => console.log('Delete', child.id)}
-                onRunAgain={() => console.log('Run again', child.id)}
               />
             ))}
           </div>
@@ -406,11 +361,16 @@ export function TestRunsTab() {
     <div className="h-full flex flex-col">
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Panel - Test Run List */}
-        <ResizablePanel defaultSize={35} minSize={25}>
+        <ResizablePanel defaultSize={45} minSize={30}>
           <div className="h-full flex flex-col border-r border-border/50">
-            {/* Header */}
-            <div className="p-4 flex items-center justify-between border-b border-border/50">
-              <h2 className="text-lg font-medium">Test Runs</h2>
+            {/* Header with Search */}
+            <div className="p-4 flex items-center gap-2">
+              <Input
+                placeholder="Search test runs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-background/80 rounded-full"
+              />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
@@ -423,16 +383,6 @@ export function TestRunsTab() {
                   <DropdownMenuItem>Sort by Duration</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-
-            {/* Search */}
-            <div className="p-2">
-              <Input
-                placeholder="Search test runs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-background/80"
-              />
             </div>
 
             {/* Test Run List */}
@@ -449,9 +399,6 @@ export function TestRunsTab() {
                       testRun={testRun}
                       isSelected={selectedTestRun?.id === testRun.id}
                       onSelect={() => handleTestRunSelect(testRun)}
-                      onArchive={() => console.log('Archive', testRun.id)}
-                      onDelete={() => console.log('Delete', testRun.id)}
-                      onRunAgain={() => console.log('Run again', testRun.id)}
                     />
                   ))}
                 </div>
