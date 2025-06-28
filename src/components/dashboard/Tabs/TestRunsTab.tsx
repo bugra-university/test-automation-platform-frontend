@@ -27,7 +27,7 @@ export function TestRunsTab() {
   // Panel sizes - load from localStorage or use default
   const [panelSizes, setPanelSizes] = useState<number[]>(() => {
     const saved = localStorage.getItem('testRunsPanelSizes');
-    return saved ? JSON.parse(saved) : [60, 40]; // Default: 62% left, 38% right
+    return saved ? JSON.parse(saved) : [50, 50]; // Default: 50% left, 50% right
   });
 
   // Filter test runs based on search query - only show User Stories in main list
@@ -408,12 +408,10 @@ export function TestRunsTab() {
       <ResizablePanelGroup
         direction="horizontal"
         className="h-full"
-        onLayout={(sizes: number[]) => {
-          setPanelSizes(sizes);
-        }}
+        onLayout={handlePanelLayout}
       >
         {/* Left Panel - Test Run List */}
-        <ResizablePanel defaultSize={panelSizes[0]} minSize={25} className="border-r">
+        <ResizablePanel defaultSize={50} minSize={30} maxSize={70} className="border-r">
           <div className="h-full flex flex-col">
             {/* Header with Search */}
             <div className="p-4 flex items-center gap-2">
@@ -433,7 +431,7 @@ export function TestRunsTab() {
                   <p>No test runs found</p>
                 </div>
               ) : (
-                <div className="pl-2 pr-6">
+                <div className="pl-2 pr-4">
                   {filteredTestRuns.map((testRun) => (
                     <TestRunListItem
                       key={testRun.id}
@@ -448,10 +446,13 @@ export function TestRunsTab() {
           </div>
         </ResizablePanel>
 
-        <ResizableHandle withHandle />
+        <ResizableHandle 
+          withHandle 
+          className="w-[1px] [&>div]:border-0 [&>div]:bg-gray-200 [&>div]:opacity-50" 
+        />
 
         {/* Right Panel - Test Run Details */}
-        <ResizablePanel defaultSize={panelSizes[1]}>
+        <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
           <div className="h-full overflow-auto">
             {renderASCIICard(selectedTestRun)}
           </div>
