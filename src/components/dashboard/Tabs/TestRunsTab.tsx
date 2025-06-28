@@ -109,7 +109,7 @@ export function TestRunsTab() {
           ref={itemRef}
           className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg mx-2 ${
             isSelected
-              ? "bg-primary/10 border-l-4 border-primary shadow-sm"
+              ? "bg-primary/10 border-l-4 border-primary/60 shadow-sm"
               : isHovered
                 ? "bg-muted/50 border-l-4 border-gray-600"
                 : "border-l-4 border-transparent"
@@ -131,23 +131,25 @@ export function TestRunsTab() {
             {/* Combined title and time on one line */}
             <div className="flex justify-between items-center mb-1">
               <div className="flex items-center gap-2">
-                {hasChildren && !isChild && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleExpanded(testRun.id);
-                    }}
-                    className="p-1 hover:bg-accent rounded"
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
-                    )}
-                  </button>
-                )}
-                <div className="truncate text-sm font-medium">
-                  {testRun.title.split(' - ').slice(1).join(' - ')}
+                <div className="flex items-center gap-1">
+                  <div className="truncate text-sm font-medium">
+                    {testRun.title.split(' - ').slice(1).join(' - ')}
+                  </div>
+                  {hasChildren && !isChild && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleExpanded(testRun.id);
+                      }}
+                      className="p-1 hover:bg-accent rounded-full ml-1"
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                      )}
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
