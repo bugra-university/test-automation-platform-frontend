@@ -126,7 +126,7 @@ export function TestRunsTab() {
               : isHovered
                 ? "border-l-4 border-primary/60"
                 : "border-l-4 border-transparent"
-          } ${isChild ? "ml-10 mt-1.5" : "mb-1"}`}
+          } ${isChild ? "ml-14 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
