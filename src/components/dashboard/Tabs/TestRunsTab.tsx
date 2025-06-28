@@ -232,21 +232,53 @@ export function TestRunsTab() {
       );
     }
 
+    // Calculate test statistics
+    const manualTests = testRun.children?.filter(test => test.trigger === 'manual').length || 0;
+    const scheduledTests = testRun.children?.filter(test => test.trigger === 'schedule').length || 0;
+    const passedTests = testRun.children?.filter(test => test.status === 'passed').length || 0;
+    const failedTests = testRun.children?.filter(test => test.status === 'failed').length || 0;
+    const pendingTests = testRun.children?.filter(test => test.status === 'pending').length || 0;
+
     return (
-      <div className="p-6 space-y-6">
-        <div className="bg-gray-50 rounded-lg border shadow-sm p-6">
-          <h2 className="text-xl font-semibold">Test Details</h2>
-          <p className="text-gray-500">Please provide the structure you want for this panel</p>
+      <div className="p-4 space-y-4">
+        {/* Header with Stats */}
+        <div className="flex gap-2 justify-center">
+          <div className="bg-gray-100 rounded-full h-10 px-4 text-center flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Manual</span>
+            <span className="text-sm font-semibold text-gray-700 ml-2">{manualTests}</span>
+          </div>
+          <div className="bg-gray-100 rounded-full h-10 px-4 text-center flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Scheduled</span>
+            <span className="text-sm font-semibold text-gray-700 ml-2">{scheduledTests}</span>
+          </div>
+          <div className="bg-green-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
+            <span className="text-sm font-medium text-green-600">Passed</span>
+            <span className="text-sm font-semibold text-green-700 ml-2">{passedTests}</span>
+          </div>
+          <div className="bg-yellow-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
+            <span className="text-sm font-medium text-yellow-600">Pending</span>
+            <span className="text-sm font-semibold text-yellow-700 ml-2">{pendingTests}</span>
+          </div>
+          <div className="bg-red-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
+            <span className="text-sm font-medium text-red-600">Failed</span>
+            <span className="text-sm font-semibold text-red-700 ml-2">{failedTests}</span>
+          </div>
+        </div>
+
+        {/* Test Details Content */}
+        <div className="bg-white rounded-lg border p-4">
+          <h2 className="text-xl font-semibold mb-4">Test Details</h2>
+          <p className="text-gray-500">Additional test details will be shown here</p>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
+    <div className="test-runs-container">
       <ResizablePanelGroup
         direction="horizontal"
-        className="flex-1"
+        className="h-full"
         onLayout={(sizes: number[]) => {
           setPanelSizes(sizes);
         }}
@@ -278,7 +310,7 @@ export function TestRunsTab() {
             </div>
 
             {/* Test Runs List */}
-            <div className="flex-1 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+            <div className="flex-1 overflow-auto">
               {filteredTestRuns.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <p>No test runs found</p>
@@ -303,7 +335,9 @@ export function TestRunsTab() {
 
         {/* Right Panel - Test Run Details */}
         <ResizablePanel defaultSize={panelSizes[1]}>
-          {renderASCIICard(selectedTestRun)}
+          <div className="h-full overflow-auto">
+            {renderASCIICard(selectedTestRun)}
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

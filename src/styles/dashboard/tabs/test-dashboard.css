@@ -8,6 +8,12 @@
     margin-bottom: 0.5rem;
 }
 
+/* Test runs container için stil */
+.test-runs-container {
+    height: calc(100vh - 12rem);
+    overflow: hidden;
+}
+
 /* Excel data container için stil */
 .excel-data-container {
     height: 500px;
