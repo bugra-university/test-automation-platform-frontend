@@ -120,12 +120,12 @@ export function TestRunsTab() {
       <div key={testRun.id}>
         <div
           ref={itemRef}
-          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg ml-2 mr-4 ${
+          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg ml-2 mr-4 bg-gray-100 ${
             isSelected
-              ? "bg-primary/10 border-l-4 border-primary/60 shadow-sm"
+              ? "border-l-4 border-primary/60"
               : isHovered
-                ? "bg-muted/50 border-l-4 border-primary/60"
-                : "bg-gray-100 border-l-4 border-transparent"
+                ? "border-l-4 border-primary/60"
+                : "border-l-4 border-transparent"
           } ${isChild ? "ml-10 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
@@ -226,172 +226,38 @@ export function TestRunsTab() {
   const renderASCIICard = (testRun: TestRun | null) => {
     if (!testRun) {
       return (
-        <div className="flex h-full items-center justify-center text-gray-500">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🧪</div>
-            <p className="text-lg font-medium mb-2">Select a test run to view details</p>
-            <p className="text-sm">Choose a test run from the left panel to see detailed information</p>
-          </div>
+        <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+          <p>Select a test run to view details</p>
         </div>
       );
     }
 
-    const statusColor = testRun.status === 'passed' ? 'text-green-600' : 
-                       testRun.status === 'failed' ? 'text-red-600' : 
-                       testRun.status === 'running' ? 'text-blue-600' : 'text-yellow-600';
-
     return (
-      <div className="p-6 h-full overflow-auto">
-        <div className="max-w-4xl">
-          {/* ASCII Header */}
-          <div className="font-mono text-sm border rounded-lg p-4 bg-gray-50">
-            <div className="text-center mb-4 font-bold">
-              ┌─────────────────────────────────────────────────────────────────────────────────────────┐
-              <br />
-              │                                    🏃 TEST RUN DETAILS                                     │
-              <br />
-              ├─────────────────────────────────────────────────────────────────────────────────────────┤
-            </div>
-
-            {/* Test Run Card */}
-            <div className="mb-4">
-              ┌─ Test Run Card ──────────────────────────────────────────────────────────────────────┐
-              <br />
-              │  🧪 {testRun.type === 'user_story' ? 'Test Suite' : 'Test Case'}: {testRun.title.padEnd(50)} 🕐 {formatDistanceToNow(new Date(testRun.timestamp)).padStart(12)} │
-              <br />
-              │  ┌─────────────────────────────────────────────────────────────────────────────────┐ │
-              <br />
-              │  │ 🤖 Triggered by: {testRun.trigger} │  ⚡ Status: {testRun.status.toUpperCase()} │  ⏱️ Duration: {testRun.duration} │ │
-              <br />
-              │  └─────────────────────────────────────────────────────────────────────────────────┘ │
-              <br />
-              │  📈 Results: {testRun.results.passed} Passed, {testRun.results.failed} Failed, {testRun.results.skipped} Skipped                                      │
-              <br />
-              {testRun.testCases && (
-                <>
-                  │  🧪 Test Cases: {testRun.testCases.join(', ')}                                                               │
-                  <br />
-                </>
-              )}
-              {testRun.error && (
-                <>
-                  │  💥 Error: {testRun.error.substring(0, 70)}...                                   │
-                  <br />
-                </>
-              )}
-              {testRun.currentStep && (
-                <>
-                  │  ⚡ Currently executing: {testRun.currentStep.substring(0, 60)}...                                │
-                  <br />
-                </>
-              )}
-              │  ┌──────────────────────────────────────────────────────────────────────────┐   │
-              <br />
-              │  │ 👁️ View Details   📄 View Report   📊 Test Results   {testRun.status === 'running' ? '🛑 Stop Test' : '🗑️ Delete'}         │
-              <br />
-              │  └──────────────────────────────────────────────────────────────────────────┘   │
-              <br />
-              └─────────────────────────────────────────────────────────────────────────────────┘
-            </div>
-
-            <div className="text-center">
-              └─────────────────────────────────────────────────────────────────────────────────────────┘
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="mt-6 flex gap-4">
-            <Button variant="outline" size="sm">
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
-            </Button>
-            <Button variant="outline" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View Report
-            </Button>
-            {testRun.status === 'running' ? (
-              <Button variant="destructive" size="sm">
-                <Square className="h-4 w-4 mr-2" />
-                Stop Test
-              </Button>
-            ) : (
-              <>
-                <Button variant="outline" size="sm">
-                  <Play className="h-4 w-4 mr-2" />
-                  Run Again
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete
-                </Button>
-              </>
-            )}
-          </div>
-
-          {/* Additional Details */}
-          <div className="mt-6 space-y-4">
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-2">Test Configuration</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Trigger:</span>
-                  <span>{testRun.trigger} by {testRun.triggerBy}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Type:</span>
-                  <span>{testRun.type === 'user_story' ? 'User Story' : 'Test Case'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Status:</span>
-                  <span className={statusColor}>{testRun.status.toUpperCase()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Duration:</span>
-                  <span>{testRun.duration}</span>
-                </div>
-              </div>
-            </div>
-
-            {testRun.children && testRun.children.length > 0 && (
-              <div className="border rounded-lg p-4">
-                <h3 className="font-semibold mb-2">Child Test Cases</h3>
-                <div className="space-y-2">
-                  {testRun.children.map((child) => (
-                    <div key={child.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span className="text-sm">{child.title}</span>
-                      <div className="flex items-center gap-2">
-                        <span className={`text-xs ${
-                          child.status === 'passed' ? 'text-green-600' : 
-                          child.status === 'failed' ? 'text-red-600' : 
-                          child.status === 'running' ? 'text-blue-600' : 'text-yellow-600'
-                        }`}>
-                          {child.status.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
+      <div className="p-6 space-y-6">
+        <div className="bg-gray-50 rounded-lg border shadow-sm p-6">
+          <h2 className="text-xl font-semibold">Test Details</h2>
+          <p className="text-gray-500">Please provide the structure you want for this panel</p>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <ResizablePanelGroup 
-        direction="horizontal" 
+    <div className="h-[calc(100vh-4rem)] flex flex-col">
+      <ResizablePanelGroup
+        direction="horizontal"
         className="flex-1"
-        onLayout={handlePanelLayout}
+        onLayout={(sizes: number[]) => {
+          setPanelSizes(sizes);
+        }}
       >
         {/* Left Panel - Test Run List */}
-        <ResizablePanel defaultSize={panelSizes[0]} minSize={25}>
-          <div className="h-full flex flex-col border-r border-border/50 pr-2">
+        <ResizablePanel defaultSize={panelSizes[0]} minSize={25} className="border-r">
+          <div className="h-full flex flex-col">
             {/* Header with Search */}
             <div className="p-4 flex items-center gap-2">
               <Input
+                type="text"
                 placeholder="Search test runs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -411,8 +277,8 @@ export function TestRunsTab() {
               </DropdownMenu>
             </div>
 
-            {/* Test Run List */}
-            <ScrollArea className="flex-1">
+            {/* Test Runs List */}
+            <div className="flex-1 overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
               {filteredTestRuns.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <p>No test runs found</p>
@@ -429,18 +295,15 @@ export function TestRunsTab() {
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
           </div>
         </ResizablePanel>
 
-        {/* Resizable Handle */}
         <ResizableHandle withHandle />
 
         {/* Right Panel - Test Run Details */}
         <ResizablePanel defaultSize={panelSizes[1]}>
-          <div className="pl-2">
-            {renderASCIICard(selectedTestRun)}
-          </div>
+          {renderASCIICard(selectedTestRun)}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
