@@ -110,13 +110,13 @@ export function TestRunsTab() {
       <div key={testRun.id}>
         <div
           ref={itemRef}
-          className={`p-3 cursor-pointer relative flex items-center gap-3 ${
+          className={`p-3 cursor-pointer relative flex items-center gap-3 rounded-lg mx-2 ${
             isSelected
               ? "bg-primary/10 border-l-4 border-primary shadow-sm"
               : isHovered
-                ? "bg-muted/50 border-l-4 border-transparent"
+                ? "bg-muted/50 border-l-4 border-gray-600"
                 : "border-l-4 border-transparent"
-          } ${isChild ? "ml-6 bg-muted/30" : ""}`}
+          } ${isChild ? "ml-6 bg-primary/5 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -150,7 +150,7 @@ export function TestRunsTab() {
                   </button>
                 )}
                 <div className="truncate text-sm font-medium">
-                  {testRun.title.split(' - ').slice(1).join(' - ')} <span className="text-muted-foreground font-normal">from {testRun.triggerBy}</span>
+                  {testRun.title.split(' - ').slice(1).join(' - ')}
                 </div>
               </div>
               <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
@@ -166,17 +166,17 @@ export function TestRunsTab() {
             {/* Badges */}
             <div className="flex flex-wrap gap-1.5">
               {getBadges().map((badge, index) => (
-                <Badge key={index} className={`text-xs px-1.5 py-0 ${badge.className}`}>
+                <Badge key={index} className={`text-xs px-1.5 py-0 ${badge.className} hover:opacity-80 transition-opacity`}>
                   {badge.label}
                 </Badge>
               ))}
               {testRun.status === "running" && (
-                <Badge className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0">
+                <Badge className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0 hover:bg-blue-100 transition-colors">
                   Live
                 </Badge>
               )}
               {testRun.status === "failed" && (
-                <Badge className="bg-red-50 text-red-600 text-xs px-1.5 py-0">
+                <Badge className="bg-red-50 text-red-600 text-xs px-1.5 py-0 hover:bg-red-100 transition-colors">
                   Failed
                 </Badge>
               )}
@@ -227,7 +227,7 @@ export function TestRunsTab() {
 
         {/* Render children if expanded */}
         {isExpanded && hasChildren && (
-          <div className="divide-y divide-border/50">
+          <div className="mt-2 mb-1">
             {testRun.children!.map((child) => (
               <TestRunListItem
                 key={child.id}
@@ -442,7 +442,7 @@ export function TestRunsTab() {
                   <p>No test runs found</p>
                 </div>
               ) : (
-                <div className="divide-y divide-border/50">
+                <div className="p-2">
                   {filteredTestRuns.map((testRun) => (
                     <TestRunListItem
                       key={testRun.id}
