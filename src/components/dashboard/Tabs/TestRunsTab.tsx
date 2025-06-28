@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { Search, MoreHorizontal, ChevronDown, ChevronRight, Play, Square, BarChart3, Eye, Trash2 } from "lucide-react";
+import { Search, MoreHorizontal, ChevronDown, ChevronRight, Play, Square, BarChart3, Eye, Trash2, Calendar, Clock, AlertCircle, FileText, RefreshCcw, StopCircle, Activity, Timer } from "lucide-react";
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
 import { Input } from "../../ui/input";
@@ -265,10 +265,96 @@ export function TestRunsTab() {
           </div>
         </div>
 
-        {/* Test Details Content */}
-        <div className="bg-white rounded-lg border p-4">
-          <h2 className="text-xl font-semibold mb-4">Test Details</h2>
-          <p className="text-gray-500">Additional test details will be shown here</p>
+        {/* User Story Card */}
+        <div className="bg-white rounded-lg border p-4 shadow-sm">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex-1">
+              <h3 className="text-sm font-medium">User Story: {testRun.userStoryId}</h3>
+              <p className="text-xs text-gray-500 mt-1">{testRun.description}</p>
+            </div>
+            <div className="flex items-center text-xs text-gray-500 ml-4 min-w-[160px]">
+              <Timer className="h-6 w-6 mr-2 text-gray-400 flex-shrink-0" />
+              <span className="font-medium whitespace-nowrap">Last Run: Jan 27, 5:30 PM</span>
+            </div>
+          </div>
+
+          {/* Test Cases Summary */}
+          <div className="bg-gray-50 rounded-md p-4 mb-4">
+            <h4 className="text-sm font-medium mb-3">Test Cases Overview</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-600">Total Test Cases:</span>
+                  <span className="text-xs font-medium">{testRun.children?.length || 0}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-600">Manual Tests:</span>
+                  <span className="text-xs font-medium">{manualTests}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-600">Scheduled Tests:</span>
+                  <span className="text-xs font-medium">{scheduledTests}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-green-600">Passed:</span>
+                  <span className="text-xs font-medium">{passedTests}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-red-600">Failed:</span>
+                  <span className="text-xs font-medium">{failedTests}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-yellow-600">Pending:</span>
+                  <span className="text-xs font-medium">{pendingTests}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Test Execution History */}
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-3">Recent Executions</h4>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-600" />
+                  <span>Jan 27, 5:30 PM</span>
+                </div>
+                <Badge variant="outline" className="bg-green-50 text-green-600">All Tests Passed</Badge>
+                <span className="text-gray-600">2m 45s</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-gray-600" />
+                  <span>Jan 26, 3:15 PM</span>
+                </div>
+                <Badge variant="outline" className="bg-red-50 text-red-600">2 Tests Failed</Badge>
+                <span className="text-gray-600">3m 10s</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 pt-3 border-t">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1">
+              <Eye className="h-4 w-4" />
+              <span className="text-xs">View Details</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex items-center gap-1">
+              <FileText className="h-4 w-4" />
+              <span className="text-xs">View Report</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex items-center gap-1">
+              <Play className="h-4 w-4" />
+              <span className="text-xs">Run All Tests</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 ml-auto text-red-600 hover:text-red-700">
+              <Trash2 className="h-4 w-4" />
+              <span className="text-xs">Delete</span>
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -295,22 +381,10 @@ export function TestRunsTab() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 bg-background/80 rounded-full"
               />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Filter by Status</DropdownMenuItem>
-                  <DropdownMenuItem>Sort by Date</DropdownMenuItem>
-                  <DropdownMenuItem>Sort by Duration</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
 
-            {/* Test Runs List */}
-            <div className="flex-1 overflow-auto">
+            {/* Test Run List */}
+            <div className="flex-1 overflow-auto left-panel-scroll">
               {filteredTestRuns.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <p>No test runs found</p>
