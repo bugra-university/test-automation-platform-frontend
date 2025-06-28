@@ -243,26 +243,24 @@ export function TestRunsTab() {
       <div className="p-4 space-y-4">
         {/* Header with Stats */}
         <div className="flex gap-2 justify-center">
-          <div className="bg-gray-100 rounded-full h-10 px-4 text-center flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Manual</span>
-            <span className="text-sm font-semibold text-gray-700 ml-2">{manualTests}</span>
-          </div>
-          <div className="bg-gray-100 rounded-full h-10 px-4 text-center flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Scheduled</span>
-            <span className="text-sm font-semibold text-gray-700 ml-2">{scheduledTests}</span>
-          </div>
-          <div className="bg-green-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
-            <span className="text-sm font-medium text-green-600">Passed</span>
-            <span className="text-sm font-semibold text-green-700 ml-2">{passedTests}</span>
-          </div>
-          <div className="bg-yellow-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
-            <span className="text-sm font-medium text-yellow-600">Pending</span>
-            <span className="text-sm font-semibold text-yellow-700 ml-2">{pendingTests}</span>
-          </div>
-          <div className="bg-red-50 rounded-full h-10 px-4 text-center flex items-center justify-between">
-            <span className="text-sm font-medium text-red-600">Failed</span>
-            <span className="text-sm font-semibold text-red-700 ml-2">{failedTests}</span>
-          </div>
+          <Badge className="bg-gray-100 text-gray-700 text-sm px-3 py-1.5 rounded-full">
+            Total {testRun.children?.length || 0}
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 text-sm px-3 py-1.5 rounded-full">
+            Manual {manualTests}
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 text-sm px-3 py-1.5 rounded-full">
+            Scheduled {scheduledTests}
+          </Badge>
+          <Badge className="bg-green-50 text-green-600 text-sm px-3 py-1.5 rounded-full">
+            Passed {passedTests}
+          </Badge>
+          <Badge className="bg-yellow-50 text-yellow-600 text-sm px-3 py-1.5 rounded-full">
+            Pending {pendingTests}
+          </Badge>
+          <Badge className="bg-red-50 text-red-600 text-sm px-3 py-1.5 rounded-full">
+            Failed {failedTests}
+          </Badge>
         </div>
 
         {/* User Story Card */}
@@ -321,37 +319,25 @@ export function TestRunsTab() {
             </div>
           </div>
 
-          {/* Test Cases Summary */}
-          <div className="bg-gray-50 rounded-md p-4 mb-4">
-            <h4 className="text-sm font-medium mb-3">Test Cases Overview</h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Total Test Cases:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{testRun.children?.length || 0}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Manual Tests:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{manualTests}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Scheduled Tests:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{scheduledTests}</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Passed:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{passedTests}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Failed:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{failedTests}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground font-medium">Pending:</span>
-                  <span className="text-xs text-muted-foreground font-medium">{pendingTests}</span>
-                </div>
+          {/* Test Cases Overview */}
+          <div className="mb-6">
+            <h5 className="text-sm font-medium mb-2">Test Cases Overview</h5>
+            <div className="space-y-2">
+              <div className="grid grid-cols-[120px_1fr] gap-y-2">
+                <div className="text-xs font-medium text-gray-600">Status</div>
+                <div className="text-xs font-medium text-gray-600">Test Cases</div>
+                
+                <div className="text-xs text-muted-foreground font-medium">Manual</div>
+                <div className="text-xs text-muted-foreground font-medium">TC01, TC02, TC03, TC04, TC05, TC06</div>
+                
+                <div className="text-xs text-muted-foreground font-medium">Passed</div>
+                <div className="text-xs font-medium text-green-600">TC01, TC02, TC03, TC05</div>
+                
+                <div className="text-xs text-muted-foreground font-medium">Failed</div>
+                <div className="text-xs font-medium text-red-500">TC04, TC06</div>
+                
+                <div className="text-xs text-muted-foreground font-medium">Pending</div>
+                <div className="text-xs text-muted-foreground font-medium">-</div>
               </div>
             </div>
           </div>
