@@ -10,6 +10,15 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "../../ui/r
 import { mockTestRuns, TestRun } from "../../../data/mockTestRuns";
 import { formatDistanceToNow } from "../../../lib/emailUtils";
 
+// Avatar color helper function - User Stories: light blue, Test Cases: light green
+const getAvatarColor = (type: 'user_story' | 'test_case') => {
+  if (type === 'user_story') {
+    return "bg-blue-100 text-blue-700 font-medium text-sm";
+  } else {
+    return "bg-green-100 text-green-700 font-medium text-sm";
+  }
+};
+
 export function TestRunsTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTestRun, setSelectedTestRun] = useState<TestRun | null>(mockTestRuns.find(t => t.type === 'user_story') || null);
@@ -64,27 +73,34 @@ export function TestRunsTab() {
       }
     }, [isSelected]);
 
-    // Helper function to determine which badges to show
-    const getBadges = () => {
-      const badges = [];
+    // Helper function to determine which badges to show - email client style with pastel colors
+    const getBadges = (): Array<{label: string, className: string}> => {
+      const badges: Array<{label: string, className: string}> = [];
 
+      // Add trigger type badge with pastel colors
       if (testRun.trigger === "manual") {
-        badges.push({ label: "Manual", variant: "default" });
+        badges.push({ label: "Manual", className: "bg-blue-50 text-blue-600" });
+      } else if (testRun.trigger === "schedule") {
+        badges.push({ label: "Schedule", className: "bg-gray-50 text-gray-600" });
       }
 
-      if (testRun.trigger === "schedule") {
-        badges.push({ label: "Schedule", variant: "secondary" });
-      }
-
-      if (testRun.status === "running") {
-        badges.push({ label: "Running", variant: "destructive" });
-      }
-
-      if (testRun.results) {
-        badges.push({
-          label: `${testRun.results.passed} passed, ${testRun.results.failed} failed`,
-          variant: "outline",
-        });
+      // Add results badge if available
+      if (testRun.results && testRun.results.total > 0) {
+        const totalTests = testRun.results.total;
+        const passedTests = testRun.results.passed;
+        const failedTests = testRun.results.failed;
+        
+        if (failedTests > 0) {
+          badges.push({
+            label: `${passedTests} passed, ${failedTests} failed`,
+            className: "bg-red-50 text-red-600",
+          });
+        } else {
+          badges.push({
+            label: `${totalTests} test${totalTests > 1 ? 's' : ''} passed`,
+            className: "bg-green-50 text-green-600",
+          });
+        }
       }
 
       return badges;
@@ -100,18 +116,16 @@ export function TestRunsTab() {
               : isHovered
                 ? "bg-muted/50 border-l-4 border-transparent"
                 : "border-l-4 border-transparent"
-          } ${isChild ? "ml-6 bg-gray-50/50" : ""}`}
+          } ${isChild ? "ml-6 bg-muted/30" : ""}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Avatar */}
           <div className="relative">
-            <Avatar className="h-12 w-12">
-              <AvatarFallback className={`text-white font-semibold ${
-                testRun.type === 'user_story' ? 'bg-blue-600' : 'bg-green-600'
-              }`}>
-                {testRun.type === 'user_story' ? testRun.userStoryId?.replace('US', '') : '📄'}
+            <Avatar className="h-10 w-10">
+              <AvatarFallback className={getAvatarColor(testRun.type)}>
+                {testRun.type === 'user_story' ? testRun.userStoryId : testRun.testCaseId}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -126,17 +140,17 @@ export function TestRunsTab() {
                       e.stopPropagation();
                       toggleExpanded(testRun.id);
                     }}
-                    className="p-1 hover:bg-gray-200 rounded"
+                    className="p-1 hover:bg-accent rounded"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="h-3 w-3 text-gray-600" />
+                      <ChevronDown className="h-3 w-3 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="h-3 w-3 text-gray-600" />
+                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
                     )}
                   </button>
                 )}
-                <div className="truncate text-sm">
-                  {testRun.title} <span className="text-muted-foreground">by {testRun.triggerBy}</span>
+                <div className="truncate text-sm font-medium">
+                  {testRun.title.split(' - ').slice(1).join(' - ')} <span className="text-muted-foreground font-normal">from {testRun.triggerBy}</span>
                 </div>
               </div>
               <div className="text-xs text-muted-foreground whitespace-nowrap ml-2">
@@ -152,13 +166,18 @@ export function TestRunsTab() {
             {/* Badges */}
             <div className="flex flex-wrap gap-1.5">
               {getBadges().map((badge, index) => (
-                <Badge key={index} variant={badge.variant as any} className="text-xs px-1.5 py-0">
+                <Badge key={index} className={`text-xs px-1.5 py-0 ${badge.className}`}>
                   {badge.label}
                 </Badge>
               ))}
               {testRun.status === "running" && (
-                <Badge variant="secondary" className="bg-blue-500 text-white hover:bg-blue-500/90 text-xs px-1.5 py-0">
+                <Badge className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0">
                   Live
+                </Badge>
+              )}
+              {testRun.status === "failed" && (
+                <Badge className="bg-red-50 text-red-600 text-xs px-1.5 py-0">
+                  Failed
                 </Badge>
               )}
             </div>

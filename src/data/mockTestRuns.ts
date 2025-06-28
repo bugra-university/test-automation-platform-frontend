@@ -27,34 +27,34 @@ export const mockTestRuns: TestRun[] = [
   {
     id: "us01",
     type: "user_story",
-    title: "US01 - Kullanıcı Kayıt Sistemi",
-    description: "User registration to the Site (Customer) including email validation and profile setup with comprehensive testing scenarios",
+    title: "US01 - User registration to the Site (Customer)",
+    description: "Complete user registration functionality for customers including validation scenarios and edge cases",
     userStoryId: "US01",
-    status: "passed",
-    trigger: "schedule",
-    triggerBy: "Auto Scheduler",
-    duration: "2m 45s",
+    status: "failed",
+    trigger: "manual",
+    triggerBy: "Test Team",
+    duration: "8m 45s",
     timestamp: "2024-01-27T14:30:00Z",
-    testCases: ["TC01", "TC02", "TC03"],
+    testCases: ["TC01", "TC02", "TC03", "TC04", "TC05", "TC06"],
     results: {
-      passed: 3,
-      failed: 0,
+      passed: 4,
+      failed: 2,
       skipped: 0,
-      total: 3
+      total: 6
     },
     children: [
       {
         id: "us01-tc01",
         type: "test_case",
-        title: "TC01_KullaniciKaydiYapilabilmeli",
-        description: "Sign up when all areas are filled correctly with valid email and password requirements",
+        title: "TC01 - Sign up when all areas are filled",
+        description: "Positive scenario: Verify successful user registration when all required fields are properly filled",
         testCaseId: "TC01",
         userStoryId: "US01",
         status: "passed",
-        trigger: "schedule",
-        triggerBy: "Auto Scheduler",
-        duration: "45s",
-        timestamp: "2024-01-27T14:30:15Z",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "1m 15s",
+        timestamp: "2024-01-27T14:30:30Z",
         results: {
           passed: 1,
           failed: 0,
@@ -65,15 +65,15 @@ export const mockTestRuns: TestRun[] = [
       {
         id: "us01-tc02",
         type: "test_case",
-        title: "TC02_GecersizYeniKullaniciKayit",
-        description: "Invalid new user registration scenarios including invalid email formats and weak passwords",
+        title: "TC02 - No registration without filling the password space",
+        description: "Negative scenario: Verify that registration fails when password field is empty",
         testCaseId: "TC02",
         userStoryId: "US01",
         status: "passed",
-        trigger: "schedule",
-        triggerBy: "Auto Scheduler",
-        duration: "1m 10s",
-        timestamp: "2024-01-27T14:31:00Z",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "50s",
+        timestamp: "2024-01-27T14:31:45Z",
         results: {
           passed: 1,
           failed: 0,
@@ -84,39 +84,98 @@ export const mockTestRuns: TestRun[] = [
       {
         id: "us01-tc03",
         type: "test_case",
-        title: "TC03_BillingAdressEkle",
-        description: "Adding comprehensive billing address functionality with validation and country selection",
+        title: "TC03 - Sign up by adding a user domain symbol",
+        description: "Test registration with special domain symbols in email address",
         testCaseId: "TC03",
         userStoryId: "US01",
         status: "passed",
-        trigger: "schedule",
-        triggerBy: "Auto Scheduler",
-        duration: "50s",
-        timestamp: "2024-01-27T14:32:10Z",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "1m 10s",
+        timestamp: "2024-01-27T14:32:35Z",
         results: {
           passed: 1,
           failed: 0,
           skipped: 0,
           total: 1
         }
+      },
+      {
+        id: "us01-tc04",
+        type: "test_case",
+        title: "TC04 - No registration without filling the email area",
+        description: "Negative scenario: Verify that registration fails when email field is empty",
+        testCaseId: "TC04",
+        userStoryId: "US01",
+        status: "failed",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "45s",
+        timestamp: "2024-01-27T14:33:50Z",
+        results: {
+          passed: 0,
+          failed: 1,
+          skipped: 0,
+          total: 1
+        },
+        error: "Email validation error not displayed properly"
+      },
+      {
+        id: "us01-tc05",
+        type: "test_case",
+        title: "TC05 - The email field @ no registration is done",
+        description: "Negative scenario: Verify registration fails when email is missing @ symbol",
+        testCaseId: "TC05",
+        userStoryId: "US01",
+        status: "passed",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "55s",
+        timestamp: "2024-01-27T14:34:45Z",
+        results: {
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
+      },
+      {
+        id: "us01-tc06",
+        type: "test_case",
+        title: "TC06 - Registration without adding .com to the email field",
+        description: "Negative scenario: Verify registration fails when email is missing domain extension",
+        testCaseId: "TC06",
+        userStoryId: "US01",
+        status: "failed",
+        trigger: "manual",
+        triggerBy: "Test Team",
+        duration: "1m 05s",
+        timestamp: "2024-01-27T14:35:50Z",
+        results: {
+          passed: 0,
+          failed: 1,
+          skipped: 0,
+          total: 1
+        },
+        error: "Domain validation not working for incomplete domains"
       }
     ]
   },
   {
     id: "us02",
     type: "user_story",
-    title: "US02 - Login İşlemleri",
-    description: "User login functionality with authentication and session management including validation scenarios",
+    title: "US02 - Site registration with previously registered information",
+    description: "The site should not be registered with the previously registered information (Register)",
     userStoryId: "US02",
-    status: "failed",
-    trigger: "manual",
-    triggerBy: "John Developer",
-    duration: "1m 20s",
+    status: "passed",
+    trigger: "schedule",
+    triggerBy: "Auto Scheduler",
+    duration: "3m 20s",
     timestamp: "2024-01-27T13:15:00Z",
     testCases: ["TC01", "TC02"],
     results: {
-      passed: 1,
-      failed: 1,
+      passed: 2,
+      failed: 0,
       skipped: 0,
       total: 2
     },
@@ -124,15 +183,15 @@ export const mockTestRuns: TestRun[] = [
       {
         id: "us02-tc01",
         type: "test_case",
-        title: "TC01_ValidLogin",
-        description: "Valid user login with correct credentials and session establishment",
+        title: "TC01 - Duplicate email registration prevention",
+        description: "Verify that system prevents registration with already existing email address",
         testCaseId: "TC01",
         userStoryId: "US02",
         status: "passed",
-        trigger: "manual",
-        triggerBy: "John Developer",
-        duration: "45s",
-        timestamp: "2024-01-27T13:14:00Z",
+        trigger: "schedule",
+        triggerBy: "Auto Scheduler",
+        duration: "1m 45s",
+        timestamp: "2024-01-27T13:15:30Z",
         results: {
           passed: 1,
           failed: 0,
@@ -143,159 +202,56 @@ export const mockTestRuns: TestRun[] = [
       {
         id: "us02-tc02",
         type: "test_case",
-        title: "TC02_LoginValidationFailed",
-        description: "Login validation with invalid credentials and error handling",
+        title: "TC02 - Duplicate username prevention",
+        description: "Verify that system prevents registration with already existing username",
         testCaseId: "TC02",
         userStoryId: "US02",
-        status: "failed",
-        trigger: "manual",
-        triggerBy: "John Developer",
-        duration: "35s",
-        timestamp: "2024-01-27T13:15:00Z",
+        status: "passed",
+        trigger: "schedule",
+        triggerBy: "Auto Scheduler",
+        duration: "1m 35s",
+        timestamp: "2024-01-27T13:17:05Z",
         results: {
-          passed: 0,
-          failed: 1,
+          passed: 1,
+          failed: 0,
           skipped: 0,
           total: 1
-        },
-        error: "Element not found: #password-field - The password input field was not located on the login page"
+        }
       }
     ]
   },
   {
     id: "us03",
     type: "user_story",
-    title: "US03 - Kullanıcı Profil Güncelleme",
-    description: "Currently executing user profile update functionality with validation and email verification steps",
+    title: "US03 - User Billing Address Management",
+    description: "User Billing Address functionality (My Account - Addresses - Billing Address)",
     userStoryId: "US03",
     status: "running",
     trigger: "manual",
     triggerBy: "Sarah Tester",
-    duration: "0m 35s",
+    duration: "2m 35s",
     timestamp: "2024-01-27T12:00:00Z",
-    testCases: ["TC01"],
-    results: {
-      passed: 0,
-      failed: 0,
-      skipped: 0,
-      total: 1
-    },
-    currentStep: "User profile validation step - Verifying user credentials and data updates",
-    children: [
-      {
-        id: "us03-tc01",
-        type: "test_case",
-        title: "TC01_UserProfileUpdate",
-        description: "Update user profile information with email validation and profile setup steps",
-        testCaseId: "TC01",
-        userStoryId: "US03",
-        status: "running",
-        trigger: "manual",
-        triggerBy: "Sarah Tester",
-        duration: "0m 35s",
-        timestamp: "2024-01-27T12:00:00Z",
-        results: {
-          passed: 0,
-          failed: 0,
-          skipped: 0,
-          total: 1
-        },
-        currentStep: "Profile validation step - Verifying user credentials and session management"
-      }
-    ]
-  },
-  {
-    id: "us06",
-    type: "user_story",
-    title: "US06 - Ürün Karşılaştırma",
-    description: "Product comparison functionality enabling users to compare multiple products side by side with detailed specifications",
-    userStoryId: "US06",
-    status: "failed",
-    trigger: "schedule",
-    triggerBy: "Auto Scheduler",
-    duration: "3m 12s",
-    timestamp: "2024-01-27T11:45:00Z",
-    testCases: ["TC01", "TC02", "TC03", "TC04"],
-    results: {
-      passed: 2,
-      failed: 2,
-      skipped: 0,
-      total: 4
-    },
-    children: [
-      {
-        id: "us06-tc01",
-        type: "test_case",
-        title: "TC01_CompareMultipleProducts",
-        description: "Compare multiple products side by side successfully with price and feature comparison",
-        testCaseId: "TC01",
-        userStoryId: "US06",
-        status: "passed",
-        trigger: "schedule",
-        triggerBy: "Auto Scheduler",
-        duration: "45s",
-        timestamp: "2024-01-27T11:45:15Z",
-        results: {
-          passed: 1,
-          failed: 0,
-          skipped: 0,
-          total: 1
-        }
-      },
-      {
-        id: "us06-tc02",
-        type: "test_case",
-        title: "TC02_ProductDetailsComparison",
-        description: "Detailed product specification and feature comparison functionality",
-        testCaseId: "TC02",
-        userStoryId: "US06",
-        status: "failed",
-        trigger: "schedule",
-        triggerBy: "Auto Scheduler",
-        duration: "1m 25s",
-        timestamp: "2024-01-27T11:46:00Z",
-        results: {
-          passed: 0,
-          failed: 1,
-          skipped: 0,
-          total: 1
-        },
-        error: "Comparison table did not load properly - Missing product specifications data"
-      }
-    ]
-  },
-  {
-    id: "us08",
-    type: "user_story", 
-    title: "US08 - Alışveriş Sepeti İşlemleri",
-    description: "Shopping cart operations including add, remove, update quantities and checkout process with payment integration",
-    userStoryId: "US08",
-    status: "running",
-    trigger: "manual",
-    triggerBy: "Mike Tester",
-    duration: "1m 15s",
-    timestamp: "2024-01-27T10:30:00Z",
-    testCases: ["TC01", "TC02", "TC03"],
+    testCases: ["TC01", "TC02"],
     results: {
       passed: 1,
       failed: 0,
       skipped: 0,
-      total: 3
+      total: 2
     },
-    currentStep: "Adding products to cart and validating quantity updates",
+    currentStep: "Testing billing address validation and save functionality",
     children: [
       {
-        id: "us08-tc01",
+        id: "us03-tc01",
         type: "test_case",
-        title: "TC01_AddProductsToCart",
-        description: "Add multiple products to shopping cart with different quantities and variants",
+        title: "TC01 - Add new billing address",
+        description: "Verify user can successfully add a new billing address with all required fields",
         testCaseId: "TC01",
-        userStoryId: "US08",
+        userStoryId: "US03",
         status: "passed",
         trigger: "manual",
-        triggerBy: "Mike Tester",
-        duration: "35s",
-        timestamp: "2024-01-27T10:30:15Z",
+        triggerBy: "Sarah Tester",
+        duration: "1m 20s",
+        timestamp: "2024-01-27T12:00:30Z",
         results: {
           passed: 1,
           failed: 0,
@@ -304,24 +260,161 @@ export const mockTestRuns: TestRun[] = [
         }
       },
       {
-        id: "us08-tc02",
+        id: "us03-tc02",
         type: "test_case",
-        title: "TC02_UpdateCartQuantities",
-        description: "Update product quantities in shopping cart and verify total calculations",
+        title: "TC02 - Edit existing billing address",
+        description: "Verify user can edit and update existing billing address information",
         testCaseId: "TC02",
-        userStoryId: "US08",
+        userStoryId: "US03",
         status: "running",
         trigger: "manual",
-        triggerBy: "Mike Tester",
-        duration: "40s",
-        timestamp: "2024-01-27T10:30:50Z",
+        triggerBy: "Sarah Tester",
+        duration: "1m 15s",
+        timestamp: "2024-01-27T12:01:50Z",
         results: {
           passed: 0,
           failed: 0,
           skipped: 0,
           total: 1
         },
-        currentStep: "Validating cart total calculation after quantity updates"
+        currentStep: "Validating address update functionality"
+      }
+    ]
+  },
+  {
+    id: "us04",
+    type: "user_story",
+    title: "US04 - User Shipping Addresses Management",
+    description: "User Shipping Addresses (Detail Address) functionality (My Account - Addresses - Shipping Address)",
+    userStoryId: "US04",
+    status: "passed",
+    trigger: "schedule",
+    triggerBy: "Auto Scheduler",
+    duration: "4m 15s",
+    timestamp: "2024-01-27T11:00:00Z",
+    testCases: ["TC01", "TC02", "TC03"],
+    results: {
+      passed: 3,
+      failed: 0,
+      skipped: 0,
+      total: 3
+    },
+    children: [
+      {
+        id: "us04-tc01",
+        type: "test_case",
+        title: "TC01 - Add shipping address",
+        description: "Verify user can add new shipping address with complete details",
+        testCaseId: "TC01",
+        userStoryId: "US04",
+        status: "passed",
+        trigger: "schedule",
+        triggerBy: "Auto Scheduler",
+        duration: "1m 30s",
+        timestamp: "2024-01-27T11:00:30Z",
+        results: {
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
+      },
+      {
+        id: "us04-tc02",
+        type: "test_case",
+        title: "TC02 - Set default shipping address",
+        description: "Verify user can set a shipping address as default for orders",
+        testCaseId: "TC02",
+        userStoryId: "US04",
+        status: "passed",
+        trigger: "schedule",
+        triggerBy: "Auto Scheduler",
+        duration: "1m 20s",
+        timestamp: "2024-01-27T11:02:00Z",
+        results: {
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
+      },
+      {
+        id: "us04-tc03",
+        type: "test_case",
+        title: "TC03 - Delete shipping address",
+        description: "Verify user can delete non-default shipping addresses",
+        testCaseId: "TC03",
+        userStoryId: "US04",
+        status: "passed",
+        trigger: "schedule",
+        triggerBy: "Auto Scheduler",
+        duration: "1m 25s",
+        timestamp: "2024-01-27T11:03:20Z",
+        results: {
+          passed: 1,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
+      }
+    ]
+  },
+  {
+    id: "us05",
+    type: "user_story",
+    title: "US05 - User Account Details Management",
+    description: "User Account Details functionality for managing personal information and account settings",
+    userStoryId: "US05",
+    status: "pending",
+    trigger: "manual",
+    triggerBy: "QA Team",
+    duration: "0m 00s",
+    timestamp: "2024-01-27T10:00:00Z",
+    testCases: ["TC01", "TC02"],
+    results: {
+      passed: 0,
+      failed: 0,
+      skipped: 0,
+      total: 2
+    },
+    children: [
+      {
+        id: "us05-tc01",
+        type: "test_case",
+        title: "TC01 - Update personal information",
+        description: "Verify user can update personal information like name, phone number",
+        testCaseId: "TC01",
+        userStoryId: "US05",
+        status: "pending",
+        trigger: "manual",
+        triggerBy: "QA Team",
+        duration: "0m 00s",
+        timestamp: "2024-01-27T10:00:00Z",
+        results: {
+          passed: 0,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
+      },
+      {
+        id: "us05-tc02",
+        type: "test_case",
+        title: "TC02 - Change password functionality",
+        description: "Verify user can successfully change account password with proper validation",
+        testCaseId: "TC02",
+        userStoryId: "US05",
+        status: "pending",
+        trigger: "manual",
+        triggerBy: "QA Team",
+        duration: "0m 00s",
+        timestamp: "2024-01-27T10:00:00Z",
+        results: {
+          passed: 0,
+          failed: 0,
+          skipped: 0,
+          total: 1
+        }
       }
     ]
   }
@@ -329,21 +422,31 @@ export const mockTestRuns: TestRun[] = [
 
 export const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'passed': return '✅';
-    case 'failed': return '❌';
-    case 'running': return '🔄';
-    case 'pending': return '⏳';
-    default: return '⚪';
+    case 'passed':
+      return '✅';
+    case 'failed':
+      return '❌';
+    case 'running':
+      return '🔄';
+    case 'pending':
+      return '⏳';
+    default:
+      return '⚪';
   }
 };
 
 export const getStatusColor = (status: string) => {
   switch (status) {
-    case 'passed': return 'text-green-600';
-    case 'failed': return 'text-red-600';
-    case 'running': return 'text-blue-600';
-    case 'pending': return 'text-yellow-600';
-    default: return 'text-gray-600';
+    case 'passed':
+      return 'text-green-600';
+    case 'failed':
+      return 'text-red-600';
+    case 'running':
+      return 'text-blue-600';
+    case 'pending':
+      return 'text-yellow-600';
+    default:
+      return 'text-gray-600';
   }
 };
 
@@ -352,18 +455,5 @@ export const formatDuration = (duration: string) => {
 };
 
 export const formatTimestamp = (timestamp: string) => {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 60) {
-    return `${diffMins}m ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours}h ago`;
-  } else {
-    return `${diffDays}d ago`;
-  }
+  return new Date(timestamp).toLocaleString();
 }; 
