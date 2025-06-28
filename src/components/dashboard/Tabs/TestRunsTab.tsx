@@ -269,12 +269,55 @@ export function TestRunsTab() {
         <div className="bg-white rounded-lg border p-4 shadow-sm">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <h3 className="text-sm font-medium">User Story: {testRun.userStoryId}</h3>
-              <p className="text-xs text-gray-500 mt-1">{testRun.description}</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-11 h-11 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-blue-700">{testRun.userStoryId}</span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex flex-col gap-1">
+                    <div className="text-sm font-medium text-gray-900">User registration to the Site (Customer)</div>
+                    <div className="flex items-center text-xs text-muted-foreground font-medium">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Last Run: Jan 27, 5:30 PM
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description Section */}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-2">Description</h4>
+                <div className="text-xs text-muted-foreground font-medium">
+                  Complete user registration functionality for customers including validation scenarios and edge cases
+                </div>
+              </div>
             </div>
-            <div className="flex items-center text-xs text-gray-500 ml-4 min-w-[160px]">
-              <Timer className="h-6 w-6 mr-2 text-gray-400 flex-shrink-0" />
-              <span className="font-medium whitespace-nowrap">Last Run: Jan 27, 5:30 PM</span>
+          </div>
+
+          {/* User Story Description */}
+          <div className="mb-6">
+            <h5 className="text-sm font-medium mb-2">Acceptance Criteria</h5>
+            <div className="space-y-2">
+              <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+                <span>1.</span>
+                <span>The name should be entered (Small letter, large letter, figure and special character)</span>
+              </div>
+              <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+                <span>2.</span>
+                <span>e-mail address should be entered (abc@abc.com must be e-mail address)</span>
+              </div>
+              <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+                <span>3.</span>
+                <span>Password should be entered. (Parola should be at least 8 characters long. Large and small letters, numbers and !" ? $ % & must be used to make it stronger)</span>
+              </div>
+              <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+                <span>4.</span>
+                <span>"I to the privacy policy" should not be registered without clicking</span>
+              </div>
+              <div className="flex gap-2 text-xs text-muted-foreground font-medium">
+                <span>5.</span>
+                <span>SIGN UP button must be clickable (Username, Email address and Password should not occur when the SIGN UP is clicked)</span>
+              </div>
             </div>
           </div>
 
@@ -284,30 +327,30 @@ export function TestRunsTab() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Total Test Cases:</span>
-                  <span className="text-xs font-medium">{testRun.children?.length || 0}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Total Test Cases:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{testRun.children?.length || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Manual Tests:</span>
-                  <span className="text-xs font-medium">{manualTests}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Manual Tests:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{manualTests}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Scheduled Tests:</span>
-                  <span className="text-xs font-medium">{scheduledTests}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Scheduled Tests:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{scheduledTests}</span>
                 </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-green-600">Passed:</span>
-                  <span className="text-xs font-medium">{passedTests}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Passed:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{passedTests}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-red-600">Failed:</span>
-                  <span className="text-xs font-medium">{failedTests}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Failed:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{failedTests}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-yellow-600">Pending:</span>
-                  <span className="text-xs font-medium">{pendingTests}</span>
+                  <span className="text-xs text-muted-foreground font-medium">Pending:</span>
+                  <span className="text-xs text-muted-foreground font-medium">{pendingTests}</span>
                 </div>
               </div>
             </div>
