@@ -126,7 +126,7 @@ export function TestRunsTab() {
               : isHovered
                 ? "bg-muted/50 border-l-4 border-primary/60"
                 : "bg-gray-100 border-l-4 border-transparent"
-          } ${isChild ? "ml-6 mt-1.5" : "mb-1"}`}
+          } ${isChild ? "ml-10 mt-1.5" : "mb-1"}`}
           onClick={onSelect}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -202,7 +202,7 @@ export function TestRunsTab() {
         {hasChildren && (
           <div 
             className={`overflow-hidden transition-all duration-300 ease-in-out ${
-              isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+              isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'
             }`}
           >
             <div className="mt-2 mb-3">
