@@ -153,12 +153,12 @@ export function TestRunsTab() {
                         e.stopPropagation();
                         toggleExpanded(testRun.id);
                       }}
-                      className="p-1.5 hover:bg-accent rounded-full ml-1 w-6 h-6 flex items-center justify-center"
+                      className="bg-muted/30 hover:bg-accent rounded-full ml-1 w-7 h-7 flex items-center justify-center shrink-0 border border-border/20"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                        <ChevronDown className="h-4 w-4 text-foreground" />
                       ) : (
-                        <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                        <ChevronRight className="h-4 w-4 text-foreground" />
                       )}
                     </button>
                   )}
