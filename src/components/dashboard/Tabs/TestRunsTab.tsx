@@ -148,19 +148,19 @@ export function TestRunsTab() {
                     {testRun.title.split(' - ').slice(1).join(' - ')}
                   </div>
                   {hasChildren && !isChild && (
-                    <button
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         toggleExpanded(testRun.id);
                       }}
-                      className="bg-muted/30 hover:bg-accent rounded-full ml-1 w-7 h-7 flex items-center justify-center shrink-0 border border-border/20"
+                      className="ml-2 cursor-pointer shrink-0"
                     >
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-foreground" />
+                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-foreground" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
                       )}
-                    </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -197,18 +197,24 @@ export function TestRunsTab() {
 
         </div>
 
-        {/* Render children if expanded */}
-        {isExpanded && hasChildren && (
-          <div className="mt-2 mb-1">
-            {testRun.children!.map((child) => (
-              <TestRunListItem
-                key={child.id}
-                testRun={child}
-                isChild={true}
-                isSelected={selectedTestRun?.id === child.id}
-                onSelect={() => handleTestRunSelect(child)}
-              />
-            ))}
+        {/* Render children if expanded with smooth animation */}
+        {hasChildren && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="mt-2 mb-1">
+              {testRun.children!.map((child) => (
+                <TestRunListItem
+                  key={child.id}
+                  testRun={child}
+                  isChild={true}
+                  isSelected={selectedTestRun?.id === child.id}
+                  onSelect={() => handleTestRunSelect(child)}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
