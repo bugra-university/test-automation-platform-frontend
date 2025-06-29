@@ -12,8 +12,7 @@ export const LeftTabs: React.FC<LeftTabsProps> = ({ activeTab, onTabClick }) => 
     { id: 'test-cases', label: 'Test Cases' },
     { id: 'test-runs', label: 'Test Runs' },
     { id: 'reports', label: 'Reports' },
-    { id: 'schedules', label: 'Schedules' },
-    { id: 'how-it-works', label: 'How It Works' }
+    { id: 'schedules', label: 'Schedules' }
   ];
 
   return (

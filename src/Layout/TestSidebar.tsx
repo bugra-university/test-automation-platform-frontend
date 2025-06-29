@@ -5,13 +5,14 @@ import {
   BarChart,
   Building2,
   FolderKanban,
-  Receipt,
-  FileBarChart,
-  Users,
+  FileText,
   Settings,
-  HelpCircle,
+  AlertCircle,
   User,
-  LogOut
+  LogOut,
+  Users,
+  Layers,
+  FileBarChart
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
@@ -55,12 +56,12 @@ const menuItems = [
   },
   {
     title: 'Integrations',
-    icon: Receipt, 
+    icon: Layers,
     path: '/integrations'
   },
   {
     title: 'Configurations',
-    icon: FileBarChart,
+    icon: Settings,
     path: '/configurations'
   },
   {
@@ -70,8 +71,13 @@ const menuItems = [
   },
   {
     title: 'Documentation',
-    icon: FileBarChart,
+    icon: FileText,
     path: '/documentation'
+  },
+  {
+    title: 'How It Works',
+    icon: AlertCircle,
+    path: '/how-it-works'
   }
 ];
 
@@ -84,7 +90,7 @@ const bottomMenuItems = [
   },
   {
     title: 'Help',
-    icon: HelpCircle,
+    icon: AlertCircle,
     path: '/help'
   }
 ];
@@ -114,6 +120,7 @@ const TestSidebar: React.FC = () => {
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
+          const isHowItWorks = item.title === 'How It Works';
 
           return (
             <Link
@@ -127,7 +134,12 @@ const TestSidebar: React.FC = () => {
                   : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
               )}
             >
-              <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
+              <Icon 
+                className={cn(
+                  "h-5 w-5 mr-3", 
+                  isActive ? "text-blue-600" : isHowItWorks ? "text-yellow-500" : "text-gray-500"
+                )} 
+              />
               <span>{item.title}</span>
             </Link>
           );
