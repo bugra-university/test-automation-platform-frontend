@@ -320,25 +320,37 @@ export function TestRunsTab() {
           </div>
 
           {/* Test Cases Overview */}
-          <div className="mb-6">
-            <h5 className="text-sm font-medium mb-2">Test Cases Overview</h5>
-            <div className="space-y-2">
-              <div className="grid grid-cols-[120px_1fr] gap-y-2">
-                <div className="text-xs font-medium text-gray-600">Status</div>
-                <div className="text-xs font-medium text-gray-600">Test Cases</div>
-                
-                <div className="text-xs text-muted-foreground font-medium">Manual</div>
-                <div className="text-xs text-muted-foreground font-medium">TC01, TC02, TC03, TC04, TC05, TC06</div>
-                
-                <div className="text-xs text-muted-foreground font-medium">Passed</div>
-                <div className="text-xs font-medium text-green-600">TC01, TC02, TC03, TC05</div>
-                
-                <div className="text-xs text-muted-foreground font-medium">Failed</div>
-                <div className="text-xs font-medium text-red-500">TC04, TC06</div>
-                
-                <div className="text-xs text-muted-foreground font-medium">Pending</div>
-                <div className="text-xs text-muted-foreground font-medium">-</div>
-              </div>
+          <div className="mb-4">
+            <h5 className="text-sm font-medium mb-1">Test Cases Overview</h5>
+            <div className="bg-gray-100/50 rounded-lg p-2 inline-block">
+              <table className="border-collapse">
+                <thead>
+                  <tr>
+                    <th className="text-xs font-medium text-gray-600 text-left pr-8">Status</th>
+                    <th className="text-xs font-medium text-gray-600 text-left">Test Cases</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="text-xs text-muted-foreground font-medium py-2">Manual</td>
+                    <td className="bg-gray-200/50 rounded-md" rowSpan={4}>
+                      <div className="py-2 px-2 text-xs text-muted-foreground font-medium whitespace-nowrap">TC01, TC02, TC03, TC04, TC05, TC06</div>
+                      <div className="py-2 px-2 text-xs font-medium text-green-600 whitespace-nowrap">TC01, TC02, TC03, TC05</div>
+                      <div className="py-2 px-2 text-xs font-medium text-red-500 whitespace-nowrap">TC04, TC06</div>
+                      <div className="py-2 px-2 text-xs text-muted-foreground font-medium">-</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="text-xs text-muted-foreground font-medium py-2">Passed</td>
+                  </tr>
+                  <tr>
+                    <td className="text-xs text-muted-foreground font-medium py-2">Failed</td>
+                  </tr>
+                  <tr>
+                    <td className="text-xs text-muted-foreground font-medium py-2">Pending</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
