@@ -4,6 +4,7 @@ import { TestSuitesTab } from "../components/dashboard/Tabs/TestSuitesTab";
 import { RunTestsTab } from "../components/dashboard/Tabs/RunTestsTab";
 import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
+import { HowItWorksTab } from "../components/dashboard/Tabs/HowItWorksTab";
 
 import SchedulesTab from "../components/dashboard/Tabs/SchedulesTab";
 import { FeaturesSectionWithCardGradient } from "../components/ui/features-section-with-card-gradient";
@@ -115,6 +116,8 @@ export default function TestDashboard({
         );      
       case "schedules":
         return <SchedulesTab selectedProjectId={activeProject?.id || null} />;
+      case "how-it-works":
+        return <HowItWorksTab />;
       case "deprecated":        
       default:
         return <RunTestsTab 
