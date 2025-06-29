@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard,
   BarChart,
@@ -27,57 +27,61 @@ import {
   DropdownMenuTrigger,
 } from '../components/Shared/DropDown/DropdownMenu';
 
-// Test platform menu items
+// Test platform menu items - now using tab IDs instead of routes
 const menuItems = [
-  {
-    title: 'Dashboard',
-    icon: LayoutDashboard,
-    path: '/'
-  },
-  {
-    title: 'Analytics',
-    icon: BarChart,
-    path: '/analytics'
-  },
   {
     title: 'Projects',
     icon: FolderKanban,
-    path: '/projects'
+    tabId: 'projects',
+    level: 0
   },
   {
-    title: 'Environments',
-    icon: Building2,
-    path: '/environments'
+    title: 'Backlog',
+    icon: FileText,
+    tabId: 'run-tests',
+    level: 0
   },
   {
-    title: 'Teams',
-    icon: Users,
-    path: '/teams'
-  },
-  {
-    title: 'Integrations',
+    title: 'Test Suites',
     icon: Layers,
-    path: '/integrations'
+    tabId: 'test-suites',
+    level: 0
   },
   {
-    title: 'Configurations',
-    icon: Settings,
-    path: '/configurations'
+    title: 'Test Cases',
+    icon: FileBarChart,
+    tabId: 'test-cases',
+    level: 0
   },
   {
-    title: 'Repository',
-    icon: FolderKanban,
-    path: '/repository'
+    title: 'Test Runs',
+    icon: BarChart,
+    tabId: 'test-runs',
+    level: 0
+  },
+  {
+    title: 'Reports',
+    icon: FileBarChart,
+    tabId: 'reports',
+    level: 0
+  },
+  {
+    title: 'Schedules',
+    icon: LayoutDashboard,
+    tabId: 'schedules',
+    level: 0
   },
   {
     title: 'Documentation',
     icon: FileText,
-    path: '/documentation'
+    tabId: 'documentation',
+    level: 0
   },
   {
     title: 'How It Works',
     icon: AlertCircle,
-    path: '/how-it-works'
+    tabId: 'how-it-works',
+    level: 1
   }
 ];
 
@@ -86,17 +90,21 @@ const bottomMenuItems = [
   {
     title: 'Settings',
     icon: Settings,
-    path: '/settings'
+    tabId: 'settings'
   },
   {
     title: 'Help',
     icon: AlertCircle,
-    path: '/help'
+    tabId: 'help'
   }
 ];
 
-const TestSidebar: React.FC = () => {
-  const location = useLocation();
+interface TestSidebarProps {
+  activeTab?: string;
+  onTabClick?: (tabId: string) => void;
+}
+
+const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
@@ -113,25 +121,34 @@ const TestSidebar: React.FC = () => {
       .join("")
       .toUpperCase();
   };
-    return (    <div className="flex flex-col h-full w-full" id="main-test-sidebar">
+
+  const handleMenuClick = (tabId: string) => {
+    if (onTabClick) {
+      onTabClick(tabId);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full w-full" id="main-test-sidebar">
         
         {/* Main Menu - aligned with tab content */}
       <nav className="px-3 pt-4 flex-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = activeTab === item.tabId;
           const isHowItWorks = item.title === 'How It Works';
 
           return (
-            <Link
-              key={item.path}
-              to={item.path}
+            <button
+              key={item.tabId}
+              onClick={() => handleMenuClick(item.tabId)}
               className={cn(
-                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full",
+                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full w-full text-left",
                 "transition-colors duration-150",
                 isActive 
                   ? "text-blue-600" 
-                  : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
+                  : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]",
+                item.level > 0 ? "ml-4" : "" // Add left margin for nested items
               )}
             >
               <Icon 
@@ -141,7 +158,7 @@ const TestSidebar: React.FC = () => {
                 )} 
               />
               <span>{item.title}</span>
-            </Link>
+            </button>
           );
         })}
       </nav>
@@ -154,14 +171,14 @@ const TestSidebar: React.FC = () => {
         <nav className="px-3 pb-3">
           {bottomMenuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = activeTab === item.tabId;
 
             return (
-              <Link
-                key={item.path}
-                to={item.path}
+              <button
+                key={item.tabId}
+                onClick={() => handleMenuClick(item.tabId)}
                 className={cn(
-                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full",
+                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full w-full text-left",
                   "transition-colors duration-150",
                   isActive 
                     ? "text-blue-600" 
@@ -170,7 +187,7 @@ const TestSidebar: React.FC = () => {
               >
                 <Icon className={cn("h-5 w-5 mr-3", isActive ? "text-blue-600" : "text-gray-500")} />
                 <span>{item.title}</span>
-              </Link>
+              </button>
             );
           })}        </nav>        {/* User Profile */}
         <div className="px-4 py-3">
@@ -188,7 +205,8 @@ const TestSidebar: React.FC = () => {
                   <span className="text-sm text-gray-500">{user?.email || "user@example.com"}</span>
                 </div>
               </div>
-            </DropdownMenuTrigger>            <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-md rounded-md overflow-hidden" align="end" forceMount>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-md rounded-md overflow-hidden" align="end" forceMount>
               <DropdownMenuLabel className="font-normal bg-white px-4 py-3">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
@@ -198,19 +216,22 @@ const TestSidebar: React.FC = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-gray-200" />
-              <DropdownMenuGroup className="bg-white">
-                <DropdownMenuItem onClick={() => navigate("/profile")} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
+              <DropdownMenuGroup>
+                <DropdownMenuItem className="hover:bg-gray-50 focus:bg-gray-50 px-4 py-3">
+                  <User className="mr-3 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/settings")} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
+                <DropdownMenuItem className="hover:bg-gray-50 focus:bg-gray-50 px-4 py-3">
+                  <Settings className="mr-3 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="bg-gray-200" />
-              <DropdownMenuItem onClick={handleLogout} className="px-4 py-2 hover:bg-blue-100 hover:text-blue-600 cursor-pointer">
-                <LogOut className="mr-2 h-4 w-4" />
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                className="hover:bg-red-50 focus:bg-red-50 px-4 py-3"
+              >
+                <LogOut className="mr-3 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>

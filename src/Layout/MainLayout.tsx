@@ -216,7 +216,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
       <div className="flex bg-[#f6f6f6] overflow-hidden main-content-wrapper">
         <div className="p-8 pr-4">
           <div className="sidebar-container">
-            <TestSidebar />
+            <TestSidebar 
+              activeTab={state.activeTab}
+              onTabClick={handleTabClick}
+            />
           </div>
         </div>
         
