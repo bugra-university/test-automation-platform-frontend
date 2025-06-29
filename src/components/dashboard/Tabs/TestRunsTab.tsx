@@ -332,22 +332,22 @@ export function TestRunsTab() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="text-xs text-muted-foreground font-medium py-2">Manual</td>
+                    <td className="text-xs text-muted-foreground font-medium py-1">Manual</td>
                     <td className="bg-gray-200/50 rounded-md" rowSpan={4}>
-                      <div className="py-2 px-2 text-xs text-muted-foreground font-medium whitespace-nowrap">TC01, TC02, TC03, TC04, TC05, TC06</div>
-                      <div className="py-2 px-2 text-xs font-medium text-green-600 whitespace-nowrap">TC01, TC02, TC03, TC05</div>
-                      <div className="py-2 px-2 text-xs font-medium text-red-500 whitespace-nowrap">TC04, TC06</div>
-                      <div className="py-2 px-2 text-xs text-muted-foreground font-medium">-</div>
+                      <div className="py-1 px-2 text-xs text-muted-foreground font-medium whitespace-nowrap">TC01, TC02, TC03, TC04, TC05, TC06</div>
+                      <div className="py-1 px-2 text-xs font-medium text-green-600 whitespace-nowrap">TC01, TC02, TC03, TC05</div>
+                      <div className="py-1 px-2 text-xs font-medium text-red-500 whitespace-nowrap">TC04, TC06</div>
+                      <div className="py-1 px-2 text-xs text-muted-foreground font-medium">-</div>
                     </td>
                   </tr>
                   <tr>
-                    <td className="text-xs text-muted-foreground font-medium py-2">Passed</td>
+                    <td className="text-xs text-muted-foreground font-medium py-1">Passed</td>
                   </tr>
                   <tr>
-                    <td className="text-xs text-muted-foreground font-medium py-2">Failed</td>
+                    <td className="text-xs text-muted-foreground font-medium py-1">Failed</td>
                   </tr>
                   <tr>
-                    <td className="text-xs text-muted-foreground font-medium py-2">Pending</td>
+                    <td className="text-xs text-muted-foreground font-medium py-1">Pending</td>
                   </tr>
                 </tbody>
               </table>
@@ -360,19 +360,19 @@ export function TestRunsTab() {
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-600" />
-                  <span>Jan 27, 5:30 PM</span>
+                  <Clock className="h-4 w-4 text-gray-600" />
+                  <span className="text-xs text-gray-600 font-medium">Jan 27, 5:30 PM</span>
                 </div>
-                <Badge variant="outline" className="bg-green-50 text-green-600">All Tests Passed</Badge>
-                <span className="text-gray-600">2m 45s</span>
+                <Badge variant="outline" className="bg-green-50 text-green-600 font-medium">All Tests Passed</Badge>
+                <span className="text-xs text-gray-600 font-medium">2m 45s</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-600" />
-                  <span>Jan 26, 3:15 PM</span>
+                  <Clock className="h-4 w-4 text-gray-600" />
+                  <span className="text-xs text-gray-600 font-medium">Jan 26, 3:15 PM</span>
                 </div>
-                <Badge variant="outline" className="bg-red-50 text-red-600">2 Tests Failed</Badge>
-                <span className="text-gray-600">3m 10s</span>
+                <Badge variant="outline" className="bg-red-50 text-red-500 font-medium">2 Tests Failed</Badge>
+                <span className="text-xs text-gray-600 font-medium">3m 10s</span>
               </div>
             </div>
           </div>
@@ -380,20 +380,20 @@ export function TestRunsTab() {
           {/* Action Buttons */}
           <div className="flex items-center gap-2 pt-3 border-t">
             <Button variant="ghost" size="sm" className="flex items-center gap-1">
-              <Eye className="h-4 w-4" />
-              <span className="text-xs">View Details</span>
+              <Eye className="h-4 w-4 text-gray-600" />
+              <span className="text-xs text-gray-600 font-medium">View Details</span>
             </Button>
             <Button variant="ghost" size="sm" className="flex items-center gap-1">
-              <FileText className="h-4 w-4" />
-              <span className="text-xs">View Report</span>
+              <FileText className="h-4 w-4 text-gray-600" />
+              <span className="text-xs text-gray-600 font-medium">View Report</span>
             </Button>
             <Button variant="ghost" size="sm" className="flex items-center gap-1">
-              <Play className="h-4 w-4" />
-              <span className="text-xs">Run All Tests</span>
+              <Play className="h-4 w-4 text-gray-600" />
+              <span className="text-xs text-gray-600 font-medium">Run All Tests</span>
             </Button>
-            <Button variant="ghost" size="sm" className="flex items-center gap-1 ml-auto text-red-600 hover:text-red-700">
+            <Button variant="ghost" size="sm" className="flex items-center gap-1 ml-auto text-red-500 hover:text-red-600">
               <Trash2 className="h-4 w-4" />
-              <span className="text-xs">Delete</span>
+              <span className="text-xs font-medium">Delete</span>
             </Button>
           </div>
         </div>
