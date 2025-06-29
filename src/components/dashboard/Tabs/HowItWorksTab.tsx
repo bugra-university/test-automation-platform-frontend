@@ -85,6 +85,13 @@ export function HowItWorksTab() {
     pauseAnimation();
   };
 
+  const buttonStyle = {
+    borderRadius: '50%',
+    aspectRatio: '1 / 1',
+    width: '40px',
+    height: '40px'
+  };
+
   return (
     <TabContainer>
       <div className="px-12 py-8 max-w-6xl mx-auto">
@@ -145,7 +152,7 @@ export function HowItWorksTab() {
             {steps.map((step, index) => (
               <div
                 key={step.id}
-                className={`grid md:grid-cols-2 gap-8 transition-all duration-500 absolute inset-0 p-8
+                className={`grid md:grid-cols-2 gap-8 transition-all duration-500 absolute inset-0 p-8 pb-20
                   ${activeStep === index
                     ? "translate-x-0 opacity-100"
                     : activeStep > index
@@ -191,17 +198,19 @@ export function HowItWorksTab() {
               </div>
             ))}
 
-            <div className="absolute bottom-6 right-6 flex gap-3">
+            <div className="absolute bottom-8 right-8 flex gap-2">
               <button
                 onClick={goToPrevStep}
-                className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors shadow-sm"
+                className="!rounded-[9999px] p-2 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center [aspect-ratio:1/1]"
+                style={buttonStyle}
                 aria-label="Previous step"
               >
                 <ChevronUp className="h-5 w-5" />
               </button>
               <button
                 onClick={goToNextStep}
-                className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white transition-colors shadow-sm"
+                className="!rounded-[9999px] p-2 bg-blue-500 hover:bg-blue-600 text-white transition-colors flex items-center justify-center [aspect-ratio:1/1]"
+                style={buttonStyle}
                 aria-label="Next step"
               >
                 <ChevronDown className="h-5 w-5" />
