@@ -359,7 +359,7 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
       {/* Calendar Layout */}
       <div style={{
         ...styles.wrap, 
-        padding: "24px", 
+        padding: "32px", 
         flex: 1,
         overflow: "hidden"
       }}>
