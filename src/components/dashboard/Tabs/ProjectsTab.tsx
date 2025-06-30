@@ -191,9 +191,9 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
     }
 
     return (
-        <div className="w-full bg-white h-full flex flex-col">
+        <div className="w-full bg-white h-full flex flex-col rounded-lg overflow-hidden">
             {/* Header Section */}
-            <div className="flex justify-between items-center h-[72px] px-8">
+            <div className="flex justify-between items-center h-[72px] px-8 rounded-t-lg">
                 <div className="flex items-center">
                     <h1 className="text-xl font-semibold text-gray-900">{tabTitle}</h1>
                 </div>

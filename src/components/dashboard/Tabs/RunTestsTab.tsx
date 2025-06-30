@@ -129,7 +129,7 @@ export function RunTestsTab({
   };
 
   return (
-    <div className="w-full bg-white h-full flex flex-col">
+    <div className="w-full bg-white h-full flex flex-col rounded-lg overflow-hidden">
       {!showTable ? (
         <div className="p-8">
           {/* Welcome Message */}
