@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Upload, X, FileDown } from "lucide-react";
+import { Upload, X, FileDown, Plus, FolderOpen } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { ExcelViewer } from "../Excel/ExcelViewer";
+import { Button } from "../../ui/button";
 import "../../../styles/dashboard/tabs/run-tests.css";
 
 interface RunTestsTabProps {
@@ -23,6 +24,7 @@ interface RunTestsTabProps {
     timestamp: Date | null;
     message?: string;
   }) => void;
+  tabTitle?: string;
 }
 
 export function RunTestsTab({ 
@@ -35,7 +37,8 @@ export function RunTestsTab({
   setIsExcelEditMode,
   activeTab,
   lastSaveInfo,
-  setLastSaveInfo
+  setLastSaveInfo,
+  tabTitle = "Backlog"
 }: RunTestsTabProps = {}) {
   const [dragActive, setDragActive] = useState(false);
   
@@ -121,29 +124,82 @@ export function RunTestsTab({
     setShowTable(false);
   };
 
+  const handleUploadClick = () => {
+    (document.querySelector('input[type="file"]') as HTMLInputElement)?.click();
+  };
+
   return (
-    <div className="w-full bg-white h-full flex flex-col p-8">
+    <div className="w-full bg-white h-full flex flex-col">
       {!showTable ? (
-        <>
-          {/* Platform Title and Description */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold italic text-blue-600 mb-6">
-              Test Platform
-            </h1>
-            <div className="max-w-3xl mx-auto space-y-4 text-gray-600">
-              <p>
-                1. Download and upload your Excel file containing test cases and scenarios.
-              </p>
-              <p>
-                2. After uploading, you will see your test cases displayed in a table format.
-              </p>
-              <p>
-                3. Find the relevant test case and click the Run button to execute the specific test.
-              </p>
+        <div className="p-8">
+          {/* Welcome Message */}
+          <div className="pb-8">
+            <span className="text-lg font-semibold text-gray-700 block">Test Management Platform</span>
+            <span className="text-[16px] text-gray-600 block">Upload and manage your test cases with Excel files</span>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 my-8"></div>
+
+          {/* Action Cards */}
+          <div className="grid grid-cols-2 gap-8 pb-8">
+            {/* Upload Excel Card */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '12px', 
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease-in-out',
+              transform: 'translateY(0)',
+            }} 
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            onClick={handleUploadClick}>
+              <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                <Upload style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
+              </div>
+              <div>
+                <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                  Upload Excel File →
+                </span>
+                <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Upload your Excel file containing test cases and scenarios</p>
+              </div>
+            </div>
+
+            {/* Download Sample Card */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'flex-start', 
+              gap: '12px', 
+              cursor: 'pointer',
+              transition: 'transform 0.2s ease-in-out',
+              transform: 'translateY(0)',
+            }}
+            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+            onClick={() => {
+              const link = document.createElement('a');
+              link.href = '/test-cases.xlsx';
+              link.download = 'test-cases-sample.xlsx';
+              link.click();
+            }}>
+              <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                <FileDown style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
+              </div>
+              <div>
+                <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                  Download Sample Excel →
+                </span>
+                <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Get a sample Excel template to understand the required format</p>
+              </div>
             </div>
           </div>
 
-          {/* File Upload Section */}          <div className="max-w-2xl mx-auto w-full">
+          {/* Divider */}
+          <div className="border-t border-gray-200 mb-8"></div>
+
+          {/* File Upload Section */}
+          <div className="max-w-2xl mx-auto w-full">
             <section
               className={cn(
                 "rounded-lg p-8 bg-slate-50/60 shadow-sm",
@@ -196,41 +252,55 @@ export function RunTestsTab({
                       </button>
                     </div>
                   </div>
-                ) : (                  <div className="flex flex-col items-center space-y-4">                    <button 
-                      type="button"                      className="upload-button-round aspect-square bg-blue-50 hover:bg-blue-100 cursor-pointer flex items-center justify-center transition-colors"
-                      onClick={() => (document.querySelector('input[type="file"]') as HTMLInputElement)?.click()}
+                ) : (
+                  <div className="flex flex-col items-center space-y-4">
+                    <button 
+                      type="button"
+                      className="upload-button-round aspect-square bg-blue-50 hover:bg-blue-100 cursor-pointer flex items-center justify-center transition-colors"
+                      onClick={handleUploadClick}
                       aria-label="Upload Excel file"
                       title="Upload Excel file">
                       <Upload className="h-8 w-8 text-blue-600" />
                     </button>
-                    <div className="text-center"><p className="text-gray-600 mb-1">
-                        Drag and drop your Excel file here, or{" "}                        <label className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer transition-colors">
-                          browse<input type="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
+                    <div className="text-center">
+                      <p className="text-gray-600 mb-1">
+                        Drag and drop your Excel file here, or{" "}
+                        <label className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer transition-colors">
+                          browse
+                          <input type="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
                         </label>
                       </p>
                       <p className="text-sm text-gray-500">
                         Supports: .xlsx (Excel) files up to 10MB
                       </p>
                     </div>
-                  </div>                )}
+                  </div>
+                )}
               </div>
             </section>
-            
-            {/* Download Sample Excel Button */}
-            <div className="mt-4 flex justify-center">          
-              <a 
-                href="/test-cases.xlsx"
-                download="test-cases-sample.xlsx"
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 transition-colors"
-                aria-label="Download sample excel file"
-                title="Download sample excel file"
-              >
-                <FileDown className="h-4 w-4 mr-1.5" />
-                Download Sample Excel
-              </a>
+          </div>
+
+          {/* Instructions Section */}
+          <div className="mt-8 max-w-3xl mx-auto">
+            <div className="bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4">How to use the Test Platform:</h3>
+              <div className="space-y-3 text-blue-800">
+                <div className="flex items-start">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">1</span>
+                  <p>Download and upload your Excel file containing test cases and scenarios.</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">2</span>
+                  <p>After uploading, you will see your test cases displayed in a table format.</p>
+                </div>
+                <div className="flex items-start">
+                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">3</span>
+                  <p>Find the relevant test case and click the Run button to execute the specific test.</p>
+                </div>
+              </div>
             </div>
           </div>
-        </>
+        </div>
       ) : (
         <ExcelViewer 
           file={file} 
