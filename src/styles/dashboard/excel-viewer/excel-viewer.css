@@ -131,7 +131,7 @@
 }
 
 .excel-table-header th {
-    padding: 0.6rem 1.1rem;
+    padding: 0.6rem 1.0rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
@@ -191,7 +191,7 @@
 /* Cell content styling - match header font style */
 .content-cell {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    padding: 0.5rem 0.75rem;
+    padding: 0.6rem 1.0rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -338,83 +338,36 @@ td[data-column="actions"] .cell-content {
 
 /* Sort indicator container */
 .sort-indicator-container {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 6px;
-    vertical-align: middle;
-    font-size: 14px;
-    position: relative;
-    opacity: 0;
-    /* Hidden by default */
-    transition: all 0.2s ease;
-}
-
-/* Make sort indicators visible on hover */
-th:hover .sort-indicator-container {
-    opacity: 1;
-    color: #000;
-}
-
-/* Style for active sort indicators */
-.sort-active .sort-indicator-container {
-    opacity: 1;
+    display: none;  /* Hide sort indicators */
 }
 
 /* Sort arrow styles - using characters */
 .sort-arrow {
-    color: #ECECEC;
-    /* Match header background color */
-    font-weight: bold;
-    font-size: 14px;
-    /* Larger arrow */
+    display: none;  /* Hide sort arrows */
 }
 
 /* Default sort indicator style */
 .sort-arrow-default {
-    display: flex;
-    align-items: center;
-    color: #ECECEC;
-    /* Match header background color */
-    font-weight: normal;
-    font-size: 10px;
+    display: none;  /* Hide default sort arrows */
 }
 
 /* A-Z stili */
 .az-icon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 0.85;
-    margin-right: 2px;
+    display: none;  /* Hide A-Z icons */
 }
 
 .az-letter {
-    font-size: 9px;
-    /* Keep A-Z small */
+    display: none;  /* Hide A-Z letters */
 }
 
 .default-arrow {
-    font-size: 10px;
-    /* Slightly bigger arrow */
-    margin-left: 1px;
+    display: none;  /* Hide default arrows */
 }
 
 /* Active sort arrow styles */
-.sort-asc .sort-arrow {
-    color: #000;
-}
-
+.sort-asc .sort-arrow,
 .sort-desc .sort-arrow {
-    color: #000;
-}
-
-/* Hover üzerindeyken arrow göster */
-th:hover .sort-arrow,
-th:hover .sort-arrow-default,
-th:hover .az-letter,
-th:hover .default-arrow {
-    color: #4B5563;
+    display: none;  /* Hide active sort arrows */
 }
 
 /* Style for header container to align label and sort indicator */

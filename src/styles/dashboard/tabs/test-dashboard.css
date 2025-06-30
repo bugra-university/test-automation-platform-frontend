@@ -53,7 +53,6 @@
     color: #666;
 }
 
-
 /* Badge'ler için büyük font */
 .api-dashboard .stats-badge {
     font-size: 0.85rem;
@@ -200,40 +199,26 @@
 }
 
 .api-dashboard .space-y-4 h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.375rem;
+    font-weight: 600;
 }
 
 .api-dashboard .space-y-4 > p {
-    font-size: 1rem;
     line-height: 1.5;
-    color: #4b5563;
 }
 
-/* Product Backlog başlık ve açıklama stilleri */
 .api-dashboard .product-backlog-header h2 {
-    font-size: 1.125rem;
+    font-size: 1.625rem;
     font-weight: 600;
-    margin-bottom: 0.25rem;
 }
 
 .api-dashboard .product-backlog-header p {
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 1.0625rem;
+    color: #666;
 }
 
-/* Report action buttons - override general button styles */
 .report-action-btn {
     padding: 4px 12px !important;
     height: auto !important;
-    border-radius: 9999px !important;
-    font-size: 0.8rem !important;
-}
-
-/* Pagination controls - specific styling to override other rules */
-.pagination-controls p,
-.pagination-controls div,
-.pagination-controls label {
-    font-size: 0.75rem !important;
     font-weight: 400 !important;
 }
