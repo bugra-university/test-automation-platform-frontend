@@ -7,7 +7,7 @@ interface ReportsTabProps {
 
 export function ReportsTab({ selectedProjectId }: ReportsTabProps) {
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="h-full flex flex-col">
       {/* Header */}
       <div className="h-[72px] px-8 border-b flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">All Reports</h1>
