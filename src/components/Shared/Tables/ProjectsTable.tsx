@@ -38,9 +38,18 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  MoreVertical,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Project } from "../../../api/projectsApi";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
 
 interface ProjectsTableProps {
   projects: Project[];
@@ -130,7 +139,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     ),
     accessorKey: "createdAt",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-500">
+      <div className="cell-content text-gray-500 text-center">
         {formatDate(row.getValue("createdAt"))}
       </div>
     ),
@@ -144,7 +153,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     ), 
     accessorKey: "updatedAt",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-500">
+      <div className="cell-content text-gray-500 text-center">
         {formatDate(row.getValue("updatedAt"))}
       </div>
     ),
@@ -160,7 +169,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     cell: ({ row }) => {
       const status = row.getValue("status") as string || "Active";
       return (
-        <div className="cell-content">
+        <div className="cell-content flex justify-center">
           <Badge className={cn(getStatusBadgeClass(status))}>
             {status}
           </Badge>
@@ -177,33 +186,36 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     ),
     id: "actions",
     cell: ({ row }) => (
-      <div className="cell-content">
-        <div className="flex items-center justify-center gap-2">
-          <button
-            className="p-1 hover:bg-gray-100 rounded"
-            title="Edit project"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditProject?.(row.original);
-            }}
-          >
-            <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          </button>
-          <button
-            className="p-1 hover:bg-gray-100 rounded"
-            title="Delete project"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDeleteProject?.(row.original);
-            }}
-          >
-            <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </div>
+      <div className="cell-content flex justify-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-10 w-10 p-0 hover:bg-gray-100 rounded-full">
+              <MoreVertical className="h-6 w-6 text-gray-600" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem 
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditProject?.(row.original);
+              }}
+            >
+              <Pencil className="mr-2 h-4 w-4" />
+              <span>Edit</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              className="cursor-pointer text-red-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteProject?.(row.original);
+              }}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     ),
     size: 100,
@@ -238,7 +250,6 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
 
   return (
     <div className="space-y-4">
-      <div className="table-container">
         <div className="table-scroll-container" style={{ borderRadius: '0.5rem', borderTop: '1px solid #e5e7eb' }}>
           <table className="excel-table">
             <thead className="excel-table-header">
@@ -305,6 +316,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
                           "content-cell",
                           cell.column.id === "select" ? "checkbox-column" : ""
                         )}
+                        data-column={cell.column.id}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
@@ -321,7 +333,6 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
             </tbody>
           </table>
         </div>
-      </div>
 
       <div className="flex items-center justify-between px-2 pagination-controls">
         <div className="flex items-center space-x-2">

@@ -67,6 +67,21 @@ export default function TestDashboard({
   // Use external setter if provided, otherwise use a dummy function
   const setCurrentFileName = externalSetCurrentFileName || (() => {});
   
+  // Tab titles mapping
+  const getTabTitle = (tabId: string): string => {
+    const tabTitles: { [key: string]: string } = {
+      'projects': 'All Projects',
+      'run-tests': 'Backlog',
+      'test-suites': 'Test Suites',
+      'test-cases': 'Test Cases',
+      'test-runs': 'Test Runs',
+      'reports': 'Reports',
+      'schedules': 'Schedules',
+      'how-it-works': 'How It Works'
+    };
+    return tabTitles[tabId] || 'Dashboard';
+  };
+  
   // Update activeTab when activeTabFromHeader changes
   useEffect(() => {
     if (activeTabFromHeader) {
@@ -80,6 +95,7 @@ export default function TestDashboard({
         return <ProjectsTab 
           onProjectSelect={setActiveProject || (() => {})} 
           loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
+          tabTitle={getTabTitle(activeTab)}
         />;
       case "test-suites":
         return <TestSuitesTab 
@@ -138,7 +154,7 @@ export default function TestDashboard({
   return (
     <div className="flex-1 flex flex-col api-dashboard overflow-hidden">
       <main className="flex-1">
-        <div className="px-6 flex flex-col">
+        <div className="flex flex-col">
           <div className="test-content">
             {renderActiveTab()}
           </div>

@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { Plus, FolderKanban, Loader2, User, Sparkles } from "lucide-react";
+import { Plus, FolderKanban, Loader2, User, Sparkles, Upload, PenLine, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { projectsApi, type Project } from "../../../api/projectsApi";
 import { Button } from "../../ui/button";
 import { useToast } from "../../ui/UseToast";
 import { ProjectsTable } from "../../Shared/Tables/ProjectsTable";
 import AlertDelete from "../Alert/AlertDelete";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "../../ui/dropdown-menu";
 
 interface ProjectsTabProps {
     onProjectSelect: (project: Project) => void;
     loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
+    tabTitle?: string;
 }
 
-export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab }: ProjectsTabProps) {
+export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tabTitle = "All Projects" }: ProjectsTabProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [loadingProjects, setLoadingProjects] = useState(true);
@@ -178,107 +185,162 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab }: P
     }
 
     return (
-        <div className="w-full bg-white h-full flex flex-col p-8">
+        <div className="w-full bg-white h-full flex flex-col">
             {/* Header Section */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center p-8 pb-4">
                 <div>
-                    <h1 className="text-xl font-semibold text-gray-900">All Projects</h1>
+                    <h1 className="text-xl font-semibold text-gray-900">{tabTitle}</h1>
                 </div>
                 <div className="flex gap-3">
-                    <Button variant="outline" className="gap-2 rounded-lg">
+                    <Button variant="outline" className="gap-2 rounded-lg w-[150px]">
                         Quick Import
                     </Button>
-                    <Button onClick={() => setShowCreateForm(true)} className="gap-2 rounded-lg">
+                    <Button onClick={() => setShowCreateForm(true)} className="gap-2 rounded-lg w-[150px] bg-blue-600 hover:bg-blue-700">
                         <Plus className="h-4 w-4" />
                         Create Project
                     </Button>
                 </div>
             </div>
 
-            {/* Divider after All Projects */}
-            <div className="border-t border-gray-200 mb-4"></div>
+            {/* Divider after header */}
+            <div className="border-t border-gray-200"></div>
 
-            {/* Welcome Message */}
-            <div className="mb-3">
-                <span className="text-lg font-normal text-gray-700 block">Welcome to Test Management</span>
-                <p className="text-sm text-gray-500">Get started by using one of the actions below</p>
+            {/* Content Container with padding */}
+            <div className="px-8 flex-1">
+                {/* Welcome Message */}
+                <div className="pt-4">
+                    <span className="text-lg font-semibold text-gray-700 block">Welcome to Test Management</span>
+                    <span className="text-[16px] text-gray-600 block">Get started by using one of the actions below</span>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 my-4"></div>
+
+                {/* Action Cards */}
+                <div className="grid grid-cols-2 gap-4">
+                    {/* First Row */}
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '12px', 
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                        transform: 'translateY(0)',
+                    }} 
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    onClick={() => setShowCreateForm(true)}>
+                        <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                            <Plus style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                        </div>
+                        <div>
+                            <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                                Create a New Project →
+                            </span>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start from a clean slate and add data through CSV import</p>
+                        </div>
+                    </div>
+
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '12px', 
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                        transform: 'translateY(0)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                        <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                            <FolderKanban style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                        </div>
+                        <div>
+                            <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                                Explore the Demo Project →
+                            </span>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>View the demo project to explore features of Test Management</p>
+                        </div>
+                    </div>
+
+                    {/* Second Row */}
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '12px', 
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                        transform: 'translateY(0)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                        <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                            <User style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                        </div>
+                        <div>
+                            <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                                Import from TestRail, Zephyr Scale, qTest or Xray →
+                            </span>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start migrating data from your existing tool to Test Management</p>
+                        </div>
+                    </div>
+
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '12px', 
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease-in-out',
+                        transform: 'translateY(0)',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                        <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
+                            <Sparkles style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                        </div>
+                        <div>
+                            <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
+                                Generate Test Case with AI →
+                            </span>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Save hours with AI-powered test case creation. Try it now in the demo project</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t border-gray-200 my-6"></div>
+
+                {/* Search Bar */}
+                <div className="mb-6">
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search projects by title/ID"
+                            className="w-full px-4 py-1.5 pl-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Projects Table Section */}
+                {loading ? (
+                    <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                    </div>
+                ) : (
+                    <div className="mt-6">
+                        <ProjectsTable 
+                            projects={projects} 
+                            onProjectSelect={loadProjectExcelAndSwitchTab || onProjectSelect}
+                            onDeleteProject={handleDeleteProject}
+                            onEditProject={handleEditProject}
+                        />
+                    </div>
+                )}
             </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 my-4"></div>
-
-            {/* Action Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                <div 
-                    style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}
-                    onClick={() => setShowCreateForm(true)}
-                >
-                    <div style={{ padding: '8px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                        <Plus style={{ height: '20px', width: '20px', color: '#2563eb' }} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '14px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                            Create a New Project →
-                        </span>
-                        <p style={{ fontSize: '11.8px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start from a clean slate and add data through CSV import</p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-                    <div style={{ padding: '8px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                        <FolderKanban style={{ height: '20px', width: '20px', color: '#2563eb' }} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '14px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                            Explore the Demo Project →
-                        </span>
-                        <p style={{ fontSize: '11.8px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>View the demo project to explore features of Test Management</p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-                    <div style={{ padding: '8px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                        <User style={{ height: '20px', width: '20px', color: '#2563eb' }} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '14px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                            Import from TestRail, Zephyr Scale, qTest or Xray →
-                        </span>
-                        <p style={{ fontSize: '11.8px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start migrating data from your existing tool to Test Management</p>
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
-                    <div style={{ padding: '8px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                        <Sparkles style={{ height: '20px', width: '20px', color: '#2563eb' }} />
-                    </div>
-                    <div>
-                        <span style={{ fontSize: '14px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                            Generate Test Case with AI →
-                        </span>
-                        <p style={{ fontSize: '11.8px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Save hours with AI-powered test case creation. Try it now in the demo project</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Search Bar */}
-            <div className="mb-6">
-                <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search projects by title/ID"
-                        className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-200 mb-6"></div>
 
             {showCreateForm && (
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
@@ -384,15 +446,6 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab }: P
                     </form>
                 </div>
             )}
-
-            <div className="flex-1">
-                <ProjectsTable 
-                    projects={projects} 
-                    onProjectSelect={loadProjectExcelAndSwitchTab || onProjectSelect}
-                    onDeleteProject={handleDeleteProject}
-                    onEditProject={handleEditProject}
-                />
-            </div>
 
             <AlertDelete
                 isOpen={showDeleteAlert}

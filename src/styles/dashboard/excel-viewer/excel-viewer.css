@@ -91,18 +91,21 @@
 .excel-table td,
 .excel-table th {
     position: relative;
-    border: 1px solid #e5e7eb;
-    border-width: 0 1px 1px 0;
+    border: none;
 }
 
-.excel-table tr:first-child td,
-.excel-table tr:first-child th {
-    border-top-width: 0;
+.excel-table tr:last-child td {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.excel-table td:last-child,
+.excel-table th:last-child {
+    border-right: 1px solid #e5e7eb;
 }
 
 .excel-table td:first-child,
 .excel-table th:first-child {
-    border-left-width: 0;
+    border-left: 1px solid #e5e7eb;
 }
 
 /* Ensure grid lines stay within bounds */
@@ -121,7 +124,6 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 1px solid #e5e7eb;
-    border-right: 1px solid #e5e7eb;
     background-color: #ECECEC;
     position: relative;
     transition: background-color 0.2s ease;
@@ -168,6 +170,21 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* Center align specific columns */
+td[data-column="createdAt"],
+td[data-column="updatedAt"],
+td[data-column="status"],
+td[data-column="actions"] {
+    text-align: center !important;
+}
+
+td[data-column="status"] .cell-content,
+td[data-column="actions"] .cell-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Cell content text styling to match header font */
