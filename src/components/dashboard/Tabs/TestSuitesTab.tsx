@@ -338,37 +338,37 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
       <table className="excel-table rounded-lg w-full">
           <thead className="excel-table-header sticky top-0 z-10 bg-white">
             <tr className="rounded-t-lg">
-              <th className="text-center first:rounded-tl-lg">
+              <th className="text-center first:rounded-tl-lg w-[100px]">
                 <div className="header-content">
                   <span>ID</span>
                 </div>
               </th>
-              <th>
+              <th className="w-[40%]">
                 <div className="header-content">
                   <span>TEST OBJECTIVE</span>
                 </div>
               </th>
-              <th>
+              <th className="w-[100px]">
                 <div className="header-content">
                   <span>STATUS</span>
                 </div>
               </th>
-              <th>
+              <th className="w-[100px]">
                 <div className="header-content">
                   <span>PROGRESS</span>
                 </div>
               </th>
-              <th>
+              <th className="w-[120px]">
                 <div className="header-content">
                   <span>LAST RUN</span>
                 </div>
               </th>
-              <th>
+              <th className="w-[100px]">
                 <div className="header-content">
                   <span>DURATION</span>
                 </div>
               </th>
-              <th className="text-center last:rounded-tr-lg">
+              <th className="text-center last:rounded-tr-lg w-[100px]">
                 <div className="header-content">
                   <span>ACTIONS</span>
                 </div>
