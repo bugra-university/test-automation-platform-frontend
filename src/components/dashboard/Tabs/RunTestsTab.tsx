@@ -239,7 +239,8 @@ export function RunTestsTab({
           {/* Divider after header */}
           <div className="border-t border-gray-200"></div>
 
-          <div className="px-12 py-8 max-w-6xl mx-auto">
+          {/* How It Works Content */}
+          <div className="px-32 py-8 max-w-7xl mx-auto w-full">
           <div className="text-center mb-10">
             <h1 className="text-[3.5rem] font-bold mb-4 tracking-tight">How It Works</h1>
             <p className="text-gray-500 max-w-2xl mx-auto">
@@ -247,7 +248,7 @@ export function RunTestsTab({
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-[280px_1fr] gap-12 items-start">
+          <div className="grid lg:grid-cols-[320px_1fr] gap-16 items-start">
             <nav className="relative flex flex-col gap-12 mx-auto lg:mx-0 max-w-xs" aria-label="Process steps">
               <div
                 className="absolute left-[32px] top-6 w-0.5 bg-gray-200"
@@ -293,7 +294,7 @@ export function RunTestsTab({
               ))}
             </nav>
 
-            <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white px-10 py-8 shadow-sm min-h-[500px] max-w-2xl">
+            <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white px-10 py-8 shadow-sm min-h-[500px]">
               {steps.map((step, index) => (
                 <div
                   key={step.id}
