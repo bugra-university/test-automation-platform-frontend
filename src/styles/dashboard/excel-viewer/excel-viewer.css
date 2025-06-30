@@ -131,7 +131,7 @@
 }
 
 .excel-table-header th {
-    padding: 0.6rem 1.5rem;
+    padding: 0.6rem 1.1rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
@@ -456,4 +456,17 @@ th:hover .default-arrow {
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+}
+
+/* Test suite parent items (US_01 etc.) */
+.excel-table-body tr .content-cell .cell-content {
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+/* Test suite child items (TC01 etc.) */
+.excel-table-body tr.child-row .content-cell .cell-content,
+.excel-table-body tr .content-cell .cell-content {
+    font-size: 0.875rem;
+    color: #374151;
 }
