@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle, Download, CheckCircle, XCircle, Clock, Loader } from 'lucide-react';
+import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle, Download, CheckCircle, XCircle, Clock, Loader, Plus } from 'lucide-react';
 import { testSuitesApi, TestSuite, ExecutionStatus, TestExecutionEvent, SSEConnectionManager } from '../../../api/testSuitesApi';
 import { stepTrackingApi, StepExecutionEvent, StepSSEConnectionManager } from '../../../api/stepTrackingApi';
 // Excel viewer styles for consistent look
@@ -683,19 +683,16 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   }
 
   return (
-    <div className="w-full bg-white h-full flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="w-full h-full flex flex-col">
       {/* Header */}
-      <div className="h-[72px] px-8 border-b flex items-center justify-between bg-transparent rounded-t-lg">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-xl font-semibold text-gray-900">Test Suites</h1>
-        </div>
-        <div className="flex items-center space-x-3">
+      <div className="h-[72px] px-8 border-b flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">All Test Suites</h1>
+        <div className="flex items-center gap-3">
           <button
-            onClick={() => selectedProjectId && handleRunTestSuite('all')}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            <Play className="h-4 w-4 mr-2" />
-            Run All Tests
+            <Plus className="h-4 w-4 mr-2" />
+            New Test Suite
           </button>
         </div>
       </div>

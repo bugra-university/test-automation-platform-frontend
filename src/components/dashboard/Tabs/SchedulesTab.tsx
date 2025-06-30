@@ -336,11 +336,10 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
       height: "100%", 
       display: "flex", 
       flexDirection: "column", 
-      overflow: "hidden",
-      background: "#fff"
+      overflow: "hidden"
     }}>
       {/* Header */}
-      <div className="h-[72px] px-8 border-b flex items-center justify-between bg-white">
+      <div className="h-[72px] px-8 border-b flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-gray-900">All Schedules</h1>
         <div className="flex items-center gap-3">
           <button
@@ -349,7 +348,7 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
             className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
               !selectedProjectId 
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-primary text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                : "bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             }`}
           >
             + New Schedule
