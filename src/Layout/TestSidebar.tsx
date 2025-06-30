@@ -238,6 +238,10 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                               onClick={() => {
                                 onProjectSelect?.(project);
                                 setShowProjectDropdown(false);
+                                // If there's an onTabClick handler, switch to backlog tab
+                                if (onTabClick) {
+                                  onTabClick('run-tests');
+                                }
                               }}
                               className={cn(
                                 "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 flex items-center",

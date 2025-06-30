@@ -798,9 +798,8 @@ export function ExcelViewer({
       <div className="border-t border-gray-200"></div>
 
       {/* Excel Content Container */}
-      <div className="flex-1 overflow-hidden px-8">
-        <div className="excel-container h-full">
-          <div className="table-container h-full">
+      <div className="flex-1 overflow-hidden px-8 py-6">
+        <div className="h-full">
             {/* Small loading indicator that appears when switching sheets */}
             {loading && data.length > 0 && (
               <div className="sheet-loading-indicator">
@@ -955,7 +954,6 @@ export function ExcelViewer({
                   </tbody>
               </table>
             </div>
-          </div>
         </div>
       </div>
     </div>

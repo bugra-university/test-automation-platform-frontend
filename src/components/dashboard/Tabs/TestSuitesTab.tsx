@@ -334,9 +334,8 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
   };
 
   return (
-    <div className="table-container h-full rounded-lg">
-      <div className="table-scroll-container h-full overflow-auto rounded-lg bg-white">
-        <table className="excel-table rounded-lg">
+    <div className="h-full overflow-auto rounded-lg bg-white">
+      <table className="excel-table rounded-lg w-full">
           <thead className="excel-table-header sticky top-0 z-10 bg-white">
             <tr className="rounded-t-lg">
               <th className="text-center first:rounded-tl-lg">
@@ -380,7 +379,6 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
             {testSuites.map(userStory => renderUserStory(userStory))}
           </tbody>
         </table>
-      </div>
     </div>
   );
 };
