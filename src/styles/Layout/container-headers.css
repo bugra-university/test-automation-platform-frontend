@@ -63,7 +63,7 @@
 /* Container content area */
 .container-content {
     overflow: auto;
-    height: calc(100% - 48px);
+    height: calc(100% );
     /* Subtract header height from container height */
     padding: 0;
 }

@@ -334,12 +334,12 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
   };
 
   return (
-    <div className="table-container">
-      <div className="table-scroll-container" style={{ borderRadius: '0.5rem', borderTop: '1px solid #e5e7eb' }}>
-        <table className="excel-table">
-          <thead className="excel-table-header">
-            <tr>
-              <th style={{ borderTopLeftRadius: '0.5rem' }} className="text-center">
+    <div className="table-container h-full rounded-lg">
+      <div className="table-scroll-container h-full overflow-auto rounded-lg bg-white">
+        <table className="excel-table rounded-lg">
+          <thead className="excel-table-header sticky top-0 z-10 bg-white">
+            <tr className="rounded-t-lg">
+              <th className="text-center first:rounded-tl-lg">
                 <div className="header-content">
                   <span>ID</span>
                 </div>
@@ -369,7 +369,7 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
                   <span>DURATION</span>
                 </div>
               </th>
-              <th style={{ borderTopRightRadius: '0.5rem' }} className="text-center">
+              <th className="text-center last:rounded-tr-lg">
                 <div className="header-content">
                   <span>ACTIONS</span>
                 </div>
@@ -683,51 +683,69 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   }
 
   return (
-    <div className="w-full bg-white h-full flex flex-col p-8">
-      
-      {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading test suites...</p>
-          </div>
+    <div className="w-full bg-white h-full flex flex-col [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Header */}
+      <div className="h-[72px] px-8 border-b flex items-center justify-between bg-transparent rounded-t-lg">
+        <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-semibold text-gray-900">Test Suites</h1>
         </div>
-      ) : error ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-              <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => selectedProjectId && handleRunTestSuite('all')}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <Play className="h-4 w-4 mr-2" />
+            Run All Tests
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 p-8">
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading test suites...</p>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Test Suites</h3>
-            <p className="text-red-600 text-sm mb-4">{error}</p>
-            <button 
-              onClick={() => selectedProjectId && loadTestSuites(selectedProjectId)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Retry
-            </button>
           </div>
-        </div>
-      ) : testSuites.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-              <BarChart3 className="w-8 h-8 text-gray-400" />
+        ) : error ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Test Suites</h3>
+              <p className="text-red-600 text-sm mb-4">{error}</p>
+              <button 
+                onClick={() => selectedProjectId && loadTestSuites(selectedProjectId)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Retry
+              </button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Test Suites Found</h3>
-            <p className="text-gray-600 text-sm max-w-sm">
-              This project doesn't have any test suites yet. Upload an Excel file with test cases to get started.
-            </p>
           </div>
-        </div>
-      ) : (
-        <TestSuitesTable 
-          testSuites={testSuites}
-          onRunTestSuite={handleRunTestSuite}
-          onRunTestCase={handleRunTestCase}
-          onDownloadReport={handleDownloadReport}
-        />
-      )}
+        ) : testSuites.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <BarChart3 className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Test Suites Found</h3>
+              <p className="text-gray-600 text-sm max-w-sm">
+                This project doesn't have any test suites yet. Upload an Excel file with test cases to get started.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <TestSuitesTable 
+            testSuites={testSuites}
+            onRunTestSuite={handleRunTestSuite}
+            onRunTestCase={handleRunTestCase}
+            onDownloadReport={handleDownloadReport}
+          />
+        )}
+      </div>
     </div>
   );
 }
