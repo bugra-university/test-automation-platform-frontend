@@ -62,7 +62,8 @@
     /* Remove top border for sheet tabs to connect seamlessly */
     border-radius: 0 0.5rem 0.5rem 0.5rem;
     /* Custom border radius to match sheet tabs */
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
     max-height: calc(100vh - 300px);
     background-color: transparent;
     margin-top: -1px;
@@ -71,7 +72,8 @@
 
 /* Main table styles */
 .excel-table {
-    min-width: 100%;
+    min-width: 1400px;  /* Set minimum width to prevent squishing */
+    width: 100%;
     border-collapse: collapse;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     table-layout: fixed;
@@ -415,6 +417,7 @@ th:hover .default-arrow {
 /* Force table to use the specific widths */
 .excel-table {
     table-layout: fixed !important;
+    min-width: 1400px !important;  /* Ensure minimum width */
 }
 
 /* Fixed widths for row number cells - with !important to override any other styles */

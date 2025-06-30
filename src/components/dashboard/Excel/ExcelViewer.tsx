@@ -193,10 +193,33 @@ export function ExcelViewer({
   const getColumnPositionClasses = (colIndex: number) => {
     const classes = [];
     
+    // Add fixed width classes based on column type
+    if (colIndex === 0) {
+      classes.push('user-story-id-column');
+    } else if (colIndex === tableHeaders.length - 2) {
+      classes.push('validation-column');
+    } else {
+      // Map specific columns to their fixed widths
+      const columnLabel = tableHeaders[colIndex]?.label?.toUpperCase();
+      if (columnLabel === 'STATUS') {
+        classes.push('status-column');
+      } else if (columnLabel === 'PROGRESS') {
+        classes.push('progress-column');
+      } else if (columnLabel === 'LAST RUN') {
+        classes.push('last-run-column');
+      } else if (columnLabel === 'DURATION') {
+        classes.push('duration-column');
+      } else if (columnLabel === 'ACTIONS') {
+        classes.push('actions-column');
+      } else if (columnLabel === 'TEST OBJECTIVE') {
+        classes.push('cell-wrap-text');
+      }
+    }
+    
     // Center align specific columns
     if (colIndex === 0 || 
         colIndex === tableHeaders.length - 2 || 
-        (activeSheetIndex !== 0 && (colIndex === 1 || colIndex === 3 || colIndex === 8))) {
+        ['STATUS', 'PROGRESS', 'LAST RUN', 'DURATION', 'ACTIONS'].includes(tableHeaders[colIndex]?.label?.toUpperCase())) {
       classes.push('cell-align-center');
     }
     
@@ -207,17 +230,9 @@ export function ExcelViewer({
   const getSheetSpecificClasses = (colIndex: number) => {
     const classes = [];
     
-    // Text wrapping for DESCRIPTION column in first sheet
-    if (activeSheetIndex === 0 && colIndex === 1) {
+    // Text wrapping for TEST OBJECTIVE column
+    if (tableHeaders[colIndex]?.label?.toUpperCase() === 'TEST OBJECTIVE') {
       classes.push('cell-wrap-text');
-    }
-    
-    // Column-specific styles for non-first sheets
-    if (activeSheetIndex !== 0) {
-      if (colIndex === 1) classes.push('second-column-narrow');
-      if (colIndex === 2) classes.push('third-column-wide');
-      if (colIndex === 4) classes.push('fifth-column-narrow', 'fifth-column-header');
-      if (colIndex === 8) classes.push('ninth-column-center');
     }
     
     return classes;

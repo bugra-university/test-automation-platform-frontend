@@ -211,8 +211,8 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
               <div className="text-xs text-gray-500 mt-1">{testCase.description}</div>
             </div>
           </td>
-          <td className="content-cell">
-            <div className="cell-content">
+          <td className="content-cell text-center">
+            <div className="cell-content flex items-center justify-center">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(testCase.status)}
                 <span className={`text-sm ${getStatusColor(testCase.status)}`}>
@@ -222,18 +222,24 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
             </div>
           </td>
           <td className="content-cell">
-            <div className="cell-content">
-              {formatProgress(testCase.progress)}
+            <div className="cell-content h-full flex items-center justify-center">
+              <span className="text-sm text-gray-600">
+                {formatProgress(testCase.progress)}
+              </span>
             </div>
           </td>
           <td className="content-cell">
-            <div className="cell-content">
-              {formatLastRun(testCase.lastRun)}
+            <div className="cell-content h-full flex items-center justify-center">
+              <span className="text-sm text-gray-600">
+                {formatLastRun(testCase.lastRun)}
+              </span>
             </div>
           </td>
           <td className="content-cell">
-            <div className="cell-content">
-              {formatDuration(testCase.duration)}
+            <div className="cell-content h-full flex items-center justify-center">
+              <span className="text-sm text-gray-600">
+                {formatDuration(testCase.duration)}
+              </span>
             </div>
           </td>
           <td className="content-cell text-center">
@@ -299,19 +305,19 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
               </div>
             </td>
             <td className="content-cell">
-              <div className="cell-content">
+              <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-500">
                   {step.progress || '-'}
                 </span>
               </div>
             </td>
             <td className="content-cell">
-              <div className="cell-content">
+              <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-400">-</span>
               </div>
             </td>
             <td className="content-cell">
-              <div className="cell-content">
+              <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-400">-</span>
               </div>
             </td>
