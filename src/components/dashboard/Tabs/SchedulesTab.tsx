@@ -337,41 +337,30 @@ const SchedulesTab: React.FC<SchedulesTabProps> = ({ selectedProjectId }) => {
       display: "flex", 
       flexDirection: "column", 
       overflow: "hidden",
-      background: "#f8f9fa"
+      background: "#fff"
     }}>
       {/* Header */}
-      <div style={{
-        display: "flex",
-        justifyContent: "flex-end",
-        alignItems: "center",
-        padding: "24px 24px 1rem 24px",
-        background: "#f8f9fa"
-      }}>
-        <button
-          onClick={handleCreateSchedule}
-          disabled={!selectedProjectId}
-          style={{
-            background: selectedProjectId ? "#1976d2" : "#ccc",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            padding: "10px 20px",
-            cursor: selectedProjectId ? "pointer" : "not-allowed",
-            fontWeight: 500,
-            fontSize: "14px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-        >
-          + New Schedule
-        </button>
+      <div className="h-[72px] px-8 border-b flex items-center justify-between bg-white">
+        <h1 className="text-2xl font-semibold text-gray-900">All Schedules</h1>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleCreateSchedule}
+            disabled={!selectedProjectId}
+            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+              !selectedProjectId 
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-primary text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            }`}
+          >
+            + New Schedule
+          </button>
+        </div>
       </div>
 
       {/* Calendar Layout */}
       <div style={{
         ...styles.wrap, 
-        padding: "0 24px 24px 24px", 
+        padding: "24px", 
         flex: 1,
         overflow: "hidden"
       }}>
