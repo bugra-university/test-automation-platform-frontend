@@ -183,10 +183,10 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
               <button
                 onClick={() => handleMenuClick(item.tabId)}
                 className={cn(
-                  "flex items-center px-3 py-2.5 my-1 text-base font-medium rounded-full w-full text-left",
+                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-[9999px] w-full text-left",
                   "transition-colors duration-150",
                   isActive 
-                    ? "text-blue-600" 
+                    ? "text-blue-600 bg-[#e8eef9]" 
                     : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]",
                   item.level > 0 ? "ml-4" : "" // Add left margin for nested items
                 )}
@@ -298,10 +298,10 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                 key={item.tabId}
                 onClick={() => handleMenuClick(item.tabId)}
                 className={cn(
-                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full w-full text-left",
+                  "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-[9999px] w-full text-left",
                   "transition-colors duration-150",
                   isActive 
-                    ? "text-blue-600" 
+                    ? "text-blue-600 bg-[#e8eef9]" 
                     : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
                 )}
               >
