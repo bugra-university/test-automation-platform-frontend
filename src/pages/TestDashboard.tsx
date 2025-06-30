@@ -6,6 +6,7 @@ import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
 import { HowItWorksTab } from "../components/dashboard/Tabs/HowItWorksTab";
 import { ReportsTab } from "../components/dashboard/Tabs/ReportsTab";
+import { DocumentationTab } from "../components/dashboard/Tabs/DocumentationTab";
 
 import SchedulesTab from "../components/dashboard/Tabs/SchedulesTab";
 import { Project } from "@/api/projectsApi";
@@ -77,7 +78,8 @@ export default function TestDashboard({
       'test-runs': 'Test Runs',
       'reports': 'Reports',
       'schedules': 'Schedules',
-      'how-it-works': 'How It Works'
+      'how-it-works': 'How It Works',
+      'documentation': 'Documentation'
     };
     return tabTitles[tabId] || 'Dashboard';
   };
@@ -123,6 +125,8 @@ export default function TestDashboard({
         return <ReportsTab selectedProjectId={activeProject?.id || null} />;
       case "schedules":
         return <SchedulesTab selectedProjectId={activeProject?.id || null} />;
+      case "documentation":
+        return <DocumentationTab selectedProjectId={activeProject?.id || null} />;
       case "how-it-works":
         return <HowItWorksTab />;
       case "deprecated":        
