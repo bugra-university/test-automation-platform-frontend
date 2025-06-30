@@ -143,7 +143,17 @@
     position: relative;
     transition: background-color 0.2s ease;
     white-space: nowrap;
-    /* Prevent text wrapping in headers */
+}
+
+/* Override padding for row number and checkbox headers */
+.excel-table-header th.row-number-header,
+.excel-table-header th.checkbox-column {
+    padding: 0.2rem 0.1rem !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    box-sizing: content-box;
+    overflow: hidden;
 }
 
 /* Hover effect for data header cells (excluding row number and checkbox columns) */
@@ -253,11 +263,14 @@ td[data-column="actions"] .cell-content {
 
 /* Checkbox column styling */
 .checkbox-column {
-    width: 50px;
-    text-align: center;
-    padding: 0.25rem !important;
     background-color: #ECECEC;
-    position: relative;
+    text-align: center;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    padding: 0.2rem 0.1rem;
+    box-sizing: content-box;
+    overflow: hidden;
 }
 
 /* White background class for checkbox column */
