@@ -216,6 +216,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
             <TestSidebar 
               activeTab={state.activeTab}
               onTabClick={handleTabClick}
+              activeProject={state.activeProject}
+              onProjectSelect={actions.setActiveProject}
             />
           </div>
         </div>

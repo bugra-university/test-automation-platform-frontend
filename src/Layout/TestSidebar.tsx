@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard,
@@ -12,11 +12,14 @@ import {
   LogOut,
   Users,
   Layers,
-  FileBarChart
+  FileBarChart,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { useAuth } from '../contexts/authContext';
+import { projectsApi, type Project } from '../api/projectsApi';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,11 +105,47 @@ const bottomMenuItems = [
 interface TestSidebarProps {
   activeTab?: string;
   onTabClick?: (tabId: string) => void;
+  activeProject?: Project | null;
+  onProjectSelect?: (project: Project) => void;
 }
 
-const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick }) => {
+const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, activeProject, onProjectSelect }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showProjectDropdown && !target.closest('.project-dropdown')) {
+        setShowProjectDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showProjectDropdown]);
+
+  // Load projects when component mounts
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setLoadingProjects(true);
+        const data = await projectsApi.getProjects();
+        setProjects(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        setProjects([]);
+      } finally {
+        setLoadingProjects(false);
+      }
+    };
+
+    loadProjects();
+  }, []);
   
   const handleLogout = async () => {
     await logout();
@@ -133,32 +172,96 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick }) => {
         
         {/* Main Menu - aligned with tab content */}
       <nav className="px-3 pt-4 flex-1">
-        {menuItems.map((item) => {
+        {menuItems.map((item, index) => {
           const Icon = item.icon;
           const isActive = activeTab === item.tabId;
           const isHowItWorks = item.title === 'How It Works';
+          const isProjectsTab = item.tabId === 'projects';
 
           return (
-            <button
-              key={item.tabId}
-              onClick={() => handleMenuClick(item.tabId)}
-              className={cn(
-                "flex items-center px-3 py-2.5 my-1 text-sm font-medium rounded-full w-full text-left",
-                "transition-colors duration-150",
-                isActive 
-                  ? "text-blue-600" 
-                  : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]",
-                item.level > 0 ? "ml-4" : "" // Add left margin for nested items
-              )}
-            >
-              <Icon 
+            <React.Fragment key={item.tabId}>
+              <button
+                onClick={() => handleMenuClick(item.tabId)}
                 className={cn(
-                  "h-5 w-5 mr-3", 
-                  isActive ? "text-blue-600" : isHowItWorks ? "text-yellow-500" : "text-gray-500"
-                )} 
-              />
-              <span>{item.title}</span>
-            </button>
+                  "flex items-center px-3 py-2.5 my-1 text-base font-medium rounded-full w-full text-left",
+                  "transition-colors duration-150",
+                  isActive 
+                    ? "text-blue-600" 
+                    : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]",
+                  item.level > 0 ? "ml-4" : "" // Add left margin for nested items
+                )}
+              >
+                <Icon 
+                  className={cn(
+                    "h-5 w-5 mr-3", 
+                    isActive ? "text-blue-600" : isHowItWorks ? "text-yellow-500" : "text-gray-500"
+                  )} 
+                />
+                <span>{item.title}</span>
+              </button>
+
+              {/* Show project selector bar only after Projects menu item */}
+              {isProjectsTab && (
+                <div className="px-3 mb-2">
+                  <div className="relative project-dropdown">
+                    <button
+                      onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+                      disabled={loadingProjects}
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg text-left hover:bg-gray-100 transition-colors duration-150 flex items-center justify-between"
+                    >
+                      <div className="flex items-center min-w-0 flex-1">
+                        <FolderKanban className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
+                        <span className="truncate">
+                          {loadingProjects ? (
+                            'Loading projects...'
+                          ) : activeProject ? (
+                            activeProject.name
+                          ) : (
+                            'Select a project'
+                          )}
+                        </span>
+                      </div>
+                      {showProjectDropdown ? (
+                        <ChevronUp className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                      )}
+                    </button>
+                    
+                    {/* Dropdown menu */}
+                    {showProjectDropdown && !loadingProjects && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-gray-50 border border-gray-300 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto">
+                        {projects.length > 0 ? (
+                          projects.map((project) => (
+                            <button
+                              key={project.id}
+                              onClick={() => {
+                                onProjectSelect?.(project);
+                                setShowProjectDropdown(false);
+                              }}
+                              className={cn(
+                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 flex items-center",
+                                activeProject?.id === project.id ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                              )}
+                            >
+                              <FolderKanban className="h-4 w-4 mr-2 flex-shrink-0" />
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate font-medium">{project.name}</div>
+                                {project.description && (
+                                  <div className="truncate text-xs text-gray-500">{project.description}</div>
+                                )}
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="px-3 py-2 text-sm text-gray-500">No projects found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
       </nav>
