@@ -208,16 +208,16 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
             {/* Content Container with padding */}
             <div className="px-8 flex-1">
                 {/* Welcome Message */}
-                <div className="pt-4">
+                <div className="pt-8">
                     <span className="text-lg font-semibold text-gray-700 block">Welcome to Test Management</span>
                     <span className="text-[16px] text-gray-600 block">Get started by using one of the actions below</span>
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-gray-200 my-4"></div>
+                <div className="border-t border-gray-200 my-8"></div>
 
                 {/* Action Cards */}
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-2 gap-8 pb-8">
                     {/* First Row */}
                     <div style={{ 
                         display: 'flex', 
