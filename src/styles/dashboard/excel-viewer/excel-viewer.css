@@ -60,13 +60,22 @@
     overflow-x: auto;
     overflow-y: auto;
     position: relative;
+    border-radius: 0.5rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    max-height: calc(100vh - 300px);
 }
 
 /* Backlog tab specific table styles */
+[data-tab="backlog"] {
+    max-height: calc(100vh - 300px);
+}
+
 [data-tab="backlog"] .excel-table {
     width: max-content;
     min-width: 100%;
     border-collapse: collapse;
+    background: white;
 }
 
 [data-tab="backlog"] .excel-table td,

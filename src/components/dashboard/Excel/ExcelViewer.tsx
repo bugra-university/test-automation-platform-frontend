@@ -809,166 +809,164 @@ export function ExcelViewer({
         </div>
       </div>
 
-      {/* Divider after header - full width */}
+      {/* Divider after header */}
       <div className="border-t border-gray-200"></div>
 
       {/* Excel Content Container */}
       <div className="flex-1 overflow-hidden px-8 pt-8 pb-6">
         <div className="h-full max-h-[calc(100vh-300px)] overflow-auto">
-            {/* Small loading indicator that appears when switching sheets */}
+          <div className="table-scroll-container" data-tab="backlog">
             {loading && data.length > 0 && (
               <div className="sheet-loading-indicator">
                 Loading sheet...
               </div>
             )}
-              {/* Sheet tabs */}
             {sheetNames.length > 0 && (
-              <div className="sheet-tabs-container" role="tablist" aria-label="Excel sheet tabs">            {sheetNames.map((sheetName, index) => {
-                  const isSelected = index === activeSheetIndex;
-                  return (<div 
-                      key={sheetName}
-                      className={`sheet-tab sheet-tab-color-${index % 6} ${isSelected ? 'active' : ''}`} 
-                      role="tab"
-                      tabIndex={0}
-                      aria-label={`Switch to ${sheetName} sheet`}
-                      onClick={() => handleSheetChange(index)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          handleSheetChange(index);
-                        }
-                      }}
-                    >
+              <div className="sheet-tabs-container" role="tablist" aria-label="Excel sheet tabs">
+                {sheetNames.map((sheetName, index) => (
+                  <div 
+                    key={sheetName}
+                    className={`sheet-tab sheet-tab-color-${index % 6} ${index === activeSheetIndex ? 'active' : ''}`} 
+                    role="tab"
+                    tabIndex={0}
+                    aria-label={`Switch to ${sheetName} sheet`}
+                    onClick={() => handleSheetChange(index)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSheetChange(index);
+                      }
+                    }}
+                  >
                     {sheetName}
-                    {/* Show loading indicator for sheets that aren't loaded yet */}
                     {!allSheetsData[sheetName] && index !== activeSheetIndex && (
-                      <span className="sheet-loading-dot" title="This sheet will load when selected">•</span>                )}
+                      <span className="sheet-loading-dot" title="This sheet will load when selected">•</span>
+                    )}
                     <div className="sheet-tab-indicator" />
                   </div>
-                  );
-                })}
+                ))}
               </div>
-            )}              <div className="table-scroll-container h-full overflow-x-auto overflow-y-auto" data-tab="backlog">
-                <table className={getTableClassName()}>
-                  <thead className="excel-table-header">
-                    <tr>
-                      <th className="row-number-header">
-                        <span className="hash-symbol">#</span>
-                      </th>
-                      {/* Checkbox column header */}
-                      <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-                        <input 
-                          type="checkbox" 
-                          className="regular-checkbox"
-                          id="select-all-checkbox"
-                          aria-label="Select all rows"
-                          title="Select all rows"
-                          checked={data.length > 0 && 
-                                  Object.keys(selectedRows).length === data.length && 
-                                  data.every((_, idx) => selectedRows[idx])}
-                          onChange={handleSelectAll}
-                        />
-                      </th>
-                      {/* Dynamic column headers - skip the first one (#) since we're handling it separately */}
-                      {tableHeaders.slice(1).map((column, colIndex) => (
-                        <th 
-                          key={column.id}
-                          scope="col"
-                          onClick={() => {
-                            if (!isSortingDisabled(colIndex)) {
-                              requestSort(column.label);
-                            }
-                          }}
-                          className={getHeaderClassName(colIndex, column)}
-                        >
-                          <div className="header-content">
-                            <span>{column.label}</span>
-                            {shouldShowSortIndicator(colIndex) && 
-                              <SortIndicator column={column.label} sortConfig={sortConfig} />
-                            }
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="excel-table-body">
-                    {data.length > 0 ? (
-                    sortedData.map((row, idx) => {
-                      // Create a stable key using row content
-                      const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
-                      return (
-                        <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
-                          {/* Row number column */}
-                          <td className="row-number">
-                            {idx + 1}
-                          </td>
-                          {/* Checkbox column - only show for test case rows (with USER ID) */}
-                          <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-                            {(() => {
-                              // Check if this row has any merged cells in the first data column (USER ID column)
-                              const mergeInfo = getMergeInfoForCell(idx, 0); // Check first data column
-                              
-                              // Get the value from the USER ID column (first data column after #)
-                              const userIdValue = getMergedCellValueByIndex(idx, 0);
-                              
-                              // Check if USER ID column has meaningful content
-                              const hasUserIdContent = userIdValue && String(userIdValue).trim() !== '';
-                              
-                              // Show checkbox only if:
-                              // 1. This is the main cell of a merged range AND has USER ID content, OR
-                              // 2. This is a non-merged cell AND has data in USER ID column
-                              const shouldShowCheckbox = hasUserIdContent && (
-                                (mergeInfo.isMerged && mergeInfo.isMainCell) || 
-                                !mergeInfo.isMerged
-                              );
-                              
-                              return shouldShowCheckbox ? (
-                                <input 
-                                  type="checkbox" 
-                                  className="regular-checkbox"
-                                  id={`row-checkbox-${idx}`}
-                                  aria-label={`Select row ${idx + 1}`}
-                                  title={`Select row ${idx + 1}`}
-                                  checked={!!selectedRows[idx]} 
-                                  onChange={() => handleCheckboxToggle(idx)}
-                                />
-                              ) : null;
-                            })()}
-                          </td>
-                          {/* Data cells for other columns - now with merged cell support */}
-                          {tableHeaders.slice(1).map((column, colIndex) => {
-                            const mergeInfo = getMergeInfoForCell(idx, colIndex);
-                            const cellValue = getMergedCellValueByIndex(idx, colIndex);
-                            const className = getCellClassName(colIndex);
-
-                            return (
-                              <MergedCell
-                                key={`${idx}-${column.id}`}
-                                mergeInfo={mergeInfo}
-                                value={cellValue}
-                                className={className}
-                                isEditMode={isEditMode}
-                                isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
-                                editValue={editingValue}
-                                onCellClick={() => handleCellClick(idx, column.id, cellValue)}
-                                onValueChange={setEditingValue}
-                                onKeyDown={handleKeyDown}
-                              />
-                            );
-                          })}
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={tableHeaders.length + 1} className="text-center">
-                        No data found
+            )}
+            <table className={getTableClassName()}>
+              <thead className="excel-table-header">
+                <tr>
+                  <th className="row-number-header">
+                    <span className="hash-symbol">#</span>
+                  </th>
+                  {/* Checkbox column header */}
+                  <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
+                    <input 
+                      type="checkbox" 
+                      className="regular-checkbox"
+                      id="select-all-checkbox"
+                      aria-label="Select all rows"
+                      title="Select all rows"
+                      checked={data.length > 0 && 
+                              Object.keys(selectedRows).length === data.length && 
+                              data.every((_, idx) => selectedRows[idx])}
+                      onChange={handleSelectAll}
+                    />
+                  </th>
+                  {/* Dynamic column headers - skip the first one (#) since we're handling it separately */}
+                  {tableHeaders.slice(1).map((column, colIndex) => (
+                    <th 
+                      key={column.id}
+                      scope="col"
+                      onClick={() => {
+                        if (!isSortingDisabled(colIndex)) {
+                          requestSort(column.label);
+                        }
+                      }}
+                      className={getHeaderClassName(colIndex, column)}
+                    >
+                      <div className="header-content">
+                        <span>{column.label}</span>
+                        {shouldShowSortIndicator(colIndex) && 
+                          <SortIndicator column={column.label} sortConfig={sortConfig} />
+                        }
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="excel-table-body">
+                {data.length > 0 ? (
+                sortedData.map((row, idx) => {
+                  // Create a stable key using row content
+                  const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
+                  return (
+                    <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
+                      {/* Row number column */}
+                      <td className="row-number">
+                        {idx + 1}
                       </td>
+                      {/* Checkbox column - only show for test case rows (with USER ID) */}
+                      <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
+                        {(() => {
+                          // Check if this row has any merged cells in the first data column (USER ID column)
+                          const mergeInfo = getMergeInfoForCell(idx, 0); // Check first data column
+                          
+                          // Get the value from the USER ID column (first data column after #)
+                          const userIdValue = getMergedCellValueByIndex(idx, 0);
+                          
+                          // Check if USER ID column has meaningful content
+                          const hasUserIdContent = userIdValue && String(userIdValue).trim() !== '';
+                          
+                          // Show checkbox only if:
+                          // 1. This is the main cell of a merged range AND has USER ID content, OR
+                          // 2. This is a non-merged cell AND has data in USER ID column
+                          const shouldShowCheckbox = hasUserIdContent && (
+                            (mergeInfo.isMerged && mergeInfo.isMainCell) || 
+                            !mergeInfo.isMerged
+                          );
+                          
+                          return shouldShowCheckbox ? (
+                            <input 
+                              type="checkbox" 
+                              className="regular-checkbox"
+                              id={`row-checkbox-${idx}`}
+                              aria-label={`Select row ${idx + 1}`}
+                              title={`Select row ${idx + 1}`}
+                              checked={!!selectedRows[idx]} 
+                              onChange={() => handleCheckboxToggle(idx)}
+                            />
+                          ) : null;
+                        })()}
+                      </td>
+                      {/* Data cells for other columns - now with merged cell support */}
+                      {tableHeaders.slice(1).map((column, colIndex) => {
+                        const mergeInfo = getMergeInfoForCell(idx, colIndex);
+                        const cellValue = getMergedCellValueByIndex(idx, colIndex);
+                        const className = getCellClassName(colIndex);
+
+                        return (
+                          <MergedCell
+                            key={`${idx}-${column.id}`}
+                            mergeInfo={mergeInfo}
+                            value={cellValue}
+                            className={className}
+                            isEditMode={isEditMode}
+                            isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
+                            editValue={editingValue}
+                            onCellClick={() => handleCellClick(idx, column.id, cellValue)}
+                            onValueChange={setEditingValue}
+                            onKeyDown={handleKeyDown}
+                          />
+                        );
+                      })}
                     </tr>
-                  )}
-                  </tbody>
-              </table>
-            </div>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={tableHeaders.length + 1} className="text-center">
+                    No data found
+                  </td>
+                </tr>
+              )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
