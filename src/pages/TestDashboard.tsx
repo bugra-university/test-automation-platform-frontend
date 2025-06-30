@@ -5,9 +5,9 @@ import { RunTestsTab } from "../components/dashboard/Tabs/RunTestsTab";
 import { TestCasesTab } from "../components/dashboard/Tabs/TestCasesTab";
 import { TestRunsTab } from "../components/dashboard/Tabs/TestRunsTab";
 import { HowItWorksTab } from "../components/dashboard/Tabs/HowItWorksTab";
+import { ReportsTab } from "../components/dashboard/Tabs/ReportsTab";
 
 import SchedulesTab from "../components/dashboard/Tabs/SchedulesTab";
-import { FeaturesSectionWithCardGradient } from "../components/ui/features-section-with-card-gradient";
 import { Project } from "@/api/projectsApi";
 
 import "../styles/dashboard/tabs/test-dashboard.css";
@@ -120,16 +120,7 @@ export default function TestDashboard({
       case "test-runs":
         return <TestRunsTab />;      
       case "reports":
-        return (
-          <div className="w-full bg-white h-full flex flex-col">
-            <div 
-              className="flex-1 overflow-auto reports-scroll-wrapper" 
-              style={{ scrollbarWidth: 'thin' }}
-            >
-              <FeaturesSectionWithCardGradient />
-            </div>
-          </div>
-        );      
+        return <ReportsTab selectedProjectId={activeProject?.id || null} />;
       case "schedules":
         return <SchedulesTab selectedProjectId={activeProject?.id || null} />;
       case "how-it-works":
