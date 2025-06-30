@@ -799,7 +799,7 @@ export function ExcelViewer({
 
       {/* Excel Content Container */}
       <div className="flex-1 overflow-hidden px-8 py-6">
-        <div className="h-full">
+        <div className="h-full max-h-[calc(100vh-300px)] overflow-auto">
             {/* Small loading indicator that appears when switching sheets */}
             {loading && data.length > 0 && (
               <div className="sheet-loading-indicator">

@@ -334,7 +334,7 @@ const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownload
   };
 
   return (
-    <div className="h-full overflow-auto rounded-lg bg-white">
+    <div className="h-full overflow-auto rounded-lg bg-white max-h-[calc(100vh-300px)]">
       <table className="excel-table rounded-lg w-full">
           <thead className="excel-table-header sticky top-0 z-10 bg-white">
             <tr className="rounded-t-lg">
@@ -696,7 +696,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-hidden">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
