@@ -187,11 +187,11 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
     return (
         <div className="w-full bg-white h-full flex flex-col">
             {/* Header Section */}
-            <div className="flex justify-between items-center p-8 pb-4">
-                <div>
+            <div className="flex justify-between items-center h-[72px] px-8">
+                <div className="flex items-center">
                     <h1 className="text-xl font-semibold text-gray-900">{tabTitle}</h1>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 items-center">
                     <Button variant="outline" className="gap-2 rounded-lg w-[150px]">
                         Quick Import
                     </Button>
@@ -217,7 +217,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                 <div className="border-t border-gray-200 my-4"></div>
 
                 {/* Action Cards */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
                     {/* First Row */}
                     <div style={{ 
                         display: 'flex', 
@@ -231,7 +231,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
                     onClick={() => setShowCreateForm(true)}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                            <Plus style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                            <Plus style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
                         <div>
                             <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
@@ -252,13 +252,13 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                            <FolderKanban style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                            <FolderKanban style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
                         <div>
                             <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                                Explore the Demo Project →
+                                Import from TestRail, Zephyr Scale, qTest or Xray →
                             </span>
-                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>View the demo project to explore features of Test Management</p>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start migrating data from your existing tool to Test Management</p>
                         </div>
                     </div>
 
@@ -274,34 +274,13 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                     onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                            <User style={{ height: '28px', width: '28px', color: '#2563eb' }} />
+                            <User style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
                         <div>
                             <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                                Import from TestRail, Zephyr Scale, qTest or Xray →
+                                Explore the Demo Project →
                             </span>
-                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Start migrating data from your existing tool to Test Management</p>
-                        </div>
-                    </div>
-
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '12px', 
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s ease-in-out',
-                        transform: 'translateY(0)',
-                    }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                        <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                            <Sparkles style={{ height: '28px', width: '28px', color: '#2563eb' }} />
-                        </div>
-                        <div>
-                            <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                                Generate Test Case with AI →
-                            </span>
-                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Save hours with AI-powered test case creation. Try it now in the demo project</p>
+                            <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>View the demo project to explore features of Test Management</p>
                         </div>
                     </div>
                 </div>

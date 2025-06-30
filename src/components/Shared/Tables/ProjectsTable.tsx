@@ -41,6 +41,9 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  Plus,
+  FolderKanban,
+  User,
 } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Project } from "../../../api/projectsApi";
@@ -148,16 +151,19 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>UPDATED DATE</span>
+        <span>TEST CASES</span>
       </div>
     ), 
-    accessorKey: "updatedAt",
-    cell: ({ row }) => (
-      <div className="cell-content text-gray-500 text-center">
-        {formatDate(row.getValue("updatedAt"))}
-      </div>
-    ),
-    size: 150,
+    accessorKey: "testCases",
+    cell: ({ row }) => {
+      const testCases = row.original.name === "testv1" ? "98 Cases | 5 Test Runs" : "156 Cases | 12 Test Runs";
+      return (
+        <div className="cell-content text-gray-500 text-center">
+          {testCases}
+        </div>
+      );
+    },
+    size: 200,
   },
   {
     header: ({ column }) => (
@@ -170,7 +176,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
       const status = row.getValue("status") as string || "Active";
       return (
         <div className="cell-content flex justify-center">
-          <Badge className={cn(getStatusBadgeClass(status))}>
+          <Badge className={cn(getStatusBadgeClass(status), "!rounded-sm")}>
             {status}
           </Badge>
         </div>
@@ -189,8 +195,8 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
       <div className="cell-content flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-10 w-10 p-0 hover:bg-gray-100 rounded-full">
-              <MoreVertical className="h-6 w-6 text-gray-600" />
+            <Button variant="ghost" className="h-10 w-10 p-0 hover:bg-gray-100 !rounded-sm">
+              <MoreVertical className="h-6 w-6 text-gray-600" strokeWidth={1.5} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -201,7 +207,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
                 onEditProject?.(row.original);
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" />
+              <Pencil className="mr-2 h-4 w-4" strokeWidth={1.5} />
               <span>Edit</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
@@ -211,7 +217,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
                 onDeleteProject?.(row.original);
               }}
             >
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash2 className="mr-2 h-4 w-4" strokeWidth={1.5} />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
