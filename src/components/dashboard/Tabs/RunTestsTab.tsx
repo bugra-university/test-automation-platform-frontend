@@ -218,7 +218,28 @@ export function RunTestsTab({
   return (
     <div className="w-full bg-white h-full flex flex-col rounded-lg overflow-hidden">
       {!showTable ? (
-        <div className="px-12 py-8 max-w-6xl mx-auto">
+        <>
+          {/* Header Section */}
+          <div className="flex justify-between items-center h-[72px] px-8 rounded-t-lg">
+            <div className="flex items-center">
+              <h1 className="text-xl font-semibold text-gray-900">{tabTitle}</h1>
+            </div>
+            <div className="flex gap-3 items-center">
+              {file && (
+                <Button 
+                  onClick={handleViewTable}
+                  className="gap-2 rounded-lg w-[150px] bg-blue-600 hover:bg-blue-700"
+                >
+                  Back to Table
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Divider after header */}
+          <div className="border-t border-gray-200"></div>
+
+          <div className="px-12 py-8 max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <h1 className="text-[3.5rem] font-bold mb-4 tracking-tight">How It Works</h1>
             <p className="text-gray-500 max-w-2xl mx-auto">
@@ -356,6 +377,7 @@ export function RunTestsTab({
             ))}
           </div>
         </div>
+        </>
       ) : (
         <ExcelViewer 
           file={file} 
