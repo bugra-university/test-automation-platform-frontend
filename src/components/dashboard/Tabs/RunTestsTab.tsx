@@ -1,9 +1,50 @@
-import React, { useState } from "react";
-import { Upload, X, FileDown, Plus, FolderOpen } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Upload, X, FileDown, Plus, FolderOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "../../../lib/utils";
 import { ExcelViewer } from "../Excel/ExcelViewer";
 import { Button } from "../../ui/button";
 import "../../../styles/dashboard/tabs/run-tests.css";
+
+// Types for How It Works
+type Step = {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string[];
+  image: string;
+  imageAlt: string;
+};
+
+// How It Works steps data
+const steps: Step[] = [
+  {
+    id: 1,
+    title: "Discover",
+    subtitle:
+      "Begin your journey by exploring our platform's features and capabilities. Our intuitive interface makes it easy to find exactly what you need, when you need it, without any unnecessary complexity.",
+    description: ["Explore our extensive test catalog", "Filter by test types and status", "Get insights from test results"],
+    image: "/placeholder.svg",
+    imageAlt: "Discovery process illustration",
+  },
+  {
+    id: 2,
+    title: "Connect",
+    subtitle:
+      "Establish meaningful connections between your test cases and user stories. Our integration tools ensure that your test coverage is comprehensive while our scheduling tools make test execution effortless.",
+    description: ["Link test cases to user stories", "Schedule automated test runs", "Integrate with your development workflow"],
+    image: "/placeholder.svg",
+    imageAlt: "Connection process illustration",
+  },
+  {
+    id: 3,
+    title: "Succeed",
+    subtitle:
+      "Achieve your quality goals with our comprehensive testing platform. We provide detailed analytics, progress tracking, and personalized reporting to ensure you reach your objectives efficiently and effectively.",
+    description: ["Track test coverage and results", "Generate comprehensive reports", "Improve product quality continuously"],
+    image: "/placeholder.svg",
+    imageAlt: "Success process illustration",
+  },
+];
 
 interface RunTestsTabProps {
   showTable?: boolean;
@@ -42,6 +83,11 @@ export function RunTestsTab({
 }: RunTestsTabProps = {}) {
   const [dragActive, setDragActive] = useState(false);
   
+  // How It Works states
+  const [activeStep, setActiveStep] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  
   // FORCE external state usage - no local state fallback
   const showTable = externalShowTable || false;
   const setShowTable = externalSetShowTable || (() => {});
@@ -54,6 +100,47 @@ export function RunTestsTab({
     fileExists: !!file,
     fileName: file?.name
   });
+
+  // Auto-advance steps for How It Works
+  useEffect(() => {
+    if (!isPaused) {
+      intervalRef.current = setInterval(() => {
+        setActiveStep((prev) => (prev + 1) % steps.length);
+      }, 5000); // Change step every 5 seconds
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPaused]);
+
+  // How It Works handlers
+  const pauseAnimation = () => setIsPaused(true);
+  const resumeAnimation = () => setIsPaused(false);
+
+  const goToStep = (index: number) => {
+    setActiveStep(index);
+    pauseAnimation();
+  };
+
+  const goToPrevStep = () => {
+    setActiveStep((prev) => (prev - 1 + steps.length) % steps.length);
+    pauseAnimation();
+  };
+
+  const goToNextStep = () => {
+    setActiveStep((prev) => (prev + 1) % steps.length);
+    pauseAnimation();
+  };
+
+  const buttonStyle = {
+    borderRadius: '50%',
+    aspectRatio: '1 / 1',
+    width: '40px',
+    height: '40px'
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -131,174 +218,142 @@ export function RunTestsTab({
   return (
     <div className="w-full bg-white h-full flex flex-col rounded-lg overflow-hidden">
       {!showTable ? (
-        <div className="p-8">
-          {/* Welcome Message */}
-          <div className="pb-8">
-            <span className="text-lg font-semibold text-gray-700 block">Test Management Platform</span>
-            <span className="text-[16px] text-gray-600 block">Upload and manage your test cases with Excel files</span>
+        <div className="px-12 py-8 max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <h1 className="text-[3.5rem] font-bold mb-4 tracking-tight">How It Works</h1>
+            <p className="text-gray-500 max-w-2xl mx-auto">
+              Our simple three-step process makes it easy to get started and achieve results quickly.
+            </p>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-gray-200 my-8"></div>
+          <div className="grid lg:grid-cols-[280px_1fr] gap-12 items-start">
+            <nav className="relative flex flex-col gap-12 mx-auto lg:mx-0 max-w-xs" aria-label="Process steps">
+              <div
+                className="absolute left-[32px] top-6 w-0.5 bg-gray-200"
+                style={{
+                  height: "calc(100% - 24px)",
+                  top: "12px",
+                }}
+                aria-hidden="true"
+              />
 
-          {/* Action Cards */}
-          <div className="grid grid-cols-2 gap-8 pb-8">
-            {/* Upload Excel Card */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'flex-start', 
-              gap: '12px', 
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease-in-out',
-              transform: 'translateY(0)',
-            }} 
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            onClick={handleUploadClick}>
-              <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                <Upload style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
-              </div>
-              <div>
-                <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                  Upload Excel File →
-                </span>
-                <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Upload your Excel file containing test cases and scenarios</p>
-              </div>
-            </div>
-
-            {/* Download Sample Card */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'flex-start', 
-              gap: '12px', 
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease-in-out',
-              transform: 'translateY(0)',
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            onClick={() => {
-              const link = document.createElement('a');
-              link.href = '/test-cases.xlsx';
-              link.download = 'test-cases-sample.xlsx';
-              link.click();
-            }}>
-              <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
-                <FileDown style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
-              </div>
-              <div>
-                <span style={{ fontSize: '16px', fontWeight: '500', color: '#111827', display: 'block', marginBottom: '4px' }}>
-                  Download Sample Excel →
-                </span>
-                <p style={{ fontSize: '14px', lineHeight: '1.4', color: '#6b7280', margin: '0' }}>Get a sample Excel template to understand the required format</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-200 mb-8"></div>
-
-          {/* File Upload Section */}
-          <div className="max-w-2xl mx-auto w-full">
-            <section
-              className={cn(
-                "rounded-lg p-8 bg-slate-50/60 shadow-sm",
-                dragActive ? "bg-blue-50" : ""
-              )}
-              aria-label="File upload area - drag and drop Excel files here"
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <div className="flex flex-col items-center justify-center space-y-4">
-                {file ? (
-                  <div className="flex flex-col items-center w-full max-w-md">
-                    <div className="flex items-center justify-between w-full bg-white p-4 rounded-lg mb-3">
-                      <div className="flex items-center">
-                        <div className="h-8 w-8 rounded-full bg-blue-50 flex items-center justify-center mr-3">
-                          <Upload className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{file.name}</span>
-                        <span className="ml-2 text-xs text-gray-500">
-                          ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={clearFile}
-                        className="p-1 hover:bg-gray-100 rounded-full"
-                        aria-label="Remove file"
-                        title="Remove file"
-                      >
-                        <X className="h-4 w-4 text-gray-500" />
-                      </button>
+              {steps.map((step, index) => (
+                <button
+                  key={step.id}
+                  onClick={() => goToStep(index)}
+                  className={`relative flex items-start text-left transition-all duration-300 group min-h-[120px]
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md p-2
+                    ${activeStep === index ? "opacity-100" : "opacity-60 hover:opacity-80"}`}
+                  aria-current={activeStep === index ? "step" : undefined}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`relative z-10 flex h-12 w-[12px] items-center justify-center rounded-[20px] border
+                        transition-colors duration-300 flex-shrink-0
+                        ${activeStep === index
+                          ? "border-blue-500 bg-blue-500 text-white"
+                          : "border-gray-300 bg-white group-hover:border-blue-400"}`}
+                      aria-hidden="true"
+                    >
+                      <span className="text-[10px] font-medium">{step.id}</span>
                     </div>
-                    <div className="flex justify-center">
-                      <button 
-                        type="button"
-                        className="px-3 py-1.5 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors flex items-center"
-                        onClick={handleViewTable}
-                        aria-label="View Excel table"
+
+                    <div className="pt-1.5 ml-4">
+                      <h3
+                        className={`text-lg font-semibold transition-colors duration-300
+                          ${activeStep === index ? "text-gray-900" : "text-gray-500"}`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 mr-1.5">
-                          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                          <path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path>
-                          <path d="M8 10h8"></path>
-                          <path d="M8 14h8"></path>
-                          <path d="M8 18h8"></path>
-                        </svg>
-                        View Table
-                      </button>
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1 line-clamp-3">{step.subtitle}</p>
                     </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center space-y-4">
-                    <button 
-                      type="button"
-                      className="upload-button-round aspect-square bg-blue-50 hover:bg-blue-100 cursor-pointer flex items-center justify-center transition-colors"
-                      onClick={handleUploadClick}
-                      aria-label="Upload Excel file"
-                      title="Upload Excel file">
-                      <Upload className="h-8 w-8 text-blue-600" />
-                    </button>
-                    <div className="text-center">
-                      <p className="text-gray-600 mb-1">
-                        Drag and drop your Excel file here, or{" "}
-                        <label className="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer transition-colors">
-                          browse
-                          <input type="file" className="hidden" accept=".xlsx" onChange={handleFileChange} />
-                        </label>
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Supports: .xlsx (Excel) files up to 10MB
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
+                </button>
+              ))}
+            </nav>
 
-          {/* Instructions Section */}
-          <div className="mt-8 max-w-3xl mx-auto">
-            <div className="bg-blue-50 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-4">How to use the Test Platform:</h3>
-              <div className="space-y-3 text-blue-800">
-                <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">1</span>
-                  <p>Download and upload your Excel file containing test cases and scenarios.</p>
+            <div className="relative overflow-hidden rounded-xl border border-gray-200 bg-white px-10 py-8 shadow-sm min-h-[500px] max-w-2xl">
+              {steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className={`grid md:grid-cols-2 gap-8 transition-all duration-500 absolute inset-0 p-8 pb-20
+                    ${activeStep === index
+                      ? "translate-x-0 opacity-100"
+                      : activeStep > index
+                        ? "-translate-x-full opacity-0"
+                        : "translate-x-full opacity-0"}`}
+                  aria-hidden={activeStep !== index}
+                  id={`step-content-${step.id}`}
+                >
+                  <div className="flex flex-col justify-center">
+                    <h4 className="text-2xl font-semibold mb-4 text-gray-800">{step.title}</h4>
+                    <p className="text-gray-500 mb-6 leading-relaxed">{step.subtitle}</p>
+                    <ul className="space-y-3">
+                      {step.description.map((item, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <span className="h-6 w-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mt-0.5 flex-shrink-0">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="3"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                          </span>
+                          <span className="text-base text-gray-700">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex items-center justify-center h-full">
+                    <img
+                      src={step.image}
+                      alt={step.imageAlt}
+                      className="rounded-lg object-cover h-[80%] w-auto"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">2</span>
-                  <p>After uploading, you will see your test cases displayed in a table format.</p>
-                </div>
-                <div className="flex items-start">
-                  <span className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 text-blue-900 rounded-full text-sm font-medium mr-3 mt-0.5">3</span>
-                  <p>Find the relevant test case and click the Run button to execute the specific test.</p>
-                </div>
+              ))}
+
+              <div className="absolute bottom-8 right-8 flex gap-2">
+                <button
+                  onClick={goToPrevStep}
+                  className="!rounded-[9999px] p-2 bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center [aspect-ratio:1/1]"
+                  style={buttonStyle}
+                  aria-label="Previous step"
+                >
+                  <ChevronUp className="h-5 w-5" />
+                </button>
+                <button
+                  onClick={goToNextStep}
+                  className="!rounded-[9999px] p-2 bg-blue-500 hover:bg-blue-600 text-white transition-colors flex items-center justify-center [aspect-ratio:1/1]"
+                  style={buttonStyle}
+                  aria-label="Next step"
+                >
+                  <ChevronDown className="h-5 w-5" />
+                </button>
               </div>
             </div>
+          </div>
+
+          <div className="flex justify-center gap-2 mt-6 lg:hidden">
+            {steps.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToStep(index)}
+                className={`w-2.5 h-2.5 rounded-full transition-colors
+                  ${activeStep === index ? "bg-blue-500" : "bg-gray-300 hover:bg-blue-300"}`}
+                aria-label={`Go to step ${index + 1}`}
+                aria-current={activeStep === index ? "step" : undefined}
+              />
+            ))}
           </div>
         </div>
       ) : (
