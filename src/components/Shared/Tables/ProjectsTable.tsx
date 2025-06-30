@@ -109,12 +109,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>PROJECT NAME</span>
+        <span className="text-xs font-medium">PROJECT NAME</span>
       </div>
     ),
     accessorKey: "name",
     cell: ({ row }) => (
-      <div className="cell-content font-medium text-blue-600">
+      <div className="cell-content font-medium text-blue-600 text-sm">
         {row.getValue("name")}
       </div>
     ),
@@ -123,12 +123,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>DESCRIPTION</span>
+        <span className="text-xs font-medium">DESCRIPTION</span>
       </div>
     ),
     accessorKey: "description",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-600">
+      <div className="cell-content text-gray-600 text-sm">
         {row.getValue("description") || "No description"}
       </div>
     ),
@@ -137,12 +137,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>CREATED DATE</span>
+        <span className="text-xs font-medium">CREATED DATE</span>
       </div>
     ),
     accessorKey: "createdAt",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-500 text-center">
+      <div className="cell-content text-gray-500 text-center text-sm">
         {formatDate(row.getValue("createdAt"))}
       </div>
     ),
@@ -151,14 +151,14 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>TEST CASES</span>
+        <span className="text-xs font-medium">TEST CASES</span>
       </div>
     ), 
     accessorKey: "testCases",
     cell: ({ row }) => {
       const testCases = row.original.name === "testv1" ? "98 Cases | 5 Test Runs" : "156 Cases | 12 Test Runs";
       return (
-        <div className="cell-content text-gray-500 text-center">
+        <div className="cell-content text-gray-500 text-center text-sm">
           {testCases}
         </div>
       );
@@ -168,7 +168,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>STATUS</span>
+        <span className="text-xs font-medium">STATUS</span>
       </div>
     ),
     accessorKey: "status",
@@ -176,7 +176,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
       const status = row.getValue("status") as string || "Active";
       return (
         <div className="cell-content flex justify-center">
-          <Badge className={cn(getStatusBadgeClass(status), "!rounded-sm")}>
+          <Badge className={cn(getStatusBadgeClass(status), "!rounded-sm text-xs py-0.5")}>
             {status}
           </Badge>
         </div>
@@ -187,7 +187,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span>ACTIONS</span>
+        <span className="text-xs font-medium">ACTIONS</span>
       </div>
     ),
     id: "actions",
@@ -195,13 +195,13 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
       <div className="cell-content flex justify-center">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-10 w-10 p-0 hover:bg-gray-100 !rounded-sm">
-              <MoreVertical className="h-6 w-6 text-gray-600" strokeWidth={1.5} />
+            <Button variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100 !rounded-sm">
+              <MoreVertical className="h-5.5 w-5.5 text-gray-700" strokeWidth={2} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              className="cursor-pointer"
+              className="cursor-pointer text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onEditProject?.(row.original);
@@ -211,7 +211,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
               <span>Edit</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
-              className="cursor-pointer text-red-600"
+              className="cursor-pointer text-red-600 text-sm"
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteProject?.(row.original);
@@ -256,89 +256,62 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
 
   return (
     <div className="space-y-4">
-        <div className="table-scroll-container" style={{ borderRadius: '0.5rem', borderTop: '1px solid #e5e7eb' }}>
-          <table className="excel-table">
-            <thead className="excel-table-header">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header, index) => {
-                    return (
-                      <th
-                        key={header.id}
-                        style={{ 
-                          width: header.getSize(),
-                          ...(index === 0 ? { borderTopLeftRadius: '0.5rem' } : {}),
-                          ...(index === headerGroup.headers.length - 1 ? { borderTopRightRadius: '0.5rem' } : {})
-                        }}
-                        className={cn(
-                          header.column.id === "select" ? "checkbox-column" : "",
-                          header.column.getCanSort() && "cursor-pointer"
-                        )}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {header.isPlaceholder ? null : (
-                          <div className="flex items-center justify-between">
-                            <span>
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                            </span>
-                            {header.column.getCanSort() && (
-                              <div className="sort-indicator-container">
-                                {header.column.getIsSorted() === "asc" ? (
-                                  <ChevronUp className="h-3 w-3 sort-arrow" />
-                                ) : header.column.getIsSorted() === "desc" ? (
-                                  <ChevronDown className="h-3 w-3 sort-arrow" />
-                                ) : (
-                                  <div className="sort-arrow-default">
-                                    <ChevronUp className="h-3 w-3 default-arrow" />
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </th>
-                    );
-                  })}
-                </tr>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {table.getFlatHeaders().map((header) => (
+                <TableHead
+                  key={header.id}
+                  style={{ width: header.getSize() }}
+                  className="bg-gray-50 py-2 h-8"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
               ))}
-            </thead>
-            <tbody className="excel-table-body">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className={cn(
-                      row.getIsSelected() && "selected-row",
-                      "cursor-pointer"
-                    )}
-                    onClick={() => onProjectSelect(row.original)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        style={{ width: cell.column.getSize() }}
-                        className={cn(
-                          "content-cell",
-                          cell.column.id === "select" ? "checkbox-column" : ""
-                        )}
-                        data-column={cell.column.id}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={columns.length} className="content-cell text-center">
-                    <div className="cell-content">No projects found.</div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row, index) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onProjectSelect(row.original)}
+                  className={`cursor-pointer hover:bg-gray-50 ${index > 0 ? 'bg-gray-100' : ''} h-10`}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      style={{ width: cell.column.getSize() }}
+                      className="py-1"
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-20 text-center text-sm"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
       <div className="flex items-center justify-between px-2 pagination-controls">
         <div className="flex items-center space-x-2">
