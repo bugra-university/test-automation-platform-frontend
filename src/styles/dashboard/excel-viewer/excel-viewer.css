@@ -56,24 +56,28 @@
 
 /* Table scroll container */
 .table-scroll-container {
-    scrollbar-width: thin;
-    border: 1px solid #e5e7eb;
-    border-top: none;
-    /* Remove top border for sheet tabs to connect seamlessly */
-    border-radius: 0 0.5rem 0.5rem 0.5rem;
-    /* Custom border radius to match sheet tabs */
+    width: 100%;
     overflow-x: auto;
     overflow-y: auto;
-    max-height: calc(100vh - 300px);
-    background-color: transparent;
-    margin-top: -1px;
-    /* Pull up slightly to connect with tabs */
+    position: relative;
+}
+
+/* Backlog tab specific table styles */
+[data-tab="backlog"] .excel-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+}
+
+[data-tab="backlog"] .excel-table td,
+[data-tab="backlog"] .excel-table th {
+    border: 1px solid #e5e7eb;
 }
 
 /* Main table styles */
 .excel-table {
-    min-width: 1400px;  /* Set minimum width to prevent squishing */
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
     border-collapse: collapse;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     table-layout: fixed;

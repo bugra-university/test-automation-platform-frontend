@@ -848,7 +848,7 @@ export function ExcelViewer({
                   );
                 })}
               </div>
-            )}              <div className="table-scroll-container h-full overflow-auto">
+            )}              <div className="table-scroll-container h-full overflow-x-auto overflow-y-auto" data-tab="backlog">
                 <table className={getTableClassName()}>
                   <thead className="excel-table-header">
                     <tr>
