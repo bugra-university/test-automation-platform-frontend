@@ -228,35 +228,48 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                       )}
                     </button>
                     
-                    {/* Dropdown menu */}
-                    {showProjectDropdown && !loadingProjects && (
+                    {showProjectDropdown && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-gray-50 border border-gray-300 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto">
                         {projects.length > 0 ? (
-                          projects.map((project) => (
+                          <>
+                            {projects.map((project) => (
+                              <button
+                                key={project.id}
+                                onClick={() => {
+                                  onProjectSelect?.(project);
+                                  setShowProjectDropdown(false);
+                                  if (onTabClick) {
+                                    onTabClick('run-tests');
+                                  }
+                                }}
+                                className={cn(
+                                  "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 flex items-center",
+                                  activeProject?.id === project.id ? "bg-blue-50 text-blue-600" : "text-gray-700"
+                                )}
+                              >
+                                <FolderKanban className="h-4 w-4 mr-2 flex-shrink-0" />
+                                <div className="min-w-0 flex-1">
+                                  <div className="truncate font-medium">{project.name}</div>
+                                  {project.description && (
+                                    <div className="truncate text-xs text-gray-500">{project.description}</div>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                            <div className="border-t border-gray-200 my-1"></div>
                             <button
-                              key={project.id}
                               onClick={() => {
-                                onProjectSelect?.(project);
+                                handleMenuClick('projects');
                                 setShowProjectDropdown(false);
-                                // If there's an onTabClick handler, switch to backlog tab
-                                if (onTabClick) {
-                                  onTabClick('run-tests');
-                                }
                               }}
-                              className={cn(
-                                "w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 flex items-center",
-                                activeProject?.id === project.id ? "bg-blue-50 text-blue-600" : "text-gray-700"
-                              )}
+                              className="w-full px-3 py-2 text-sm text-left hover:bg-gray-50 transition-colors duration-150 flex items-center text-gray-700"
                             >
                               <FolderKanban className="h-4 w-4 mr-2 flex-shrink-0" />
                               <div className="min-w-0 flex-1">
-                                <div className="truncate font-medium">{project.name}</div>
-                                {project.description && (
-                                  <div className="truncate text-xs text-gray-500">{project.description}</div>
-                                )}
+                                <div className="truncate font-medium">View All Projects</div>
                               </div>
                             </button>
-                          ))
+                          </>
                         ) : (
                           <div className="px-3 py-2 text-sm text-gray-500">No projects found</div>
                         )}

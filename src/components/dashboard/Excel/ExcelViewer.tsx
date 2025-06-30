@@ -778,7 +778,7 @@ export function ExcelViewer({
       {/* Header Section */}
       <div className="flex justify-between items-center h-[72px] px-8 rounded-t-lg">
         <div className="flex items-center">
-          <h1 className="text-xl font-semibold text-gray-900">Backlog</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Backlog</h1>
         </div>
         <div className="flex gap-3 items-center">
           <Button 
@@ -791,7 +791,7 @@ export function ExcelViewer({
           </Button>
           <Button 
             variant="outline" 
-            className={`gap-2 rounded-lg w-[150px] ${isEditMode ? 'bg-gray-100' : ''}`}
+            className={`gap-2 rounded-lg w-[150px] ${isEditMode ? 'bg-gray-100' : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'}`}
             onClick={() => setIsEditMode?.(!isEditMode)}
           >
             {isEditMode ? (

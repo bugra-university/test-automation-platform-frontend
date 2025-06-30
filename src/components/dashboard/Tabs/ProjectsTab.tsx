@@ -195,7 +195,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
             {/* Header Section */}
             <div className="flex justify-between items-center h-[72px] px-8 rounded-t-lg">
                 <div className="flex items-center">
-                    <h1 className="text-xl font-semibold text-gray-900">{tabTitle}</h1>
+                    <h1 className="text-2xl font-semibold text-gray-900">{tabTitle}</h1>
                 </div>
                 <div className="flex gap-3 items-center">
                     <Button variant="outline" className="gap-2 rounded-lg w-[150px]">
