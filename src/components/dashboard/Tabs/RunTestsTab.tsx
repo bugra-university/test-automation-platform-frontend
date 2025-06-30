@@ -112,18 +112,13 @@ export function RunTestsTab({
 
   // Auto-advance steps for How It Works
   useEffect(() => {
-    if (!isPaused) {
-      intervalRef.current = setInterval(() => {
-        setActiveStep((prev) => (prev + 1) % steps.length);
-      }, 5000); // Change step every 5 seconds
-    }
-
+    // No auto-advance functionality
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isPaused]);
+  }, []);
 
   // How It Works handlers
   const pauseAnimation = () => setIsPaused(true);
@@ -344,11 +339,62 @@ export function RunTestsTab({
                     </ul>
                   </div>
                   <div className="flex items-center justify-center h-full">
-                    <img
-                      src={step.image}
-                      alt={step.imageAlt}
-                      className="rounded-lg object-cover h-[80%] w-auto"
-                    />
+                    {activeStep === 0 ? (
+                      // Upload area for the first step
+                      <div 
+                        className={`relative flex flex-col items-center justify-center w-full h-[350px] border border-transparent rounded-xl p-6 transition-colors bg-gray-50
+                          ${dragActive ? 'border-blue-500 bg-blue-50' : 'hover:border-gray-200'}`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                      >
+                        <input
+                          type="file"
+                          accept=".xlsx"
+                          className="hidden"
+                          onChange={handleFileChange}
+                          id="file-upload"
+                        />
+                        
+                        <div className="w-24 h-24 mb-4 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Upload className="w-12 h-12 text-blue-600" />
+                        </div>
+                        
+                        <p className="mb-2 text-lg font-semibold text-gray-700">
+                          {file ? file.name : "Drag & drop your Excel file here"}
+                        </p>
+                        {!file && (
+                          <>
+                            <p className="mb-4 text-sm text-gray-500">
+                              or
+                            </p>
+                            <label
+                              htmlFor="file-upload"
+                              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                              Choose File
+                            </label>
+                          </>
+                        )}
+                        
+                        {file && (
+                          <button
+                            onClick={clearFile}
+                            className="mt-4 px-4 py-2 text-sm font-medium text-red-600 bg-red-100 rounded-full cursor-pointer hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Remove File
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      // Regular image for other steps
+                      <img
+                        src={step.image}
+                        alt={step.imageAlt}
+                        className="rounded-lg object-cover h-[80%] w-auto"
+                      />
+                    )}
                   </div>
                 </div>
               ))}
