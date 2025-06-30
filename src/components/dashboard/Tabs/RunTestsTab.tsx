@@ -19,31 +19,40 @@ type Step = {
 const steps: Step[] = [
   {
     id: 1,
-    title: "Discover",
-    subtitle:
-      "Begin your journey by exploring our platform's features and capabilities. Our intuitive interface makes it easy to find exactly what you need, when you need it, without any unnecessary complexity.",
-    description: ["Explore our extensive test catalog", "Filter by test types and status", "Get insights from test results"],
+    title: "Upload Excel",
+    subtitle: "Start by uploading your Excel file containing test cases and user stories. Our platform supports .xlsx files up to 10MB in size. Make sure your Excel file follows the required template structure for seamless integration.",
+    description: [
+      "Choose your Excel file (.xlsx)",
+      "Verify file size and format",
+      "Upload and process automatically"
+    ],
     image: "/placeholder.svg",
-    imageAlt: "Discovery process illustration",
+    imageAlt: "Excel upload illustration"
   },
   {
     id: 2,
     title: "Connect",
-    subtitle:
-      "Establish meaningful connections between your test cases and user stories. Our integration tools ensure that your test coverage is comprehensive while our scheduling tools make test execution effortless.",
-    description: ["Link test cases to user stories", "Schedule automated test runs", "Integrate with your development workflow"],
+    subtitle: "After uploading, your Excel data will be automatically processed and connected to our test management system. The platform ensures proper mapping of your test cases and requirements.",
+    description: [
+      "Automatic data processing",
+      "Test case mapping",
+      "Requirements linking"
+    ],
     image: "/placeholder.svg",
-    imageAlt: "Connection process illustration",
+    imageAlt: "Connection process illustration"
   },
   {
     id: 3,
-    title: "Succeed",
-    subtitle:
-      "Achieve your quality goals with our comprehensive testing platform. We provide detailed analytics, progress tracking, and personalized reporting to ensure you reach your objectives efficiently and effectively.",
-    description: ["Track test coverage and results", "Generate comprehensive reports", "Improve product quality continuously"],
+    title: "Manage",
+    subtitle: "Once your data is processed, you can easily manage your test cases, track progress, and generate reports. Our intuitive interface makes test management efficient and straightforward.",
+    description: [
+      "Edit test cases",
+      "Track test progress",
+      "Generate detailed reports"
+    ],
     image: "/placeholder.svg",
-    imageAlt: "Success process illustration",
-  },
+    imageAlt: "Management process illustration"
+  }
 ];
 
 interface RunTestsTabProps {

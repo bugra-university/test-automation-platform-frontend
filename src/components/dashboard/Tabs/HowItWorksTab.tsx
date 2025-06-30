@@ -11,18 +11,35 @@ type Step = {
   description: string[];
   image: string;
   imageAlt: string;
+  content?: {
+    title: string;
+    description: string;
+    features: string[];
+  };
 };
 
 // Sample data - replace with your actual content
 const steps: Step[] = [
   {
     id: 1,
-    title: "Discover",
-    subtitle:
-      "Begin your journey by exploring our platform's features and capabilities. Our intuitive interface makes it easy to find exactly what you need, when you need it, without any unnecessary complexity.",
-    description: ["Explore our extensive test catalog", "Filter by test types and status", "Get insights from test results"],
+    title: "Upload Excel",
+    subtitle: "Start by uploading your Excel file containing test cases and user stories. Our platform supports .xlsx files up to 10MB in size. Make sure your Excel file follows the required template structure for seamless integration.",
+    description: [
+      "Choose your Excel file (.xlsx)",
+      "Verify file size and format",
+      "Upload and process automatically"
+    ],
     image: "/placeholder.svg",
-    imageAlt: "Discovery process illustration",
+    imageAlt: "Excel upload illustration",
+    content: {
+      title: "Upload Excel",
+      description: "Start by uploading your Excel file containing test cases and user stories. Our platform supports .xlsx files and automatically processes your data for efficient test management. The upload process is simple and secure.",
+      features: [
+        "Supported format: .xlsx files only",
+        "Maximum file size: 10MB",
+        "Secure file processing and storage"
+      ]
+    }
   },
   {
     id: 2,
@@ -44,7 +61,11 @@ const steps: Step[] = [
   },
 ];
 
-export function HowItWorksTab() {
+interface HowItWorksTabProps {
+  tabTitle?: string;
+}
+
+export function HowItWorksTab({ tabTitle = "How It Works" }: HowItWorksTabProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -93,7 +114,7 @@ export function HowItWorksTab() {
   };
 
   return (
-    <TabContainer>
+    <TabContainer title={tabTitle}>
       <div className="px-12 py-8 max-w-6xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-[3.5rem] font-bold mb-4 tracking-tight">How It Works</h1>

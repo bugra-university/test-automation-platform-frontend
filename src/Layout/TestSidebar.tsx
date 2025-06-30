@@ -187,8 +187,7 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                   "transition-colors duration-150",
                   isActive 
                     ? "text-blue-600 bg-[#e8eef9]" 
-                    : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]",
-                  item.level > 0 ? "ml-4" : "" // Add left margin for nested items
+                    : "text-gray-600 hover:text-blue-600 hover:bg-[#ededed]"
                 )}
               >
                 <Icon 
