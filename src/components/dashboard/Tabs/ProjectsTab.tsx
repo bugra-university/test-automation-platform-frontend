@@ -286,7 +286,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                 </div>
 
                 {/* Divider */}
-                <div className="border-t border-gray-200 my-6"></div>
+                <div className="border-t border-gray-200 mb-6"></div>
 
                 {/* Search Bar */}
                 <div className="mb-6">
