@@ -206,7 +206,7 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                     <button
                       onClick={() => setShowProjectDropdown(!showProjectDropdown)}
                       disabled={loadingProjects}
-                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg text-left hover:bg-gray-100 transition-colors duration-150 flex items-center justify-between"
+                      className="w-full px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-[9999px] text-left hover:bg-gray-100 transition-colors duration-150 flex items-center justify-between"
                     >
                       <div className="flex items-center min-w-0 flex-1">
                         <FolderKanban className="h-4 w-4 mr-2 text-gray-500 flex-shrink-0" />
