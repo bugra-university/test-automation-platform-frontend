@@ -46,15 +46,32 @@
     padding: 0.2rem;
 }
 
-.backlog-regular-checkbox {
+/* Checkbox styles for both backlog-regular-checkbox and regular-checkbox */
+.regular-checkbox, .backlog-regular-checkbox {
     width: 14px;
     height: 14px;
     border: 1px solid #999;
     appearance: none;
+    border-radius: 0;
+    cursor: pointer;
+    background: white;
+    margin: 0 auto;
+    display: block;
 }
 
-.backlog-regular-checkbox:checked:after {
-    content: '✓';
-    display: block;
-    text-align: center;
+.regular-checkbox:checked, .backlog-regular-checkbox:checked {
+    background: white;
+    position: relative;
+}
+
+.regular-checkbox:checked:after, .backlog-regular-checkbox:checked:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 } 
