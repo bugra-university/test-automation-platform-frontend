@@ -71,7 +71,7 @@
 
   *:focus-visible {
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+    box-shadow: none !important;
     border-radius: 4px;
   }
 }
