@@ -790,18 +790,18 @@ export function ExcelViewer({
             Back to Upload
           </Button>
           <Button 
-            variant="outline" 
-            className={`gap-2 rounded-lg w-[150px] ${isEditMode ? 'bg-gray-100' : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600'}`}
+            variant="outline"
+            className={isEditMode ? "" : "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-[150px]"}
             onClick={() => setIsEditMode?.(!isEditMode)}
           >
             {isEditMode ? (
               <>
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4 mr-2" />
                 View Mode
               </>
             ) : (
               <>
-                <Edit className="h-4 w-4" />
+                <Edit className="h-4 w-4 mr-2" />
                 Edit Mode
               </>
             )}

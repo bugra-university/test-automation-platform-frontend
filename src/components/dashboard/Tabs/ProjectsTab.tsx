@@ -201,8 +201,8 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     <Button variant="outline" className="gap-2 rounded-lg w-[150px]">
                         Quick Import
                     </Button>
-                    <Button onClick={() => setShowCreateForm(true)} className="gap-2 rounded-lg w-[150px] bg-blue-600 hover:bg-blue-700">
-                        <Plus className="h-4 w-4" />
+                    <Button onClick={() => setShowCreateForm(true)} className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <Plus className="h-4 w-4 mr-2" />
                         Create Project
                     </Button>
                 </div>
