@@ -1,10 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useMergedCells, MergedCell } from '../../dashboard/Excel/MergedCells';
 import '../../../styles/dashboard/excel-viewer/backlog-table.css';
-
-// Type definitions
-type SortDirection = 'asc' | 'desc' | null;
-type ColumnDataType = 'number' | 'date' | 'string';
 
 interface ColumnHeader {
   id: string;
@@ -26,48 +22,6 @@ interface BacklogTableProps {
   onKeyDown?: (e: React.KeyboardEvent) => void;
 }
 
-// Sort indicator component
-interface SortIndicatorProps {
-  column: string;
-  sortConfig: {
-    key: string;
-    direction: SortDirection;
-  };
-}
-
-const SortIndicator: React.FC<SortIndicatorProps> = ({ column, sortConfig }) => {
-  const isActive = sortConfig.key === column;
-  const isAsc = isActive && sortConfig.direction === 'asc';
-  const isDesc = isActive && sortConfig.direction === 'desc';
-  
-  const renderSortIcon = () => {
-    if (isAsc) {
-      return <span className="sort-arrow">↑</span>;
-    }
-    if (isDesc) {
-      return <span className="sort-arrow">↓</span>;
-    }
-    return (
-      <div className="sort-arrow-default">
-        <div className="az-icon">
-          <span className="az-letter">A</span>
-          <span className="az-letter">Z</span>
-        </div>
-        <span className="default-arrow">↑</span>
-      </div>
-    );
-  };
-  
-  return (
-    <div 
-      className={`sort-indicator-container ${isActive ? 'sort-active' : ''} ${isAsc ? 'sort-asc' : ''} ${isDesc ? 'sort-desc' : ''}`}
-      aria-hidden="true"
-    >
-      {renderSortIcon()}
-    </div>
-  );
-};
-
 export const BacklogTable: React.FC<BacklogTableProps> = ({
   data,
   tableHeaders,
@@ -82,10 +36,6 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
   onValueChange,
   onKeyDown
 }) => {
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: SortDirection }>({
-    key: '',
-    direction: null
-  });
   const [whiteBackgroundActive] = useState<boolean>(false);
 
   // Use merged cells hook
@@ -93,23 +43,6 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     getMergeInfoForCell,
     getMergedCellValueByIndex
   } = useMergedCells(activeWorksheet, data, tableHeaders.map(h => h.label));
-
-  // Helper functions
-  const getColumnDataType = (key: string): ColumnDataType => {
-    if (key.toLowerCase().includes('date') || key.toLowerCase().includes('time')) return 'date';
-    if (key.toLowerCase().includes('number') || key.toLowerCase().includes('percent')) return 'number';
-    return 'string';
-  };
-
-  const requestSort = (key: string) => {
-    let direction: SortDirection = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
-      direction = null;
-    }
-    setSortConfig({ key, direction });
-  };
 
   // Get table class name based on mode
   const getTableClassName = () => {
@@ -164,43 +97,6 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     return columnPositionClasses.join(' ');
   };
 
-  const isSortingDisabled = (colIndex: number) => {
-    return colIndex === tableHeaders.length - 1; // Disable sorting for last column (usually actions)
-  };
-
-  const shouldShowSortIndicator = (colIndex: number) => {
-    return !isSortingDisabled(colIndex);
-  };
-
-  // Sort the data
-  const sortedData = useMemo(() => {
-    if (!sortConfig.key || !sortConfig.direction) return data;
-
-    return [...data].sort((a, b) => {
-      const aVal = a[sortConfig.key];
-      const bVal = b[sortConfig.key];
-      const dataType = getColumnDataType(sortConfig.key);
-
-      if (dataType === 'date') {
-        const dateA = new Date(aVal);
-        const dateB = new Date(bVal);
-        return sortConfig.direction === 'asc' ? 
-          dateA.getTime() - dateB.getTime() : 
-          dateB.getTime() - dateA.getTime();
-      }
-
-      if (dataType === 'number') {
-        return sortConfig.direction === 'asc' ? 
-          Number(aVal) - Number(bVal) : 
-          Number(bVal) - Number(aVal);
-      }
-
-      return sortConfig.direction === 'asc' ? 
-        String(aVal).localeCompare(String(bVal)) : 
-        String(bVal).localeCompare(String(aVal));
-    });
-  }, [data, sortConfig]);
-
   return (
     <table className={getTableClassName()}>
       <thead className="excel-table-header">
@@ -227,18 +123,10 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
             <th 
               key={column.id}
               scope="col"
-              onClick={() => {
-                if (!isSortingDisabled(colIndex)) {
-                  requestSort(column.label);
-                }
-              }}
               className={getHeaderClassName(colIndex, column)}
             >
               <div className="header-content">
-                <span>{column.label}</span>
-                {shouldShowSortIndicator(colIndex) && 
-                  <SortIndicator column={column.label} sortConfig={sortConfig} />
-                }
+                <span>{column.label.toUpperCase()}</span>
               </div>
             </th>
           ))}
@@ -246,7 +134,7 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
       </thead>
       <tbody className="excel-table-body">
         {data.length > 0 ? (
-        sortedData.map((row, idx) => {
+        data.map((row, idx) => {
           // Create a stable key using row content
           const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
           return (
