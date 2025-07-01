@@ -335,8 +335,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
   };
 
   return (
-    <div className="h-full overflow-auto">
-      <table className="excel-table">
+    <table className="excel-table">
         <thead className="excel-table-header">
           <tr>
             <th className="text-center w-[120px]">
@@ -380,6 +379,5 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           {testSuites.map(userStory => renderUserStory(userStory))}
         </tbody>
       </table>
-    </div>
   );
 }; 
