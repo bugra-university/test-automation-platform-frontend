@@ -20,7 +20,7 @@ import "../styles/Layout/container-headers.css";
 interface TestDashboardProps {
   readonly activeTabFromHeader?: string;
   readonly activeProject?: Project | null;
-  readonly setActiveProject?: (project: Project | null) => void;
+  readonly setActiveProject?: (project: Project | null) => Promise<void>;
   readonly showTable?: boolean;
   readonly setShowTable?: (show: boolean) => void;
   readonly setCurrentFileName?: (fileName: string) => void;
@@ -95,7 +95,7 @@ export default function TestDashboard({
     switch (activeTab) {
       case "projects":
         return <ProjectsTab 
-          onProjectSelect={setActiveProject || (() => {})} 
+          onProjectSelect={setActiveProject || (async () => {})} 
           loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
           tabTitle={getTabTitle(activeTab)}
           activeProject={activeProject}

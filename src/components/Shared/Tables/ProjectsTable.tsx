@@ -45,6 +45,9 @@ import {
   Plus,
   FolderKanban,
   User,
+  CheckCircle,
+  AlertTriangle,
+  Upload,
 } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 import { Project } from "../../../api/projectsApi";
@@ -57,10 +60,11 @@ import {
 
 interface ProjectsTableProps {
   projects: Project[];
-  onProjectSelect: (project: Project) => void;
+  onProjectSelect: (project: Project) => Promise<void>;
   onDeleteProject?: (project: Project) => void;
   onEditProject?: (project: Project) => void;
   selectedProject?: Project | null;
+  onProjectExcelUpload?: (project: Project) => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -181,17 +185,53 @@ const createColumns = (
     ),
     accessorKey: "status",
     cell: ({ row }) => {
-      const status = row.getIsSelected() ? "Selected" : (row.getValue("status") as string || "Active");
-      const statusClass = `projects-status-${row.getIsSelected() ? "active" : status.toLowerCase()}`;
-      return (
-        <div className="projects-cell-actions">
-          <span className={`projects-status-badge ${statusClass}`}>
-            {status}
-          </span>
-        </div>
-      );
+      const projectName = row.original.name;
+      const hasExcel = projectName === "testv1"; // testv1 has Excel, default doesn't
+      const isSelected = row.getIsSelected();
+      
+      if (isSelected) {
+        if (hasExcel) {
+          return (
+            <div className="projects-cell-actions flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span className="projects-status-badge projects-status-active">
+                Selected
+              </span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="projects-cell-actions flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-yellow-600" />
+              <span className="projects-status-badge projects-status-pending">
+                No Excel file
+              </span>
+            </div>
+          );
+        }
+      }
+      
+      if (hasExcel) {
+        return (
+          <div className="projects-cell-actions flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <span className="projects-status-badge projects-status-active">
+              Active
+            </span>
+          </div>
+        );
+      } else {
+        return (
+          <div className="projects-cell-actions flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-yellow-600" />
+            <span className="projects-status-badge projects-status-pending">
+              No Excel file
+            </span>
+          </div>
+        );
+      }
     },
-    size: 120,
+    size: 140,
   },
   {
     header: ({ column }) => (
@@ -238,7 +278,7 @@ const createColumns = (
   },
 ];
 
-export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject, selectedProject }: ProjectsTableProps) {
+export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject, selectedProject, onProjectExcelUpload }: ProjectsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -267,7 +307,9 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
       const selectedRowIndex = parseInt(selectedRowIndices[0]);
       const selectedProjectFromTable = projects[selectedRowIndex];
       if (selectedProjectFromTable && (!selectedProject || selectedProject.id !== selectedProjectFromTable.id)) {
-        onProjectSelect(selectedProjectFromTable);
+        onProjectSelect(selectedProjectFromTable).catch(error => {
+          console.error('Error selecting project:', error);
+        });
       }
     }
   }, [rowSelection, projects, selectedProject, onProjectSelect]);

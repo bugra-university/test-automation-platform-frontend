@@ -19,7 +19,7 @@ import {
 } from "../../ui/dialog";
 
 interface ProjectsTabProps {
-    onProjectSelect: (project: Project) => void;
+    onProjectSelect: (project: Project) => Promise<void>;
     loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
     tabTitle?: string;
     activeProject?: Project | null;
@@ -44,6 +44,22 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
     useEffect(() => {
         loadProjects();
     }, []);
+
+    // Listen for toast events from the state management
+    useEffect(() => {
+        const handleToast = (event: any) => {
+            const { title, description } = event.detail;
+            toast({
+                title,
+                description
+            });
+        };
+
+        window.addEventListener('showToast', handleToast);
+        return () => {
+            window.removeEventListener('showToast', handleToast);
+        };
+    }, [toast]);
 
     const loadProjects = async () => {
         try {
@@ -129,6 +145,17 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
         setProjectToEdit(project);
         setEditFormData({ name: project.name, description: project.description || '' });
         setShowEditForm(true);
+    };
+
+    const handleProjectExcelUpload = (project: Project) => {
+        // Show toast notification for projects without Excel
+        toast({
+            title: "Excel File Required",
+            description: `Please upload an Excel file for "${project.name}" project first.`,
+        });
+        
+        // TODO: Open upload dialog or redirect to upload page
+        console.log('Opening upload for project:', project.name);
     };
 
     const handleUpdateProject = async (e: React.FormEvent) => {
@@ -324,6 +351,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                             onDeleteProject={handleDeleteProject}
                             onEditProject={handleEditProject}
                             selectedProject={activeProject}
+                            onProjectExcelUpload={handleProjectExcelUpload}
                         />
                     </div>
                 )}

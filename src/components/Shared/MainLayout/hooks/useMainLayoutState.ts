@@ -41,7 +41,7 @@ export interface MainLayoutState {
 export interface MainLayoutActions {
     setActiveTab: (tab: string) => void;
     setActiveRightTab: (tab: string) => void;
-    setActiveProject: (project: Project | null) => void;
+    setActiveProject: (project: Project | null) => Promise<void>;
     customSetShowTable: (value: boolean | ((prev: boolean) => boolean)) => void;
     customSetCurrentFileName: (fileName: string) => void;
     customSetCurrentFile: (file: File | null) => Promise<void>;
@@ -61,13 +61,76 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const [activeRightTab, setActiveRightTab] = useState("test-results");
     const [activeProject, setActiveProjectInternal] = useState<Project | null>(null);
 
-    // Enhanced setActiveProject that saves to localStorage
-    const setActiveProject = (project: Project | null) => {
+    // Enhanced setActiveProject that saves to localStorage and checks Excel if on backlog tab
+    const setActiveProject = async (project: Project | null) => {
         setActiveProjectInternal(project);
         if (project) {
             localStorage.setItem('lastActiveProject', JSON.stringify(project));
+            
+            // If we're currently on the backlog tab, load Excel data for the new project
+            if (activeTab === 'run-tests') {
+                console.log('Active tab is backlog, loading Excel data for project:', project.name);
+                try {
+                    const excelData = await getProjectExcel(project.id);
+                    
+                    if (excelData) {
+                        console.log('Excel data found for project:', project.name);
+                        
+                        // Convert Blob to File
+                        const file = new File([excelData.fileData], excelData.fileName, {
+                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                        });
+                        
+                        // Set file data
+                        setCurrentFile(file);
+                        setCurrentFileName(excelData.fileName);
+                        setShowTable(true);
+                        
+                        // Update tab states
+                        setTabTableStates(prev => ({
+                            ...prev,
+                            'run-tests': true
+                        }));
+                        
+                        console.log('Excel data loaded and table shown for project:', project.name);
+                    } else {
+                        console.log('No Excel data found for project:', project.name);
+                        // Clear any existing data
+                        setCurrentFile(null);
+                        setCurrentFileName('');
+                        setShowTable(false);
+                        
+                        // Update tab states
+                        setTabTableStates(prev => ({
+                            ...prev,
+                            'run-tests': false
+                        }));
+                        
+                        // Show toast notification for projects without Excel
+                        window.dispatchEvent(new CustomEvent('showToast', {
+                            detail: {
+                                title: 'Excel File Required',
+                                description: `Please upload an Excel file for ${project.name} first`
+                            }
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error loading Excel data for project:', error);
+                }
+            }
         } else {
             localStorage.removeItem('lastActiveProject');
+            
+            // If clearing project and we're on backlog tab, clear Excel data
+            if (activeTab === 'run-tests') {
+                setCurrentFile(null);
+                setCurrentFileName('');
+                setShowTable(false);
+                setTabTableStates(prev => ({
+                    ...prev,
+                    'run-tests': false
+                }));
+            }
         }
     };
     const [showTable, setShowTable] = useState(false);
