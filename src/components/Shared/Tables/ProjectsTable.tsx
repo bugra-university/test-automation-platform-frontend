@@ -77,7 +77,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     header: ({ table }) => (
       <input
         type="checkbox"
-        className="regular-checkbox"
+        className="projects-regular-checkbox"
         checked={table.getIsAllPageRowsSelected()}
         onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
         aria-label="Select all"
@@ -86,7 +86,7 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     cell: ({ row }) => (
       <input
         type="checkbox"
-        className="regular-checkbox"
+        className="projects-regular-checkbox"
         checked={row.getIsSelected()}
         onChange={(e) => row.toggleSelected(e.target.checked)}
         aria-label="Select row"

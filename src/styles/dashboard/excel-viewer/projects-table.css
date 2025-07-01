@@ -65,14 +65,13 @@
 .projects-cell-date, 
 .projects-cell-test-cases { 
     color: #6B7280; 
-    text-align: center; 
 }
 
 /* Status badges */
 .projects-status-badge {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     border-radius: 0.125rem;
     padding: 0.125rem 0.5rem;
     font-size: 0.75rem;
@@ -86,7 +85,7 @@
 /* Actions */
 .projects-cell-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 }
 
