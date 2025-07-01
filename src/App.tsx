@@ -4,7 +4,7 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { store } from './store';
 import { AuthProvider } from './contexts/authContext';
-import { ProtectedRoute } from './components/Shared/ProtectedRoute';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import MainLayout from './Layout/MainLayout';
 import './App.css';
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FileText } from "lucide-react";
 import { Grid } from "../../ui/grid";
 import { getAllReports, downloadReport, viewReport, deleteReport, TestReport } from "../../../api/reportApi";
-import AlertDelete from "../Alert/AlertDelete";
+import { AlertDelete } from "../../ui/alert-dialog";
 
 interface ReportsTabProps {
   selectedProjectId?: number | null;

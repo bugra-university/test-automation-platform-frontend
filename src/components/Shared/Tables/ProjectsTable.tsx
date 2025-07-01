@@ -69,18 +69,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const getStatusBadgeClass = (status: string) => {
-  switch (status?.toLowerCase()) {
-    case 'active':
-      return 'bg-green-100 text-green-800';
-    case 'inactive':
-      return 'bg-gray-100 text-gray-800';
-    case 'pending':
-      return 'bg-yellow-100 text-yellow-800';
-    default:
-      return 'bg-blue-100 text-blue-800';
-  }
-};
+// Status classes are now handled in CSS
 
 const createColumns = (onDeleteProject?: (project: Project) => void, onEditProject?: (project: Project) => void): ColumnDef<Project>[] => [
   {
@@ -109,12 +98,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">PROJECT NAME</span>
+        <span className="projects-header-text">PROJECT NAME</span>
       </div>
     ),
     accessorKey: "name",
     cell: ({ row }) => (
-      <div className="cell-content font-medium text-blue-600 text-sm">
+      <div className="projects-cell-name">
         {row.getValue("name")}
       </div>
     ),
@@ -123,12 +112,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">DESCRIPTION</span>
+        <span className="projects-header-text">DESCRIPTION</span>
       </div>
     ),
     accessorKey: "description",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-600 text-sm">
+      <div className="projects-cell-description">
         {row.getValue("description") || "No description"}
       </div>
     ),
@@ -137,12 +126,12 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">CREATED DATE</span>
+        <span className="projects-header-text">CREATED DATE</span>
       </div>
     ),
     accessorKey: "createdAt",
     cell: ({ row }) => (
-      <div className="cell-content text-gray-500 text-center text-sm">
+      <div className="projects-cell-date">
         {formatDate(row.getValue("createdAt"))}
       </div>
     ),
@@ -151,14 +140,14 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">TEST CASES</span>
+        <span className="projects-header-text">TEST CASES</span>
       </div>
     ), 
     accessorKey: "testCases",
     cell: ({ row }) => {
       const testCases = row.original.name === "testv1" ? "98 Cases | 5 Test Runs" : "156 Cases | 12 Test Runs";
       return (
-        <div className="cell-content text-gray-500 text-center text-sm">
+        <div className="projects-cell-test-cases">
           {testCases}
         </div>
       );
@@ -168,17 +157,18 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">STATUS</span>
+        <span className="projects-header-text">STATUS</span>
       </div>
     ),
     accessorKey: "status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string || "Active";
+      const statusClass = `projects-status-${status.toLowerCase()}`;
       return (
-        <div className="cell-content flex justify-center">
-          <Badge className={cn(getStatusBadgeClass(status), "!rounded-sm text-xs py-0.5")}>
+        <div className="projects-cell-actions">
+          <span className={`projects-status-badge ${statusClass}`}>
             {status}
-          </Badge>
+          </span>
         </div>
       );
     },
@@ -187,37 +177,37 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   {
     header: ({ column }) => (
       <div className="header-content">
-        <span className="text-xs font-medium">ACTIONS</span>
+        <span className="projects-header-text">ACTIONS</span>
       </div>
     ),
     id: "actions",
     cell: ({ row }) => (
-      <div className="cell-content flex justify-center">
+      <div className="projects-cell-actions">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-9 w-9 p-0 hover:bg-gray-100 !rounded-sm">
-              <MoreVertical className="h-5.5 w-5.5 text-gray-700" strokeWidth={2} />
+            <Button variant="ghost" className="projects-action-button">
+              <MoreVertical className="projects-action-icon" strokeWidth={2} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem 
-              className="cursor-pointer text-sm"
+              className="projects-dropdown-item"
               onClick={(e) => {
                 e.stopPropagation();
                 onEditProject?.(row.original);
               }}
             >
-              <Pencil className="mr-2 h-4 w-4" strokeWidth={1.5} />
+              <Pencil className="projects-dropdown-icon" strokeWidth={1.5} />
               <span>Edit</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
-              className="cursor-pointer text-red-600 text-sm"
+              className="projects-dropdown-item projects-dropdown-item-delete"
               onClick={(e) => {
                 e.stopPropagation();
                 onDeleteProject?.(row.original);
               }}
             >
-              <Trash2 className="mr-2 h-4 w-4" strokeWidth={1.5} />
+              <Trash2 className="projects-dropdown-icon" strokeWidth={1.5} />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

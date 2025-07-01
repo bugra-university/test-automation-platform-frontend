@@ -1,24 +1,20 @@
 /* projects-table.css */
+/* Base table styles */
 .projects-table-container {
-    background-color: white;
+    background: white;
     border-radius: 0.5rem;
-    padding: 1rem;
-    padding-top: 0.5rem;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1rem 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    border: none;
     position: relative;
 }
 
 .projects-table-scroll-container {
     width: 100%;
-    overflow-x: auto;
-    overflow-y: auto;
-    position: relative;
+    max-height: calc(100vh - 300px);
+    overflow: auto;
     border-radius: 0.5rem;
     background: white;
-    border: none;
-    max-height: calc(100vh - 300px);
 }
 
 .projects-table {
@@ -28,21 +24,16 @@
     background: white;
 }
 
-.projects-table td,
-.projects-table th {
-    border: 1px solid #e5e7eb;
-}
-
+/* Header styles */
 .projects-table-header {
-    background-color: #ECECEC;
+    background: #ECECEC;
     position: sticky;
     top: 0;
     z-index: 2;
-    line-height: 1;
 }
 
 .projects-table-header th {
-    padding: 0.6rem 1.0rem;
+    padding: 0.6rem 1rem;
     text-align: left;
     font-size: 0.75rem;
     font-weight: 600;
@@ -50,82 +41,110 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 1px solid #e5e7eb;
-    background-color: #ECECEC;
-    position: relative;
-    transition: background-color 0.2s ease;
     white-space: nowrap;
 }
 
-.projects-table-body tr:nth-child(even) {
-    background-color: #F8F9FD;
-}
-
-.projects-table-body tr:nth-child(even) .content-cell {
-    background-color: #F8F9FD;
-}
-
-.projects-content-cell {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    padding: 0.6rem 1.0rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+/* Cell styles */
+.projects-table td,
+.projects-table th {
+    border: 1px solid #e5e7eb;
 }
 
 .projects-cell-content {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-    font-size: 0.8rem;
-    color: #333;
-    display: block;
+    font-size: 0.875rem;
+    padding: 0.6rem 1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.projects-table-body tr:hover {
-    background-color: #FFF0DA;
+/* Cell variants */
+.projects-cell-name { color: #2563eb; font-weight: 500; }
+.projects-cell-description { color: #4B5563; }
+.projects-cell-date, 
+.projects-cell-test-cases { 
+    color: #6B7280; 
+    text-align: center; 
 }
 
-.projects-table-body tr:hover .row-number {
-    background-color: #ECECEC;
+/* Status badges */
+.projects-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.125rem;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
 }
 
-.projects-table-body tr:hover .checkbox-column:not(.white-bg) {
-    background-color: #FFF0DA;
+.projects-status-active { background: #dcfce7; color: #166534; }
+.projects-status-inactive { background: #f3f4f6; color: #1f2937; }
+.projects-status-pending { background: #fef9c3; color: #854d0e; }
+
+/* Actions */
+.projects-cell-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.projects-table-body tr:hover .checkbox-column.white-bg {
-    background-color: #FFFFFF;
+.projects-action-button {
+    height: 2.25rem;
+    width: 2.25rem;
+    padding: 0;
+    border-radius: 0.125rem;
 }
 
-.projects-row-number {
-    font-weight: 400;
-    font-size: 0.85rem;
-    color: #4B5563;
-    background-color: #ECECEC;
-    text-align: center;
-    border-right: 2px solid #e5e7eb;
-    width: 24px !important;
-    min-width: 24px !important;
-    max-width: 24px !important;
-    padding: 0.1rem 0.1rem !important;
-    box-sizing: content-box;
-    overflow: hidden;
+.projects-action-button:hover { background: #f3f4f6; }
+
+.projects-action-icon {
+    height: 1.375rem;
+    width: 1.375rem;
+    color: #374151;
 }
 
+/* Dropdown */
+.projects-dropdown-item {
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.projects-dropdown-icon {
+    margin-right: 0.5rem;
+    height: 1rem;
+    width: 1rem;
+}
+
+.projects-dropdown-item-delete { color: #dc2626; }
+
+/* Row states */
+.projects-table-body tr:nth-child(even),
+.projects-table-body tr:nth-child(even) .content-cell { 
+    background: #F8F9FD; 
+}
+
+.projects-table-body tr:hover { background: #FFF0DA; }
+
+/* Selected row styles - using higher specificity instead of !important */
+.projects-table-body tr.projects-selected-row { background: #F0F4FF; }
+.projects-table-body tr.projects-selected-row .content-cell { background: #F0F4FF; }
+.projects-table-body tr.projects-selected-row:hover .content-cell { background: #FFF0DA; }
+
+/* Checkbox styles - using fixed width class */
 .projects-checkbox-column {
-    background-color: #ECECEC;
+    background: #ECECEC;
     text-align: center;
-    width: 24px !important;
-    min-width: 24px !important;
-    max-width: 24px !important;
+    /* Fixed width styles */
+    width: 24px;
+    min-width: 24px;
+    max-width: 24px;
     padding: 0.2rem 0.1rem;
     box-sizing: content-box;
     overflow: hidden;
-}
-
-.projects-white-bg {
-    background-color: #FAFAFB !important;
 }
 
 .projects-regular-checkbox {
@@ -135,14 +154,14 @@
     height: 14px;
     cursor: pointer;
     border: 1px solid #999;
-    background-color: white;
+    background: white;
     margin: 0 auto;
     display: block;
     border-radius: 0;
 }
 
 .projects-regular-checkbox:checked {
-    background-color: white;
+    background: white;
     position: relative;
 }
 
@@ -158,14 +177,5 @@
     transform: rotate(45deg);
 }
 
-.projects-selected-row {
-    background-color: #F0F4FF !important;
-}
-
-.projects-selected-row .content-cell {
-    background-color: #F0F4FF !important;
-}
-
-.projects-selected-row:hover .content-cell {
-    background-color: #FFF0DA !important;
-} 
+/* White background - using higher specificity instead of !important */
+.projects-table-body .projects-white-bg { background: #FAFAFB; } 

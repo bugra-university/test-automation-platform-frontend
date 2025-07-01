@@ -1,5 +1,5 @@
 import { Search, SlidersHorizontal } from "lucide-react"
-import { Input } from "../ui/input"
+import { Input } from "../../../ui/input"
 
 export function MainNav() {
   return (
@@ -7,12 +7,18 @@ export function MainNav() {
       <div className="flex h-14 items-center">
         <div className="flex items-center px-6 h-full">
           <span className="text-xl font-semibold text-[#5f6368]">Test Platform</span>
-        </div>        <div className="flex-1 flex items-center px-4 gap-2 pt-2">          <div className="w-[650px]">
-            <div className="relative flex">              <div className="relative flex-1">
-                <Input                  placeholder="Search in tests..."
+        </div>
+        <div className="flex-1 flex items-center px-4 gap-2 pt-2">
+          <div className="w-[650px]">
+            <div className="relative flex">
+              <div className="relative flex-1">
+                <Input
+                  placeholder="Search in tests..."
                   className="pl-4 pr-24 bg-[#eeeeee] rounded-l-[24px] rounded-r-none focus-visible:ring-0 focus-visible:ring-offset-0 border-r-0 h-11"
                 />
-              </div>              <div className="flex h-11 border border-l-0 rounded-r-[24px] bg-[#eeeeee]"><div className="flex items-center px-2">
+              </div>
+              <div className="flex h-11 border border-l-0 rounded-r-[24px] bg-[#eeeeee]">
+                <div className="flex items-center px-2">
                   <button
                     type="button"
                     aria-label="Filter tests"
@@ -43,4 +49,4 @@ export function MainNav() {
       </div>
     </div>
   )
-}
+} 

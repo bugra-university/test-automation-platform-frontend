@@ -1,29 +1,42 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/authContext';
+import { useAuth } from '../../../contexts/authContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requiredRoles?: string[];
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, loading } = useAuth();
+interface User {
+  roles: string[];
+  [key: string]: any;
+}
 
-  console.log('ProtectedRoute render:', { isAuthenticated, loading });
+interface AuthContextType {
+  isAuthenticated: boolean;
+  user: User | null;
+  [key: string]: any;
+}
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
+  children, 
+  requiredRoles = [] 
+}) => {
+  const { isAuthenticated, user } = useAuth() as AuthContextType;
 
   if (!isAuthenticated) {
-    console.log('User not authenticated, redirecting to login');
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" />;
   }
 
-  console.log('User authenticated, rendering protected content');
+  if (requiredRoles.length > 0 && user) {
+    const hasRequiredRole = requiredRoles.some(role => 
+      user.roles.includes(role)
+    );
+    
+    if (!hasRequiredRole) {
+      return <Navigate to="/unauthorized" />;
+    }
+  }
+
   return <>{children}</>;
-}
+};

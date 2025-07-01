@@ -19,4 +19,4 @@ export const TabHeader: React.FC<TabHeaderProps> = ({
       </div>
     </div>
   );
-};
+}; 

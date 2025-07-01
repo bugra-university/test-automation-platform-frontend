@@ -4,7 +4,7 @@ import { projectsApi, type Project } from "../../../api/projectsApi";
 import { Button } from "../../ui/button";
 import { useToast } from "../../ui/UseToast";
 import { ProjectsTable } from "../../Shared/Tables/ProjectsTable";
-import AlertDelete from "../Alert/AlertDelete";
+import { AlertDelete } from "../../ui/alert-dialog";
 import {
     DropdownMenu,
     DropdownMenuContent,

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { DayPilot, DayPilotCalendar, DayPilotNavigator } from "@daypilot/daypilot-lite-react";
 import { testSuitesApi, TestSuite, TestCase } from '../../../api/testSuitesApi';
 import { scheduleApi } from '../../../api/scheduleApi';
-import AlertDelete from '../Alert/AlertDelete';
-import "./SchedulesTab.css";
+import { AlertDelete } from "../../ui/alert-dialog";
+import "../../../styles/dashboard/tabs/schedules-tab.css";
 
 const styles = {
   wrap: {

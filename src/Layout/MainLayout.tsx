@@ -1,6 +1,6 @@
 import React, { cloneElement, ReactElement, useEffect, useRef, useCallback } from 'react';
 import TestSidebar from './TestSidebar';
-import { MainNav } from '../components/Shared/MainNav';
+import { MainNav } from '../components/Shared/MainLayout/components/MainNav';
 import FullScreen from '../components/dashboard/Settings/FullScreen';
 import Delete, { DeleteDialog } from '../components/dashboard/Settings/Delete';
 import { testSuitesApi } from '../api/testSuitesApi';

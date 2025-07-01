@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AlertDelete from '../Alert/AlertDelete';
+import { AlertDelete } from '../../ui/alert-dialog';
 import ProductBacklogService from '../../../api/ProductBacklogService';
 
 /**

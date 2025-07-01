@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { Upload, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "../../ui/button";
-import { TabContainer } from "./TabContainer";
 
 // Types for How It Works
 type Step = {

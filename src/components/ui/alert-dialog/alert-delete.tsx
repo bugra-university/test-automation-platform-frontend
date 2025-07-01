@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../../ui/dialog';
-import { Button } from '../../ui/button';
+} from '../dialog';
+import { Button } from '../button';
 import { X } from 'lucide-react';
 import { cn } from "../../../lib/utils";
 
@@ -17,11 +17,10 @@ interface AlertDeleteProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  isDeleting?: boolean; // Add optional loading state
-  type?: 'project' | 'report' | 'schedule'; // Add type to customize content
+  isDeleting?: boolean;
+  type?: 'project' | 'report' | 'schedule';
 }
 
-// Özel DialogContent bileşeni - X butonu olmayan versiyon
 const CustomDialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -38,14 +37,6 @@ const CustomDialogContent = React.forwardRef<
   </DialogPrimitive.Content>
 ));
 
-/**
- * Custom delete confirmation dialog component
- * @param isOpen - Controls visibility of the dialog
- * @param onClose - Function to call when canceling/closing the dialog
- * @param onConfirm - Function to call when confirming deletion
- * @param title - Title/name of the item being deleted
- * @param type - Type of item being deleted (project or report)
- */
 const AlertDelete: React.FC<AlertDeleteProps> = ({
   isOpen,
   onClose,
@@ -166,4 +157,4 @@ const AlertDelete: React.FC<AlertDeleteProps> = ({
   );
 };
 
-export default AlertDelete;
+export default AlertDelete; 
