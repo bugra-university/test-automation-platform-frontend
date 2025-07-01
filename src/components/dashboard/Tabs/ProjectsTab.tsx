@@ -22,9 +22,10 @@ interface ProjectsTabProps {
     onProjectSelect: (project: Project) => void;
     loadProjectExcelAndSwitchTab?: (project: Project) => Promise<void>;
     tabTitle?: string;
+    activeProject?: Project | null;
 }
 
-export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tabTitle = "All Projects" }: ProjectsTabProps) {
+export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tabTitle = "All Projects", activeProject }: ProjectsTabProps) {
     const [projects, setProjects] = useState<Project[]>([]);
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [loadingProjects, setLoadingProjects] = useState(true);
@@ -322,6 +323,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                             onProjectSelect={loadProjectExcelAndSwitchTab || onProjectSelect}
                             onDeleteProject={handleDeleteProject}
                             onEditProject={handleEditProject}
+                            selectedProject={activeProject}
                         />
                     </div>
                 )}

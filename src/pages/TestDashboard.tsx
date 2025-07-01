@@ -98,6 +98,7 @@ export default function TestDashboard({
           onProjectSelect={setActiveProject || (() => {})} 
           loadProjectExcelAndSwitchTab={loadProjectExcelAndSwitchTab}
           tabTitle={getTabTitle(activeTab)}
+          activeProject={activeProject}
         />;
       case "test-suites":
         return <TestSuitesTab 

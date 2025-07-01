@@ -25,6 +25,7 @@ import {
   ColumnDef,
   PaginationState,
   SortingState,
+  RowSelectionState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -59,6 +60,7 @@ interface ProjectsTableProps {
   onProjectSelect: (project: Project) => void;
   onDeleteProject?: (project: Project) => void;
   onEditProject?: (project: Project) => void;
+  selectedProject?: Project | null;
 }
 
 const formatDate = (dateString: string) => {
@@ -71,16 +73,22 @@ const formatDate = (dateString: string) => {
 
 // Status classes are now handled in CSS
 
-const createColumns = (onDeleteProject?: (project: Project) => void, onEditProject?: (project: Project) => void): ColumnDef<Project>[] => [
+const createColumns = (
+  onDeleteProject?: (project: Project) => void, 
+  onEditProject?: (project: Project) => void,
+  setRowSelection?: (selection: RowSelectionState) => void
+): ColumnDef<Project>[] => [
   {
     id: "select",
     header: ({ table }) => (
       <input
         type="checkbox"
         className="projects-regular-checkbox"
-        checked={table.getIsAllPageRowsSelected()}
-        onChange={(e) => table.toggleAllPageRowsSelected(e.target.checked)}
-        aria-label="Select all"
+        checked={false}
+        onChange={() => {}}
+        disabled={true}
+        aria-label="Select all (disabled for single selection)"
+        style={{ opacity: 0.3 }}
       />
     ),
     cell: ({ row }) => (
@@ -88,7 +96,18 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
         type="checkbox"
         className="projects-regular-checkbox"
         checked={row.getIsSelected()}
-        onChange={(e) => row.toggleSelected(e.target.checked)}
+        onChange={(e) => {
+          e.stopPropagation();
+          if (e.target.checked) {
+            // Single selection: clear all others and select this one
+            const newSelection: RowSelectionState = {};
+            newSelection[row.index] = true;
+            setRowSelection?.(newSelection);
+          } else {
+            // Deselect
+            setRowSelection?.({});
+          }
+        }}
         aria-label="Select row"
       />
     ),
@@ -162,8 +181,8 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
     ),
     accessorKey: "status",
     cell: ({ row }) => {
-      const status = row.getValue("status") as string || "Active";
-      const statusClass = `projects-status-${status.toLowerCase()}`;
+      const status = row.getIsSelected() ? "Selected" : (row.getValue("status") as string || "Active");
+      const statusClass = `projects-status-${row.getIsSelected() ? "active" : status.toLowerCase()}`;
       return (
         <div className="projects-cell-actions">
           <span className={`projects-status-badge ${statusClass}`}>
@@ -219,26 +238,53 @@ const createColumns = (onDeleteProject?: (project: Project) => void, onEditProje
   },
 ];
 
-export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject }: ProjectsTableProps) {
+export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject, selectedProject }: ProjectsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const columns = createColumns(onDeleteProject, onEditProject);
+  const columns = createColumns(onDeleteProject, onEditProject, setRowSelection);
+
+  // Sync selectedProject with table row selection
+  useEffect(() => {
+    if (selectedProject && projects.length > 0) {
+      const projectIndex = projects.findIndex(p => p.id === selectedProject.id);
+      if (projectIndex !== -1) {
+        setRowSelection({ [projectIndex]: true });
+      }
+    } else {
+      setRowSelection({});
+    }
+  }, [selectedProject, projects]);
+
+  // Handle row selection changes
+  useEffect(() => {
+    const selectedRowIndices = Object.keys(rowSelection).filter(key => rowSelection[key]);
+    if (selectedRowIndices.length > 0) {
+      const selectedRowIndex = parseInt(selectedRowIndices[0]);
+      const selectedProjectFromTable = projects[selectedRowIndex];
+      if (selectedProjectFromTable && (!selectedProject || selectedProject.id !== selectedProjectFromTable.id)) {
+        onProjectSelect(selectedProjectFromTable);
+      }
+    }
+  }, [rowSelection, projects, selectedProject, onProjectSelect]);
 
   const table = useReactTable({
     data: projects,
     columns,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     state: {
       sorting,
       pagination,
+      rowSelection,
     },
   });
 
@@ -272,7 +318,12 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => onProjectSelect(row.original)}
+                  onClick={(e) => {
+                    // Single selection: clear all others and select this one
+                    const newSelection: RowSelectionState = {};
+                    newSelection[row.index] = true;
+                    setRowSelection(newSelection);
+                  }}
                   className={`cursor-pointer hover:bg-gray-50 ${index > 0 ? 'bg-gray-100' : ''} h-10`}
                 >
                   {row.getVisibleCells().map((cell) => (

@@ -59,7 +59,17 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     // Initialize states with default values
     const [activeTab, setActiveTab] = useState("projects");
     const [activeRightTab, setActiveRightTab] = useState("test-results");
-    const [activeProject, setActiveProject] = useState<Project | null>(null);
+    const [activeProject, setActiveProjectInternal] = useState<Project | null>(null);
+
+    // Enhanced setActiveProject that saves to localStorage
+    const setActiveProject = (project: Project | null) => {
+        setActiveProjectInternal(project);
+        if (project) {
+            localStorage.setItem('lastActiveProject', JSON.stringify(project));
+        } else {
+            localStorage.removeItem('lastActiveProject');
+        }
+    };
     const [showTable, setShowTable] = useState(false);
     const [tabTableStates, setTabTableStates] = useState<{ [key: string]: boolean }>({});
     const [tabFileNames, setTabFileNames] = useState<{ [key: string]: string }>({});
@@ -102,7 +112,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
                     console.log('Loading last active project from localStorage:', project);
                     
                     // Set active project first
-                    setActiveProject(project);
+                    setActiveProjectInternal(project);
                     
                     // Only load Excel if we're on the backlog tab
                     if (lastTabData === 'run-tests') {
@@ -159,7 +169,7 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
             console.log('Loading Excel for project:', project.name, project.id);
             
             // Set active project first
-            setActiveProject(project);
+            setActiveProjectInternal(project);
             
             // Save to localStorage for persistence
             localStorage.setItem('lastActiveProject', JSON.stringify(project));
