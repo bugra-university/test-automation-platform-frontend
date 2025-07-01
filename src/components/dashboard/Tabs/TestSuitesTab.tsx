@@ -1,72 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle, Download, CheckCircle, XCircle, Clock, Loader, Plus } from 'lucide-react';
-import { testSuitesApi, TestSuite, ExecutionStatus, TestExecutionEvent, SSEConnectionManager } from '../../../api/testSuitesApi';
-import { stepTrackingApi, StepExecutionEvent, StepSSEConnectionManager } from '../../../api/stepTrackingApi';
+import React, { useState, useEffect } from "react";
+import { BarChart3, AlertTriangle, Loader, Plus } from 'lucide-react';
+import { testSuitesApi, TestSuite } from '../../../api/testSuitesApi';
 import { TestSuitesTable } from '../../Shared/Tables/TestSuitesTable';
 // Excel viewer styles for consistent look
 import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
 import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
 
 // Test Suites API integration complete - using real data from database
-
-// Utility functions for formatting
-const formatDuration = (durationMs: number | null) => {
-  if (!durationMs) return '-';
-  const seconds = Math.round(durationMs / 1000);
-  return `${seconds}s`;
-};
-
-const formatLastRun = (lastRun: string | null) => {
-  if (!lastRun) return 'Never';
-  const date = new Date(lastRun);
-  return date.toLocaleString('tr-TR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-const formatProgress = (progress: any) => {
-  if (!progress || typeof progress !== 'object') return '-';
-  return `${progress.completed || 0}/${progress.total || 0}`;
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'passed': return <span className="w-2 h-2 rounded-full bg-green-500"></span>;
-    case 'failed': return <span className="w-2 h-2 rounded-full bg-red-500"></span>;
-    case 'running': return <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>;
-    case 'blocked': return <span className="w-2 h-2 rounded-full bg-yellow-500"></span>;
-    case 'pending': return <span className="w-2 h-2 rounded-full bg-gray-400"></span>;
-    default: return <span className="w-2 h-2 rounded-full bg-gray-300"></span>;
-  }
-};
-
-const getStatusText = (status: string) => {
-  switch (status) {
-    case 'passed': return 'Passed';
-    case 'failed': return 'Failed';
-    case 'running': return 'Running';
-    case 'blocked': return 'Blocked';
-    case 'pending': return 'Pending';
-    default: return 'Unknown';
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'passed': return 'text-green-600';
-    case 'failed': return 'text-red-600';
-    case 'running': return 'text-blue-600';
-    case 'blocked': return 'text-yellow-600';
-    case 'pending': return 'text-gray-600';
-    default: return 'text-gray-500';
-  }
-};
-
-// Removed ExecutionTracker interface - no longer needed
 
 interface TestSuitesTabProps {
   selectedProjectId: number | null;
@@ -80,8 +20,6 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   const [testSuites, setTestSuites] = useState<TestSuite[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const sseManager = useRef<SSEConnectionManager | null>(null);
-  const stepSSEManager = useRef<StepSSEConnectionManager | null>(null);
 
   const loadTestSuites = async (projectId: number) => {
     try {
