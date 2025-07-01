@@ -1,7 +1,6 @@
 // MergedCells.tsx - Component for handling merged cells in Excel data display
 import React from 'react';
 import * as XLSX from 'xlsx';
-import '../../../styles/dashboard/excel-viewer/merged-cells.css';
 
 // Interface to represent a merged cell range
 export interface MergedCellInfo {

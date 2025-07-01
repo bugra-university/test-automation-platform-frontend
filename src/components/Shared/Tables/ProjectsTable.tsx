@@ -11,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-// Excel viewer styles for consistent look
-import "../../../styles/dashboard/excel-viewer/index.css";
+// Projects table specific styles
+import "../../../styles/dashboard/excel-viewer/projects-table.css";
 import {
   Table,
   TableBody,

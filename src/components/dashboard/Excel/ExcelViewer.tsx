@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import * as XLSX from 'xlsx';
 import { ArrowLeft, Save, Edit, Eye, FileText } from 'lucide-react';
 import { Button } from '../../ui/button';
-import '../../../styles/dashboard/excel-viewer/index.css';
+import '../../../styles/dashboard/excel-viewer/backlog-table.css';
 import { useMergedCells, MergedCell } from './MergedCells';
 import ProductBacklogService from '../../../api/ProductBacklogService';
 
@@ -173,7 +173,7 @@ export function ExcelViewer({
 
   // Get table class name based on mode
   const getTableClassName = () => {
-    const baseClasses = 'excel-table narrow-row-numbers sheet-change-transition';
+    const baseClasses = 'excel-table narrow-row-numbers';
     return isEditMode ? `${baseClasses} edit-mode` : baseClasses;
   };
   // Helper function to get sort-related classes
@@ -817,7 +817,7 @@ export function ExcelViewer({
         <div className="h-full max-h-[calc(100vh-300px)] overflow-auto">
           <div className="table-scroll-container" data-tab="backlog">
             {loading && data.length > 0 && (
-              <div className="sheet-loading-indicator">
+              <div className="sheet-loading">
                 Loading sheet...
               </div>
             )}

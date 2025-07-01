@@ -3,7 +3,8 @@ import { Play, Square, BarChart3, Edit, ChevronDown, ChevronRight, AlertTriangle
 import { testSuitesApi, TestSuite, ExecutionStatus, TestExecutionEvent, SSEConnectionManager } from '../../../api/testSuitesApi';
 import { stepTrackingApi, StepExecutionEvent, StepSSEConnectionManager } from '../../../api/stepTrackingApi';
 // Excel viewer styles for consistent look
-import "../../../styles/dashboard/excel-viewer/index.css";
+import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
+import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
 
 // Test Suites API integration complete - using real data from database
 

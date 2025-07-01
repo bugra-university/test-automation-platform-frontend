@@ -1,0 +1,60 @@
+/* backlog-table.css */
+.backlog-table-scroll-container {
+    width: 100%;
+    overflow: auto;
+    max-height: calc(100vh - 300px);
+}
+
+.backlog-excel-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: system-ui;
+}
+
+.backlog-excel-table-header {
+    position: sticky;
+    top: 0;
+    background: #ECECEC;
+}
+
+.backlog-excel-table td, .backlog-excel-table th {
+    border: 1px solid #e5e7eb;
+    padding: 0.5rem;
+}
+
+.backlog-excel-table th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4B5563;
+}
+
+.backlog-excel-table-body tr:nth-child(even) {
+    background: #F8F9FD;
+}
+
+.backlog-excel-table-body tr:hover {
+    background: #FFF0DA;
+}
+
+.backlog-selected-row {
+    background: #F0F4FF !important;
+}
+
+.backlog-row-number-header, .backlog-checkbox-column {
+    width: 24px;
+    text-align: center;
+    padding: 0.2rem;
+}
+
+.backlog-regular-checkbox {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #999;
+    appearance: none;
+}
+
+.backlog-regular-checkbox:checked:after {
+    content: '✓';
+    display: block;
+    text-align: center;
+} 

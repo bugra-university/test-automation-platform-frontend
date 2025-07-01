@@ -3,7 +3,7 @@ import { Upload, X, FileDown, Plus, FolderOpen, ChevronDown, ChevronUp } from "l
 import { cn } from "../../../lib/utils";
 import { ExcelViewer } from "../Excel/ExcelViewer";
 import { Button } from "../../ui/button";
-import "../../../styles/dashboard/tabs/run-tests.css";
+
 
 // Types for How It Works
 type Step = {

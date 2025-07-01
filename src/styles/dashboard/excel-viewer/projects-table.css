@@ -1,0 +1,171 @@
+/* projects-table.css */
+.projects-table-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    padding-top: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: none;
+    position: relative;
+}
+
+.projects-table-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    position: relative;
+    border-radius: 0.5rem;
+    background: white;
+    border: none;
+    max-height: calc(100vh - 300px);
+}
+
+.projects-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.projects-table td,
+.projects-table th {
+    border: 1px solid #e5e7eb;
+}
+
+.projects-table-header {
+    background-color: #ECECEC;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    line-height: 1;
+}
+
+.projects-table-header th {
+    padding: 0.6rem 1.0rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4B5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #ECECEC;
+    position: relative;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.projects-table-body tr:nth-child(even) {
+    background-color: #F8F9FD;
+}
+
+.projects-table-body tr:nth-child(even) .content-cell {
+    background-color: #F8F9FD;
+}
+
+.projects-content-cell {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    padding: 0.6rem 1.0rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.projects-cell-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    font-size: 0.8rem;
+    color: #333;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.projects-table-body tr:hover {
+    background-color: #FFF0DA;
+}
+
+.projects-table-body tr:hover .row-number {
+    background-color: #ECECEC;
+}
+
+.projects-table-body tr:hover .checkbox-column:not(.white-bg) {
+    background-color: #FFF0DA;
+}
+
+.projects-table-body tr:hover .checkbox-column.white-bg {
+    background-color: #FFFFFF;
+}
+
+.projects-row-number {
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: #4B5563;
+    background-color: #ECECEC;
+    text-align: center;
+    border-right: 2px solid #e5e7eb;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    padding: 0.1rem 0.1rem !important;
+    box-sizing: content-box;
+    overflow: hidden;
+}
+
+.projects-checkbox-column {
+    background-color: #ECECEC;
+    text-align: center;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    padding: 0.2rem 0.1rem;
+    box-sizing: content-box;
+    overflow: hidden;
+}
+
+.projects-white-bg {
+    background-color: #FAFAFB !important;
+}
+
+.projects-regular-checkbox {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    border: 1px solid #999;
+    background-color: white;
+    margin: 0 auto;
+    display: block;
+    border-radius: 0;
+}
+
+.projects-regular-checkbox:checked {
+    background-color: white;
+    position: relative;
+}
+
+.projects-regular-checkbox:checked:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid black;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.projects-selected-row {
+    background-color: #F0F4FF !important;
+}
+
+.projects-selected-row .content-cell {
+    background-color: #F0F4FF !important;
+}
+
+.projects-selected-row:hover .content-cell {
+    background-color: #FFF0DA !important;
+} 

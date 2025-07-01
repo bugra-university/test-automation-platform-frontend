@@ -12,7 +12,7 @@ import SchedulesTab from "../components/dashboard/Tabs/SchedulesTab";
 import { Project } from "@/api/projectsApi";
 
 import "../styles/dashboard/tabs/test-dashboard.css";
-import "../styles/dashboard/tabs/run-tests.css";
+
 import "../styles/Layout/container-headers.css";
 
 // Badge and progress bar styles are now in api-dashboard.css
