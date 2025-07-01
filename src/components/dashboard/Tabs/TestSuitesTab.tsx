@@ -163,7 +163,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
       </div>
 
       {/* Content */}
-      <div className="flex-1 p-8">
+      <div className="flex-1 overflow-hidden px-8 pt-8 pb-8">
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="flex items-center space-x-4">

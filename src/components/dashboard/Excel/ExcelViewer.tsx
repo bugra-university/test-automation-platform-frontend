@@ -815,8 +815,8 @@ export function ExcelViewer({
       <div className="border-t border-gray-200"></div>
 
       {/* Excel Content Container */}
-      <div className="flex-1 overflow-hidden px-8 pt-8 pb-6">
-        <div className="h-full max-h-[calc(100vh-300px)] overflow-auto">
+      <div className="flex-1 overflow-hidden px-8 pt-8 pb-8">
+        <div className="h-full overflow-auto">
           <div className="table-scroll-container" data-tab="backlog">
             {loading && data.length > 0 && (
               <div className="sheet-loading">
