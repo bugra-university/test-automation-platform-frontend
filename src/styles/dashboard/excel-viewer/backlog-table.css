@@ -9,7 +9,8 @@
     position: sticky;
     top: 26px;
     background: #ECECEC;
-    z-index: 15;
+    z-index: 20;
+    box-shadow: 0 1px 0 0 #ECECEC, 0 2px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Header corner radius - only top-right */
@@ -133,6 +134,7 @@
     overflow-x: hidden;
     max-height: 70vh;
     border-bottom: 1px solid #e5e7eb;
+    position: relative;
 }
 
 /* Thin scrollbar styling for table container */
@@ -161,4 +163,8 @@
 
 .excel-table tbody tr:last-child td:last-child {
     border-bottom-right-radius: 12px;
+}
+
+.excel-table-body tr:first-child td {
+    border-top: none;
 } 
