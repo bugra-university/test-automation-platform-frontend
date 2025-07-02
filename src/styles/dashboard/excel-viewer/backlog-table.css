@@ -128,11 +128,16 @@
 /* Table container styling */
 .table-scroll-container {
     border-radius: 0 0 12px 12px; /* Keep bottom radius */
-    overflow-y: scroll;
-    overflow-x: hidden;
-    max-height: 70vh;
     border: 1px solid #e5e7eb;
     border-top: none; /* The header container provides the top visual */
+}
+
+.excel-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.excel-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
 }
 
 /* Thin scrollbar styling for table container */
@@ -142,7 +147,7 @@
 
 .table-scroll-container::-webkit-scrollbar-track {
     background: transparent;
-    margin-top: 60px; /* Start from table header level, not including sheet tabs */
+    margin-top: 60px; /* Increased from 60px to 120px to move scrollbar down */
 }
 
 .table-scroll-container::-webkit-scrollbar-thumb {
@@ -152,12 +157,4 @@
 
 .table-scroll-container::-webkit-scrollbar-thumb:hover {
     background: #555;
-}
-
-.excel-table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 12px;
-}
-
-.excel-table tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 12px;
 } 
