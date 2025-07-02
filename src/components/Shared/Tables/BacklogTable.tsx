@@ -77,6 +77,12 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     } else if (colIndex === 6 && activeSheetIndex > 0) {
       // Steps'den sonraki sütun (Test Data) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
       classes.push('test-data-column');
+    } else if (colIndex === 7 && activeSheetIndex > 0) {
+      // Test Data'dan sonraki sütun (Expected Result) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
+      classes.push('expected-result-column');
+    } else if (colIndex === 8 && activeSheetIndex > 0) {
+      // Expected Result'tan sonraki sütun (Actual Result) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
+      classes.push('actual-result-column');
     } else if (colIndex === tableHeaders.length - 2) {
       classes.push('validation-column');
     } else if (colIndex === tableHeaders.length - 3) {
@@ -121,8 +127,8 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
 
   return (
     <div className="backlog-table-wrapper">
-      {/* 1. Container - Header (Sticky) */}
-      <div className="excel-header-container">
+      {/* Tek container içinde header ve data */}
+      <div className="excel-data-container" data-sheet-index={activeSheetIndex}>
         <table className={getTableClassName()}>
           <thead className="excel-table-header">
             <tr>
@@ -155,12 +161,6 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
               ))}
             </tr>
           </thead>
-        </table>
-      </div>
-
-      {/* 2. Container - Data (Scrollable) */}
-      <div className="excel-data-container">
-        <table className={getTableClassName()}>
           <tbody className="excel-table-body">
             {data.length > 0 ? (
             data.map((row, idx) => {

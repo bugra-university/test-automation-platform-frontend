@@ -11,26 +11,52 @@
     background: white;
 }
 
-/* 1. Container - Header (Sticky) */
-.excel-header-container {
-    position: sticky;
-    top: 26px; /* Sheet tabs yüksekliği kadar aşağıda */
-    z-index: 15;
-    border-radius: 0 12px 0 0;
-    overflow: hidden;
-    background-color: #ECECEC;
+/* Container - Tüm tablo için tek container */
+.excel-data-container {
+    max-height: calc(100vh - 350px);
+    overflow: auto;
     border: 1px solid #e5e7eb;
-    border-bottom: none;
+    border-radius: 12px;
 }
 
-/* 2. Container - Data (Scrollable) */
-.excel-data-container {
-    max-height: calc(100vh - 350px); /* Test suites gibi sabit yükseklik */
-    overflow-y: auto;
-    overflow-x: hidden;
-    border: 1px solid #e5e7eb;
-    border-top: none;
-    border-radius: 0 0 12px 12px;
+/* Header stilleri */
+.excel-table-header {
+    background-color: #ECECEC;
+}
+
+.excel-table-header th {
+    background-color: #ECECEC;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+/* 2. sheet ve sonrası için yatay scroll */
+.excel-data-container[data-sheet-index="1"],
+.excel-data-container[data-sheet-index="2"],
+.excel-data-container[data-sheet-index="3"],
+.excel-data-container[data-sheet-index="4"],
+.excel-data-container[data-sheet-index="5"] {
+    overflow-x: auto !important;
+}
+
+/* Yatay scrollbar için dikey scrollbar'ın stillerini kullan */
+.excel-data-container[data-sheet-index]::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.excel-data-container[data-sheet-index]::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.excel-data-container[data-sheet-index]::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.excel-data-container[data-sheet-index]::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 /* Data container scrollbar styling */
@@ -198,6 +224,32 @@
 }
 
 .test-data-column {
+    max-width: 150px !important;
+    min-width: 150px !important;
+    width: 150px !important;
+    text-align: center !important;
+}
+
+/* Test Data sütunu verileri için word-wrap */
+.excel-table-body td.test-data-column,
+.excel-table-body td.expected-result-column,
+.excel-table-body td.actual-result-column {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    text-align: left !important;
+    padding: 8px !important;
+    line-height: 1.4 !important;
+}
+
+.expected-result-column {
+    max-width: 150px !important;
+    min-width: 150px !important;
+    width: 150px !important;
+    text-align: center !important;
+}
+
+.actual-result-column {
     max-width: 150px !important;
     min-width: 150px !important;
     width: 150px !important;
