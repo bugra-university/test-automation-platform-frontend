@@ -12,6 +12,13 @@
     z-index: 9;
 }
 
+/* Header corner radius - only top-right */
+.excel-table-header tr th:last-child {
+    border-top-right-radius: 12px;
+    border-right: none !important;
+    border-top: none !important;
+}
+
 .excel-table td, .excel-table th {
     border: 1px solid #e5e7eb;
     padding: 0.5rem;
@@ -28,12 +35,13 @@
     color: #374151;
 }
 
+/* Remove zebra effect */
 .excel-table-body tr:nth-child(even) {
-    background: #F8F9FD;
+    background: transparent;
 }
 
 .excel-table-body tr:hover {
-    background: #FFF0DA;
+    background: transparent;
 }
 
 .selected-row {
@@ -103,4 +111,20 @@
     min-width: 100px !important;
     width: 100px !important;
     text-align: center !important;
+}
+
+/* Table container styling */
+.table-scroll-container {
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.1);
+}
+
+/* Table styling for bottom corners */
+.excel-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.excel-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
 } 
