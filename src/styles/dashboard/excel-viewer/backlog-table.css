@@ -7,8 +7,9 @@
 
 .excel-table-header {
     position: sticky;
-    top: 0;
+    top: 26px;
     background: #ECECEC;
+    z-index: 9;
 }
 
 .excel-table td, .excel-table th {
@@ -23,7 +24,7 @@
 }
 
 .excel-table td {
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.75rem;
     color: #374151;
 }
 
@@ -43,14 +44,14 @@
     width: 24px;
     text-align: center;
     padding: 0.2rem;
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.75rem;
 }
 
 .row-number-column {
     width: 18px;
     text-align: center;
     padding: 0.2rem !important;
-    font-size: 0.875rem; /* 14px */
+    font-size: 0.75rem;
 }
 
 /* Checkbox styles */
@@ -91,6 +92,13 @@
 }
 
 .user-story-id-column {
+    max-width: 100px !important;
+    min-width: 100px !important;
+    width: 100px !important;
+    text-align: center !important;
+}
+
+.home-column {
     max-width: 100px !important;
     min-width: 100px !important;
     width: 100px !important;

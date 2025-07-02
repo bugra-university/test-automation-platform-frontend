@@ -2,9 +2,10 @@
 .sheet-tabs-container {
     display: flex;
     padding-left: 0;
-    position: relative;
-
-    /* Higher than table header z-index to ensure tabs are above */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
 }
 
 .sheet-tab {

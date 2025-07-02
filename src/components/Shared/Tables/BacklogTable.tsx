@@ -59,6 +59,8 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
       classes.push('user-story-id-column');
     } else if (colIndex === tableHeaders.length - 2) {
       classes.push('validation-column');
+    } else if (colIndex === tableHeaders.length - 3) {
+      classes.push('home-column');
     } else {
       // Map specific columns to their fixed widths
       const columnLabel = tableHeaders[colIndex]?.label?.toUpperCase();
