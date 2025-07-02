@@ -14,7 +14,7 @@
 /* 1. Container - Header (Sticky) */
 .excel-header-container {
     position: sticky;
-    top: 40px; /* Sheet tabs yüksekliği kadar aşağıda */
+    top: 26px; /* Sheet tabs yüksekliği kadar aşağıda */
     z-index: 15;
     border-radius: 0 12px 0 0;
     overflow: hidden;
@@ -25,7 +25,7 @@
 
 /* 2. Container - Data (Scrollable) */
 .excel-data-container {
-    max-height: calc(100vh - 240px);
+    max-height: calc(100vh - 350px); /* Test suites gibi sabit yükseklik */
     overflow-y: auto;
     overflow-x: hidden;
     border: 1px solid #e5e7eb;
