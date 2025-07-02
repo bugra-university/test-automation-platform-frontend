@@ -17,6 +17,7 @@
     overflow: auto;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
+    border-top-left-radius: 0;
 }
 
 /* Header stilleri */
@@ -250,9 +251,9 @@
 }
 
 .actual-result-column {
-    max-width: 150px !important;
-    min-width: 150px !important;
-    width: 150px !important;
+    max-width: 100px !important;
+    min-width: 100px !important;
+    width: 100px !important;
     text-align: center !important;
 }
 

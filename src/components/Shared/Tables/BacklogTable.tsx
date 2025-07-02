@@ -155,7 +155,11 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
                   className={getHeaderClassName(colIndex, column)}
                 >
                   <div className="header-content">
-                    <span>{column.label.toUpperCase()}</span>
+                    <span>
+                      {column.label.toUpperCase() === 'ACTUAL RESULT' 
+                        ? 'ACTUAL'
+                        : column.label.toUpperCase()}
+                    </span>
                   </div>
                 </th>
               ))}
