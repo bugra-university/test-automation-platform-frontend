@@ -1,31 +1,29 @@
 /* backlog-table.css */
+.backlog-table-wrapper {
+    position: relative;
+}
+
+.excel-header-container {
+    border-radius: 12px 12px 0 0;
+    overflow: hidden; /* This is key to clip the th corners */
+}
+
 .excel-table {
     width: 100%;
     border-collapse: collapse;
     font-family: system-ui;
+    table-layout: fixed; /* Ensures column widths are consistent across tables */
 }
 
 .excel-table-header {
-    position: sticky;
-    top: 26px;
-    background: #ECECEC;
-    z-index: 20;
-    box-shadow: 0 1px 0 0 #ECECEC, 0 2px 2px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Header corner radius - only top-right */
-.excel-table-header tr th:last-child {
-    border-top-right-radius: 12px;
-    border-right: none !important;
-    border-top: none !important;
-    overflow: hidden;
+    background-color: #ECECEC;
 }
 
 /* All header cells should hide overflow for corner radius */
 .excel-table-header tr th {
     position: relative;
-    z-index: 16;
-    overflow: hidden;
+    z-index: 1; /* Lower z-index */
+    background: #ECECEC;
 }
 
 .excel-table td, .excel-table th {
@@ -129,12 +127,12 @@
 
 /* Table container styling */
 .table-scroll-container {
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 12px 12px; /* Keep bottom radius */
     overflow-y: scroll;
     overflow-x: hidden;
     max-height: 70vh;
-    border-bottom: 1px solid #e5e7eb;
-    position: relative;
+    border: 1px solid #e5e7eb;
+    border-top: none; /* The header container provides the top visual */
 }
 
 /* Thin scrollbar styling for table container */
@@ -156,15 +154,10 @@
     background: #555;
 }
 
-/* Table styling for bottom corners */
 .excel-table tbody tr:last-child td:first-child {
     border-bottom-left-radius: 12px;
 }
 
 .excel-table tbody tr:last-child td:last-child {
     border-bottom-right-radius: 12px;
-}
-
-.excel-table-body tr:first-child td {
-    border-top: none;
 } 
