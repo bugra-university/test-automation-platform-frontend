@@ -101,8 +101,8 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     <table className={getTableClassName()}>
       <thead className="excel-table-header">
         <tr>
-          <th className="row-number-header">
-            <span className="hash-symbol">#</span>
+          <th className="row-number-column">
+            #
           </th>
           {/* Checkbox column header */}
           <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
@@ -140,7 +140,7 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
           return (
             <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
               {/* Row number column */}
-              <td className="row-number">
+              <td className="row-number-column">
                 {idx + 1}
               </td>
               {/* Checkbox column - only show for test case rows (with USER ID) */}

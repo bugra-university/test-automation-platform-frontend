@@ -1,53 +1,60 @@
 /* backlog-table.css */
-.backlog-table-scroll-container {
-    width: 100%;
-    overflow: auto;
-    max-height: calc(100vh - 300px);
-}
-
-.backlog-excel-table {
+.excel-table {
     width: 100%;
     border-collapse: collapse;
     font-family: system-ui;
 }
 
-.backlog-excel-table-header {
+.excel-table-header {
     position: sticky;
     top: 0;
     background: #ECECEC;
 }
 
-.backlog-excel-table td, .backlog-excel-table th {
+.excel-table td, .excel-table th {
     border: 1px solid #e5e7eb;
     padding: 0.5rem;
 }
 
-.backlog-excel-table th {
+.excel-table th {
     font-size: 0.75rem;
     font-weight: 600;
     color: #4B5563;
 }
 
-.backlog-excel-table-body tr:nth-child(even) {
+.excel-table td {
+    font-size: 0.875rem; /* 14px */
+    color: #374151;
+}
+
+.excel-table-body tr:nth-child(even) {
     background: #F8F9FD;
 }
 
-.backlog-excel-table-body tr:hover {
+.excel-table-body tr:hover {
     background: #FFF0DA;
 }
 
-.backlog-selected-row {
+.selected-row {
     background: #F0F4FF !important;
 }
 
-.backlog-row-number-header, .backlog-checkbox-column {
+.checkbox-column {
     width: 24px;
     text-align: center;
     padding: 0.2rem;
+    font-size: 0.875rem; /* 14px */
 }
 
-/* Checkbox styles for both backlog-regular-checkbox and regular-checkbox */
-.regular-checkbox, .backlog-regular-checkbox {
+.row-number-column {
+    width: 18px;
+    text-align: center;
+    padding: 0.2rem !important;
+    font-size: 0.875rem; /* 14px */
+}
+
+/* Checkbox styles */
+.regular-checkbox {
     width: 14px;
     height: 14px;
     border: 1px solid #999;
@@ -59,12 +66,12 @@
     display: block;
 }
 
-.regular-checkbox:checked, .backlog-regular-checkbox:checked {
+.regular-checkbox:checked {
     background: white;
     position: relative;
 }
 
-.regular-checkbox:checked:after, .backlog-regular-checkbox:checked:after {
+.regular-checkbox:checked:after {
     content: '';
     position: absolute;
     left: 4px;
@@ -74,4 +81,18 @@
     border: solid black;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
+}
+
+.validation-column {
+    max-width: 100px !important;
+    min-width: 100px !important;
+    width: 100px !important;
+    text-align: center !important;
+}
+
+.user-story-id-column {
+    max-width: 100px !important;
+    min-width: 100px !important;
+    width: 100px !important;
+    text-align: center !important;
 } 
