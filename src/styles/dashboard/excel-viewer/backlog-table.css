@@ -35,13 +35,18 @@
     color: #374151;
 }
 
-/* Remove zebra effect */
+/* Restore zebra effect */
 .excel-table-body tr:nth-child(even) {
-    background: transparent;
+    background: #F8F9FD;
 }
 
 .excel-table-body tr:hover {
-    background: transparent;
+    background: inherit;
+}
+
+/* Individual cell hover effect */
+.excel-table td:hover {
+    background: #E3F2FD !important;
 }
 
 .selected-row {
@@ -116,8 +121,28 @@
 /* Table container styling */
 .table-scroll-container {
     border-radius: 0 0 12px 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.1);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 70vh;
+}
+
+/* Thin scrollbar styling for table container */
+.table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    margin-top: 60px; /* Start from table header level, not including sheet tabs */
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 /* Table styling for bottom corners */
