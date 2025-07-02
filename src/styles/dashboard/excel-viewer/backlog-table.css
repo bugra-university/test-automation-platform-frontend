@@ -133,7 +133,6 @@
     overflow-x: hidden;
     max-height: 70vh;
     border-bottom: 1px solid #e5e7eb;
-    border-left: 1px solid #e5e7eb;
 }
 
 /* Thin scrollbar styling for table container */
