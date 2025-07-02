@@ -17,12 +17,16 @@
 
 .excel-table-header {
     background-color: #ECECEC;
+    position: sticky;
+    top: 26px;
+    z-index: 5;
 }
 
 /* All header cells should hide overflow for corner radius */
 .excel-table-header tr th {
-    position: relative;
-    z-index: 1; /* Lower z-index */
+    position: sticky;
+    top: 26px;
+    z-index: 5;
     background: #ECECEC;
 }
 
@@ -127,9 +131,13 @@
 
 /* Table container styling */
 .table-scroll-container {
-    border-radius: 0 0 12px 12px; /* Keep bottom radius */
+    position: relative;
+    border-radius: 0 0 12px 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100vh - 160px);
     border: 1px solid #e5e7eb;
-    border-top: none; /* The header container provides the top visual */
+    border-top: none;
 }
 
 .excel-table tbody tr:last-child td:first-child {
