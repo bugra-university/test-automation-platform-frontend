@@ -197,6 +197,13 @@
     padding-left: 10px !important;
 }
 
+.test-data-column {
+    max-width: 150px !important;
+    min-width: 150px !important;
+    width: 150px !important;
+    text-align: center !important;
+}
+
 .home-column {
     max-width: 100px !important;
     min-width: 100px !important;

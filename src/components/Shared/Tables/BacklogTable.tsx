@@ -74,6 +74,9 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     } else if (colIndex === 5 && activeSheetIndex > 0) {
       // No'dan sonraki sütun (Steps) - sadece 2. sheet ve sonraki sheet'lerde sabit 300px genişlik
       classes.push('steps-column');
+    } else if (colIndex === 6 && activeSheetIndex > 0) {
+      // Steps'den sonraki sütun (Test Data) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
+      classes.push('test-data-column');
     } else if (colIndex === tableHeaders.length - 2) {
       classes.push('validation-column');
     } else if (colIndex === tableHeaders.length - 3) {
