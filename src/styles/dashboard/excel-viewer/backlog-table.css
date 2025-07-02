@@ -152,6 +152,51 @@
     text-align: center !important;
 }
 
+.tcid-column {
+    max-width: 100px !important;
+    min-width: 100px !important;
+    width: 100px !important;
+    text-align: center !important;
+}
+
+.test-objective-column {
+    max-width: 150px !important;
+    min-width: 150px !important;
+    width: 150px !important;
+    text-align: center !important;
+}
+
+.pre-condition-column {
+    max-width: 150px !important;
+    min-width: 150px !important;
+    width: 150px !important;
+    text-align: center !important;
+}
+
+.no-column {
+    max-width: 30px !important;
+    min-width: 30px !important;
+    width: 30px !important;
+    text-align: center !important;
+}
+
+.steps-column {
+    max-width: 300px !important;
+    min-width: 300px !important;
+    width: 300px !important;
+}
+
+/* Steps sütunu başlığı için */
+.excel-table-header th.steps-column {
+    text-align: center !important;
+}
+
+/* Steps sütunu verileri için */
+.excel-table-body td.steps-column {
+    text-align: left !important;
+    padding-left: 10px !important;
+}
+
 .home-column {
     max-width: 100px !important;
     min-width: 100px !important;

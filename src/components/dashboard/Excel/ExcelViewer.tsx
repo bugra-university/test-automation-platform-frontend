@@ -857,6 +857,7 @@ export function ExcelViewer({
             data={data}
             tableHeaders={tableHeaders}
             activeWorksheet={activeWorksheet}
+            activeSheetIndex={activeSheetIndex}
             isEditMode={isEditMode}
             selectedRows={selectedRows}
             onCheckboxToggle={handleCheckboxToggle}

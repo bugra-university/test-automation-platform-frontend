@@ -11,6 +11,7 @@ interface BacklogTableProps {
   data: any[];
   tableHeaders: ColumnHeader[];
   activeWorksheet: any; // XLSX.WorkSheet
+  activeSheetIndex: number;
   isEditMode?: boolean;
   selectedRows: {[key: number]: boolean};
   onCheckboxToggle: (idx: number) => void;
@@ -26,6 +27,7 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
   data,
   tableHeaders,
   activeWorksheet,
+  activeSheetIndex,
   isEditMode = false,
   selectedRows,
   onCheckboxToggle,
@@ -57,6 +59,21 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
     // Add fixed width classes based on column type
     if (colIndex === 0) {
       classes.push('user-story-id-column');
+    } else if (colIndex === 1 && activeSheetIndex > 0) {
+      // USER ID'den sonraki sütun (TCID) - sadece 2. sheet ve sonraki sheet'lerde sabit 100px genişlik
+      classes.push('tcid-column');
+    } else if (colIndex === 2 && activeSheetIndex > 0) {
+      // TCID'den sonraki sütun (Test Objective) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
+      classes.push('test-objective-column');
+    } else if (colIndex === 3 && activeSheetIndex > 0) {
+      // Test Objective'den sonraki sütun (Pre-condition) - sadece 2. sheet ve sonraki sheet'lerde sabit 150px genişlik
+      classes.push('pre-condition-column');
+    } else if (colIndex === 4 && activeSheetIndex > 0) {
+      // Pre-condition'dan sonraki sütun (No) - sadece 2. sheet ve sonraki sheet'lerde sabit 30px genişlik
+      classes.push('no-column');
+    } else if (colIndex === 5 && activeSheetIndex > 0) {
+      // No'dan sonraki sütun (Steps) - sadece 2. sheet ve sonraki sheet'lerde sabit 300px genişlik
+      classes.push('steps-column');
     } else if (colIndex === tableHeaders.length - 2) {
       classes.push('validation-column');
     } else if (colIndex === tableHeaders.length - 3) {
