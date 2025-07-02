@@ -3,9 +3,52 @@
     position: relative;
 }
 
+/* Excel header and tabs container */
+.excel-header-and-tabs-container {
+    position: sticky;
+    top: 0;
+    z-index: 18;
+    background: white;
+}
+
+/* 1. Container - Header (Sticky) */
 .excel-header-container {
-    border-radius: 12px 12px 0 0;
-    overflow: hidden; /* This is key to clip the th corners */
+    position: sticky;
+    top: 40px; /* Sheet tabs yüksekliği kadar aşağıda */
+    z-index: 15;
+    border-radius: 0 12px 0 0;
+    overflow: hidden;
+    background-color: #ECECEC;
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+}
+
+/* 2. Container - Data (Scrollable) */
+.excel-data-container {
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+}
+
+/* Data container scrollbar styling */
+.excel-data-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.excel-data-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.excel-data-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.excel-data-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 
 .excel-table {
@@ -17,16 +60,10 @@
 
 .excel-table-header {
     background-color: #ECECEC;
-    position: sticky;
-    top: 26px;
-    z-index: 5;
 }
 
 /* All header cells should hide overflow for corner radius */
 .excel-table-header tr th {
-    position: sticky;
-    top: 26px;
-    z-index: 5;
     background: #ECECEC;
 }
 

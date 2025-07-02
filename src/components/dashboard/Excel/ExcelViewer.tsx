@@ -817,7 +817,8 @@ export function ExcelViewer({
       {/* Excel Content Container */}
       <div className="flex-1 overflow-hidden px-8 pt-8 pb-8">
         <div className="h-full">
-          <div className="table-scroll-container" data-tab="backlog">
+          {/* Sheet tabs container */}
+          <div className="excel-header-and-tabs-container">
             {loading && data.length > 0 && (
               <div className="sheet-loading">
                 Loading sheet...
@@ -849,21 +850,23 @@ export function ExcelViewer({
                 ))}
               </div>
             )}
-            <BacklogTable
-              data={data}
-              tableHeaders={tableHeaders}
-              activeWorksheet={activeWorksheet}
-              isEditMode={isEditMode}
-              selectedRows={selectedRows}
-              onCheckboxToggle={handleCheckboxToggle}
-              onSelectAll={handleSelectAll}
-              editingCell={editingCell}
-              editingValue={editingValue}
-              onCellClick={handleCellClick}
-              onValueChange={setEditingValue}
-              onKeyDown={handleKeyDown}
-            />
           </div>
+          
+          {/* Backlog Table with separate header and data containers */}
+          <BacklogTable
+            data={data}
+            tableHeaders={tableHeaders}
+            activeWorksheet={activeWorksheet}
+            isEditMode={isEditMode}
+            selectedRows={selectedRows}
+            onCheckboxToggle={handleCheckboxToggle}
+            onSelectAll={handleSelectAll}
+            editingCell={editingCell}
+            editingValue={editingValue}
+            onCellClick={handleCellClick}
+            onValueChange={setEditingValue}
+            onKeyDown={handleKeyDown}
+          />
         </div>
       </div>
     </div>

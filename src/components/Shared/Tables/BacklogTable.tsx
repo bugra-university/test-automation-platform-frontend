@@ -101,102 +101,111 @@ export const BacklogTable: React.FC<BacklogTableProps> = ({
 
   return (
     <div className="backlog-table-wrapper">
-      <table className={getTableClassName()}>
-        <thead className="excel-table-header">
-          <tr>
-            <th className="row-number-column">
-              #
-            </th>
-            <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-              <input 
-                type="checkbox" 
-                className="regular-checkbox"
-                id="select-all-checkbox"
-                aria-label="Select all rows"
-                title="Select all rows"
-                checked={data.length > 0 && 
-                        Object.keys(selectedRows).length === data.length && 
-                        data.every((_, idx) => selectedRows[idx])}
-                onChange={onSelectAll}
-              />
-            </th>
-            {tableHeaders.slice(1).map((column, colIndex) => (
-              <th 
-                key={column.id}
-                scope="col"
-                className={getHeaderClassName(colIndex, column)}
-              >
-                <div className="header-content">
-                  <span>{column.label.toUpperCase()}</span>
-                </div>
+      {/* 1. Container - Header (Sticky) */}
+      <div className="excel-header-container">
+        <table className={getTableClassName()}>
+          <thead className="excel-table-header">
+            <tr>
+              <th className="row-number-column">
+                #
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="excel-table-body">
-          {data.length > 0 ? (
-          data.map((row, idx) => {
-            const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
-            return (
-              <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
-                <td className="row-number-column">
-                  {idx + 1}
-                </td>
-                <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
-                  {(() => {
-                    const mergeInfo = getMergeInfoForCell(idx, 0);
-                    const userIdValue = getMergedCellValueByIndex(idx, 0);
-                    const hasUserIdContent = userIdValue && String(userIdValue).trim() !== '';
-                    const shouldShowCheckbox = hasUserIdContent && (
-                      (mergeInfo.isMerged && mergeInfo.isMainCell) || 
-                      !mergeInfo.isMerged
-                    );
-                    
-                    return shouldShowCheckbox ? (
-                      <input 
-                        type="checkbox" 
-                        className="regular-checkbox"
-                        id={`row-checkbox-${idx}`}
-                        aria-label={`Select row ${idx + 1}`}
-                        title={`Select row ${idx + 1}`}
-                        checked={!!selectedRows[idx]} 
-                        onChange={() => onCheckboxToggle(idx)}
-                      />
-                    ) : null;
-                  })()}
-                </td>
-                {tableHeaders.slice(1).map((column, colIndex) => {
-                  const mergeInfo = getMergeInfoForCell(idx, colIndex);
-                  const cellValue = getMergedCellValueByIndex(idx, colIndex);
-                  const className = getCellClassName(colIndex);
+              <th className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
+                <input 
+                  type="checkbox" 
+                  className="regular-checkbox"
+                  id="select-all-checkbox"
+                  aria-label="Select all rows"
+                  title="Select all rows"
+                  checked={data.length > 0 && 
+                          Object.keys(selectedRows).length === data.length && 
+                          data.every((_, idx) => selectedRows[idx])}
+                  onChange={onSelectAll}
+                />
+              </th>
+              {tableHeaders.slice(1).map((column, colIndex) => (
+                <th 
+                  key={column.id}
+                  scope="col"
+                  className={getHeaderClassName(colIndex, column)}
+                >
+                  <div className="header-content">
+                    <span>{column.label.toUpperCase()}</span>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+        </table>
+      </div>
 
-                  return (
-                    <MergedCell
-                      key={`${idx}-${column.id}`}
-                      mergeInfo={mergeInfo}
-                      value={cellValue}
-                      className={className}
-                      isEditMode={isEditMode}
-                      isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
-                      editValue={editingValue}
-                      onCellClick={() => onCellClick?.(idx, column.id, cellValue)}
-                      onValueChange={onValueChange}
-                      onKeyDown={onKeyDown}
-                    />
-                  );
-                })}
-              </tr>
-            );
-          })
-        ) : (
-          <tr>
-            <td colSpan={tableHeaders.length + 1} className="text-center">
-              No data found
-            </td>
-          </tr>
-        )}
-        </tbody>
-      </table>
+      {/* 2. Container - Data (Scrollable) */}
+      <div className="excel-data-container">
+        <table className={getTableClassName()}>
+          <tbody className="excel-table-body">
+            {data.length > 0 ? (
+            data.map((row, idx) => {
+              const rowKey = `row-${idx}-${JSON.stringify(row).substring(0, 50)}`;
+              return (
+                <tr key={rowKey} className={selectedRows[idx] ? 'selected-row' : ''}>
+                  <td className="row-number-column">
+                    {idx + 1}
+                  </td>
+                  <td className={`checkbox-column ${whiteBackgroundActive ? 'white-bg' : ''}`}>
+                    {(() => {
+                      const mergeInfo = getMergeInfoForCell(idx, 0);
+                      const userIdValue = getMergedCellValueByIndex(idx, 0);
+                      const hasUserIdContent = userIdValue && String(userIdValue).trim() !== '';
+                      const shouldShowCheckbox = hasUserIdContent && (
+                        (mergeInfo.isMerged && mergeInfo.isMainCell) || 
+                        !mergeInfo.isMerged
+                      );
+                      
+                      return shouldShowCheckbox ? (
+                        <input 
+                          type="checkbox" 
+                          className="regular-checkbox"
+                          id={`row-checkbox-${idx}`}
+                          aria-label={`Select row ${idx + 1}`}
+                          title={`Select row ${idx + 1}`}
+                          checked={!!selectedRows[idx]} 
+                          onChange={() => onCheckboxToggle(idx)}
+                        />
+                      ) : null;
+                    })()}
+                  </td>
+                  {tableHeaders.slice(1).map((column, colIndex) => {
+                    const mergeInfo = getMergeInfoForCell(idx, colIndex);
+                    const cellValue = getMergedCellValueByIndex(idx, colIndex);
+                    const className = getCellClassName(colIndex);
+
+                    return (
+                      <MergedCell
+                        key={`${idx}-${column.id}`}
+                        mergeInfo={mergeInfo}
+                        value={cellValue}
+                        className={className}
+                        isEditMode={isEditMode}
+                        isEditing={editingCell?.rowIndex === idx && editingCell?.columnId === column.id}
+                        editValue={editingValue}
+                        onCellClick={() => onCellClick?.(idx, column.id, cellValue)}
+                        onValueChange={onValueChange}
+                        onKeyDown={onKeyDown}
+                      />
+                    );
+                  })}
+                </tr>
+              );
+            })
+          ) : (
+            <tr>
+              <td colSpan={tableHeaders.length + 1} className="text-center">
+                No data found
+              </td>
+            </tr>
+          )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }; 
