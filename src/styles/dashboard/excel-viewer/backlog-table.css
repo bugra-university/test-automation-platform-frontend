@@ -9,7 +9,7 @@
     position: sticky;
     top: 26px;
     background: #ECECEC;
-    z-index: 9;
+    z-index: 15;
 }
 
 /* Header corner radius - only top-right */
@@ -17,6 +17,14 @@
     border-top-right-radius: 12px;
     border-right: none !important;
     border-top: none !important;
+    overflow: hidden;
+}
+
+/* All header cells should hide overflow for corner radius */
+.excel-table-header tr th {
+    position: relative;
+    z-index: 16;
+    overflow: hidden;
 }
 
 .excel-table td, .excel-table th {
