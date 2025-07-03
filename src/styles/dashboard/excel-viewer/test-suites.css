@@ -113,6 +113,12 @@
   filter: brightness(0.98);
 }
 
+.test-suites-row.test-case:hover td {
+  border: 1px solid #e5e7eb;
+  position: relative;
+  z-index: 1;
+}
+
 /* Header cell styles */
 /* .test-suites-table th:first-child {
   border-top-left-radius: 8px;
