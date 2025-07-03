@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import * as XLSX from 'xlsx';
-import { ArrowLeft, Save, Edit, Eye, FileText } from 'lucide-react';
+import { ArrowLeft, Edit, Eye } from 'lucide-react';
 import { Button } from '../../ui/button';
 import '../../../styles/dashboard/excel-viewer/backlog-table.css';
 import '../../../styles/dashboard/excel-viewer/sheet-tabs.css';
@@ -10,8 +10,6 @@ import ProductBacklogService from '../../../api/ProductBacklogService';
 
 // Type aliases to replace union types
 type SaveStatus = 'success' | 'error' | null;
-type SortDirection = 'asc' | 'desc' | null;
-type ColumnDataType = 'number' | 'date' | 'string';
 
 
 interface ExcelViewerProps {
@@ -53,47 +51,9 @@ const DEFAULT_TABLE_HEADERS: ColumnHeader[] = [
   { id: 'notes', label: 'NOTES' },
 ];
 
-// Sort indicator component
-interface SortIndicatorProps {
-  column: string;
-  sortConfig: {
-    key: string;
-    direction: SortDirection;
-  };
-};
 
-const SortIndicator: React.FC<SortIndicatorProps> = ({ column, sortConfig }) => {
-  const isActive = sortConfig.key === column;
-  const isAsc = isActive && sortConfig.direction === 'asc';
-  const isDesc = isActive && sortConfig.direction === 'desc';
-  
-  const renderSortIcon = () => {
-    if (isAsc) {
-      return <span className="sort-arrow">↑</span>;
-    }
-    if (isDesc) {
-      return <span className="sort-arrow">↓</span>;
-    }
-    return (
-      <div className="sort-arrow-default">
-        <div className="az-icon">
-          <span className="az-letter">A</span>
-          <span className="az-letter">Z</span>
-        </div>
-        <span className="default-arrow">↑</span>
-      </div>
-    );
-  };
-  
-  return (
-    <div 
-      className={`sort-indicator-container ${isActive ? 'sort-active' : ''} ${isAsc ? 'sort-asc' : ''} ${isDesc ? 'sort-desc' : ''}`}
-      aria-hidden="true"
-    >
-      {renderSortIcon()}
-    </div>
-  );
-};
+
+
 
 export function ExcelViewer({ 
   file, 
@@ -109,11 +69,8 @@ export function ExcelViewer({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRows, setSelectedRows] = useState<{[key: number]: boolean}>({});
-  const [whiteBackgroundActive, setWhiteBackgroundActive] = useState<boolean>(false);
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: SortDirection }>({
-    key: '',
-    direction: null
-  });
+
+
   
   // Add state for sheet handling
   const [sheetNames, setSheetNames] = useState<string[]>([]);
@@ -130,12 +87,11 @@ export function ExcelViewer({
   const [editingValue, setEditingValue] = useState<string>('');  // Add state for save functionality
   const [modifiedData, setModifiedData] = useState<any[]>([]);
   // Use external lastSaveInfo if provided, otherwise use local fallback
-  const setLastSaveInfo = externalSetLastSaveInfo || (() => {});
+  const setLastSaveInfo = useMemo(() => externalSetLastSaveInfo || (() => {}), [externalSetLastSaveInfo]);
   
   // Use merged cells hook
   const {
-    getMergeInfoForCell,
-    getMergedCellValueByIndex
+    getMergeInfoForCell
   } = useMergedCells(activeWorksheet, data, tableHeaders.map(h => h.label));
     // Handle checkbox toggle
   const handleCheckboxToggle = (idx: number) => {    console.log('Toggling checkbox for row:', idx);
@@ -173,116 +129,22 @@ export function ExcelViewer({
   // Determine which cell click handler to use
   const handleCellClick = isEditMode ? handleCellEditClick : handleCellViewClick;
 
-  // Get table class name based on mode
-  const getTableClassName = () => {
-    const baseClasses = 'excel-table narrow-row-numbers';
-    return isEditMode ? `${baseClasses} edit-mode` : baseClasses;
-  };
-  // Helper function to get sort-related classes
-  const getSortClassName = (column: any) => {
-    if (sortConfig.key !== column.label) return '';
-    
-    const classes = ['sort-active'];
-    if (sortConfig.direction === 'asc') {
-      classes.push('sort-asc');
-    } else if (sortConfig.direction === 'desc') {
-      classes.push('sort-desc');
-    }
-    return classes.join(' ');
-  };
 
-  // Helper function to get column positioning classes
-  const getColumnPositionClasses = (colIndex: number) => {
-    const classes = [];
-    
-    // Add fixed width classes based on column type
-    if (colIndex === 0) {
-      classes.push('user-story-id-column');
-    } else if (colIndex === tableHeaders.length - 2) {
-      classes.push('validation-column');
-    } else {
-      // Map specific columns to their fixed widths
-      const columnLabel = tableHeaders[colIndex]?.label?.toUpperCase();
-      if (columnLabel === 'STATUS') {
-        classes.push('status-column');
-      } else if (columnLabel === 'PROGRESS') {
-        classes.push('progress-column');
-      } else if (columnLabel === 'LAST RUN') {
-        classes.push('last-run-column');
-      } else if (columnLabel === 'DURATION') {
-        classes.push('duration-column');
-      } else if (columnLabel === 'ACTIONS') {
-        classes.push('actions-column');
-      } else if (columnLabel === 'TEST OBJECTIVE') {
-        classes.push('cell-wrap-text');
-      }
-    }
-    
-    // Center align specific columns
-    if (colIndex === 0 || 
-        colIndex === tableHeaders.length - 2 || 
-        ['STATUS', 'PROGRESS', 'LAST RUN', 'DURATION', 'ACTIONS'].includes(tableHeaders[colIndex]?.label?.toUpperCase())) {
-      classes.push('cell-align-center');
-    }
-    
-    return classes;
-  };
 
-  // Helper function to get sheet-specific classes
-  const getSheetSpecificClasses = (colIndex: number) => {
-    const classes = [];
-    
-    // Text wrapping for TEST OBJECTIVE column
-    if (tableHeaders[colIndex]?.label?.toUpperCase() === 'TEST OBJECTIVE') {
-      classes.push('cell-wrap-text');
-    }
-    
-    return classes;
-  };
 
-  // Helper function to get special column classes
-  const getSpecialColumnClasses = (colIndex: number) => {
-    const classes = [];
-    
-    if (colIndex === tableHeaders.length - 2) classes.push('validation-column');
-    if (colIndex === 0) classes.push('user-story-id-column');
-    
-    return classes;
-  };
 
-  // Helper function to get header class names
-  const getHeaderClassName = (colIndex: number, column: any) => {
-    const classes = [
-      getSortClassName(column),
-      ...getColumnPositionClasses(colIndex),
-      ...getSheetSpecificClasses(colIndex),
-      ...getSpecialColumnClasses(colIndex)
-    ].filter(Boolean);
-    
-    return classes.join(' ');
-  };
 
-  // Helper function to get cell class names
-  const getCellClassName = (colIndex: number) => {
-    const classes = [
-      'content-cell',
-      ...getColumnPositionClasses(colIndex),
-      ...getSheetSpecificClasses(colIndex),
-      ...getSpecialColumnClasses(colIndex)
-    ].filter(Boolean);
-    
-    return classes.join(' ');
-  };
 
-  // Helper function to check if sorting should be disabled
-  const isSortingDisabled = (colIndex: number) => {
-    return activeSheetIndex !== 0 && colIndex === 4;
-  };
 
-  // Helper function to check if sort indicator should be shown
-  const shouldShowSortIndicator = (colIndex: number) => {
-    return !isSortingDisabled(colIndex);
-  };
+
+
+
+
+
+
+
+
+
 
   const handleCellSave = () => {
     console.log("handleCellSave called - editingCell:", editingCell, "editingValue:", editingValue);
@@ -327,7 +189,7 @@ export function ExcelViewer({
   };
 
   // Function to create modified Excel file
-  const createModifiedExcelFile = (): File => {
+  const createModifiedExcelFile = useCallback((): File => {
     console.log("createModifiedExcelFile - Creating Excel file from modifiedData:", modifiedData);
     
     // Create a new workbook
@@ -349,9 +211,9 @@ export function ExcelViewer({
     
     console.log("createModifiedExcelFile - Created file:", modifiedFile);
     return modifiedFile;
-  };
+  }, [modifiedData, file]);
   // Function to handle save changes
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = useCallback(async () => {
     console.log("handleSaveChanges called - Starting save process");
     console.log("Current modifiedData:", modifiedData);
     
@@ -396,89 +258,16 @@ export function ExcelViewer({
         timestamp: new Date(),        message: error instanceof Error ? error.message : 'Unknown error occurred'
       });
     }
-  };
-  // Handle column sorting
-  const requestSort = (key: string) => {
-    // If clicking on the same column, toggle direction
-    let direction: SortDirection = 'asc';
-    
-    if (sortConfig.key === key) {
-      if (sortConfig.direction === 'asc') {
-        direction = 'desc';
-      } else if (sortConfig.direction === 'desc') {
-        direction = null;
-      }
-    }
-    
-    // Always set the key, even when direction is null,
-    // so we can display the default A-Z icon
-    setSortConfig({ key, direction });
-  };
-  
-  // Function to determine data type of a column
-  const getColumnDataType = (key: string): ColumnDataType => {
-    // Sample first non-null value to determine type
-    const sampleValue = data.find(row => row[key] !== undefined && row[key] !== null)?.[key];
-    
-    if (sampleValue === undefined) return 'string';
-    
-    if (!isNaN(Number(sampleValue))) {
-      return 'number';
-    }
-    
-    // Check if it might be a date
-    const dateRegex = /^\d{1,4}[-/.]\d{1,2}[-/.]\d{1,4}$/;
-    if (dateRegex.test(String(sampleValue)) || !isNaN(Date.parse(String(sampleValue)))) {
-      return 'date';
-    }
-    
-    return 'string';
-  };
+  }, [file, modifiedData, setLastSaveInfo, createModifiedExcelFile]);
 
-  // Sort the data based on current sort config
-  const sortedData = useMemo(() => {
-    // Make a copy of the data to avoid mutating the original
-    let sortableData = [...data];
-    
-    // If no sort configuration or direction is null, return the original data
-    if (!sortConfig.key || sortConfig.direction === null) {
-      return sortableData;
-    }
-    
-    const key = sortConfig.key;
-    const dataType = getColumnDataType(key);
-    
-    return sortableData.sort((a, b) => {
-      // Handle undefined or null values (push them to the end)
-      if (a[key] === undefined || a[key] === null) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      if (b[key] === undefined || b[key] === null) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      
-      let comparison = 0;
-      
-      // Sort based on data type
-      if (dataType === 'number') {
-        comparison = Number(a[key]) - Number(b[key]);
-      } else if (dataType === 'date') {
-        const dateA = new Date(a[key]);
-        const dateB = new Date(b[key]);
-        comparison = dateA.getTime() - dateB.getTime();
-      } else {
-        // Default string comparison
-        comparison = String(a[key]).localeCompare(String(b[key]));
-      }
-        // Reverse if direction is descending
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
-    });
-  }, [data, sortConfig, getColumnDataType]);
+  
+
+
+
   
   // Handle select all checkboxes
   const handleSelectAll = () => {
     console.log('Select all clicked');
-    setWhiteBackgroundActive(prev => !prev); // Toggle white background
     
     // If the selectedRows count matches data length and all are true, then deselect all
     // Otherwise select all rows regardless of current state
@@ -525,11 +314,10 @@ export function ExcelViewer({
   const updateSheetState = (sheetIndex: number): void => {
     setActiveSheetIndex(sheetIndex);
     setSelectedRows({});
-    setSortConfig({ key: '', direction: null });
   };
 
   // Helper function to process worksheet data
-  const processWorksheetData = (worksheet: XLSX.WorkSheet): any[] => {
+  const processWorksheetData = useCallback((worksheet: XLSX.WorkSheet): any[] => {
     const range = worksheet['!ref'] ? XLSX.utils.decode_range(worksheet['!ref']) : null;
     
     if (!range) {
@@ -547,7 +335,7 @@ export function ExcelViewer({
       blankrows: true, 
       range: limitedRange 
     });
-  };
+  }, []);
 
   // Helper function to handle successful sheet loading
   const handleSheetLoadSuccess = (
@@ -621,15 +409,15 @@ export function ExcelViewer({
       loadNewSheetData(sheetIndex);
     }
   };  // Helper function to preload sheet data
-  const preloadSheetData = (workbook: XLSX.WorkBook, sheetName: string): { data: any[], worksheet: XLSX.WorkSheet } => {
+  const preloadSheetData = useCallback((workbook: XLSX.WorkBook, sheetName: string): { data: any[], worksheet: XLSX.WorkSheet } => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = processWorksheetData(worksheet);
     
     return { data: jsonData, worksheet };
-  };
+  }, [processWorksheetData]);
 
   // Helper function to preload multiple sheets
-  const preloadMultipleSheets = (workbook: XLSX.WorkBook, allSheetNames: string[]): {
+  const preloadMultipleSheets = useCallback((workbook: XLSX.WorkBook, allSheetNames: string[]): {
     preloadedData: {[key: string]: any[]},
     preloadedWorksheets: {[key: string]: XLSX.WorkSheet},
     extractedHeaders: {[key: string]: ColumnHeader[]}
@@ -649,10 +437,10 @@ export function ExcelViewer({
     }
 
     return { preloadedData, preloadedWorksheets, extractedHeaders };
-  };
+  }, [preloadSheetData]);
 
   // Helper function to initialize first sheet
-  const initializeFirstSheet = (
+  const initializeFirstSheet = useCallback((
     allSheetNames: string[],
     preloadedData: {[key: string]: any[]},
     preloadedWorksheets: {[key: string]: XLSX.WorkSheet},
@@ -666,11 +454,10 @@ export function ExcelViewer({
     
     setActiveSheetIndex(0);
     setSelectedRows({});
-    setSortConfig({ key: '', direction: null });
-  };
+  }, []);
 
   // Helper function to handle Excel reading success
-  const handleExcelReadSuccess = (workbook: XLSX.WorkBook): void => {
+  const handleExcelReadSuccess = useCallback((workbook: XLSX.WorkBook): void => {
     const allSheetNames = workbook.SheetNames;
     setSheetNames(allSheetNames);
 
@@ -680,7 +467,7 @@ export function ExcelViewer({
 
     initializeFirstSheet(allSheetNames, preloadedData, preloadedWorksheets, extractedHeaders);
     setLoading(false);
-  };
+  }, [preloadMultipleSheets, initializeFirstSheet]);
 
   // Excel dosyasını oku and preload first few sheets
   useEffect(() => {
@@ -714,7 +501,7 @@ export function ExcelViewer({
     };
 
     readExcel();
-  }, [file, activeTab]);
+  }, [file, activeTab, handleExcelReadSuccess]);
   // Sync modifiedData with data when data changes
   useEffect(() => {
     setModifiedData([...data]);
@@ -853,21 +640,21 @@ export function ExcelViewer({
           </div>
           
           {/* Backlog Table with separate header and data containers */}
-          <BacklogTable
-            data={data}
-            tableHeaders={tableHeaders}
-            activeWorksheet={activeWorksheet}
+            <BacklogTable
+              data={data}
+              tableHeaders={tableHeaders}
+              activeWorksheet={activeWorksheet}
             activeSheetIndex={activeSheetIndex}
-            isEditMode={isEditMode}
-            selectedRows={selectedRows}
-            onCheckboxToggle={handleCheckboxToggle}
-            onSelectAll={handleSelectAll}
-            editingCell={editingCell}
-            editingValue={editingValue}
-            onCellClick={handleCellClick}
-            onValueChange={setEditingValue}
-            onKeyDown={handleKeyDown}
-          />
+              isEditMode={isEditMode}
+              selectedRows={selectedRows}
+              onCheckboxToggle={handleCheckboxToggle}
+              onSelectAll={handleSelectAll}
+              editingCell={editingCell}
+              editingValue={editingValue}
+              onCellClick={handleCellClick}
+              onValueChange={setEditingValue}
+              onKeyDown={handleKeyDown}
+            />
         </div>
       </div>
     </div>
