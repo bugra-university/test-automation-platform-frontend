@@ -40,6 +40,22 @@
   max-width: 120px;
 }
 
+.test-suites-table th:nth-child(4),
+.test-suites-table td:nth-child(4) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+.test-suites-table th:nth-child(5),
+.test-suites-table td:nth-child(5),
+.test-suites-table th:nth-child(6),
+.test-suites-table td:nth-child(6) {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
 .test-suites-header {
   background-color: #ECECEC;
 }
