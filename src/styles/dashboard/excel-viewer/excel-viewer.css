@@ -20,21 +20,9 @@
     font-family: system-ui;
 }
 
-.excel-table-header {
-    position: sticky;
-    top: 0;
-    background: #ECECEC;
-}
-
-.excel-table td, .excel-table th {
+.excel-table td {
     border: 1px solid #e5e7eb;
     padding: 0.5rem;
-}
-
-.excel-table th {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #4B5563;
 }
 
 .excel-table-body tr:nth-child(even) { background: #F8F9FD; }
@@ -47,7 +35,6 @@
     overflow: auto;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
-    border-top-left-radius: 0;
 }
 
 .excel-header-and-tabs-container {
@@ -66,7 +53,6 @@
     align-items: center;
     padding: 0.5rem;
 }
-
 .header-cell {
     font-size: 0.75rem;
     font-weight: 600;

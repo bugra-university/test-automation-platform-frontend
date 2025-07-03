@@ -1,0 +1,302 @@
+.test-suites-wrapper {
+  position: relative;
+}
+
+.test-suites-container {
+  max-height: calc(100vh - 330px);
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  border-top-left-radius: 0;
+  padding-bottom: 20px;
+}
+
+.test-suites-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: system-ui;
+  table-layout: fixed;
+}
+
+/* Column widths */
+.test-suites-table th:first-child,
+.test-suites-table td:first-child {
+  width: 125px;
+  min-width: 125px;
+  max-width: 125px;
+}
+
+.test-suites-table th:nth-child(2),
+.test-suites-table td:nth-child(2) {
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+}
+
+.test-suites-table th:nth-child(3),
+.test-suites-table td:nth-child(3) {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+}
+
+.test-suites-header {
+  background-color: #ECECEC;
+}
+
+.test-suites-header th {
+  background-color: #ECECEC;
+  position: sticky;
+  top: -1px;
+  z-index: 2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4B5563;
+  text-transform: uppercase;
+}
+
+.test-suites-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.test-suites-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.test-suites-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.test-suites-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.test-suites-row {
+  background-color: #F8F9FD; /* User Story rows - çok açık mavi, backlog'daki gibi */
+}
+
+.test-suites-row.test-case {
+  background-color: #F5F9F5; /* Test Case rows - çok açık yeşilimsi */
+}
+
+.test-suites-row.test-step {
+  background-color: #FAFAFA; /* Test Step rows - çok açık gri */
+  font-size: 0.7rem;
+}
+
+.test-suites-row.test-step .test-suites-cell {
+  padding: 0.25rem 0.5rem;
+}
+
+/* Even rows slightly darker variations */
+.test-suites-body tr:nth-child(even).test-suites-row {
+  background-color: #F0F2F8; /* User Story even rows */
+}
+
+.test-suites-body tr:nth-child(even).test-suites-row.test-case {
+  background-color: #EDF4ED; /* Test Case even rows */
+}
+
+.test-suites-body tr:nth-child(even).test-suites-row.test-step {
+  background-color: #F5F5F5; /* Test Step even rows */
+}
+
+/* Hover effect */
+.test-suites-row:hover {
+  filter: brightness(0.98);
+}
+
+/* Header cell styles */
+/* .test-suites-table th:first-child {
+  border-top-left-radius: 8px;
+}
+
+.test-suites-table th:last-child {
+  border-top-right-radius: 8px;
+} */
+
+.test-suites-cell {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+/* Remove top border from body cells to prevent double border with header */
+.test-suites-table tbody tr:first-child td {
+  border-top: none;
+}
+
+.test-suites-cell-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Tree view indentation */
+.test-suites-row .test-suites-cell:first-child .test-suites-cell-content {
+  justify-content: flex-start;
+  padding-left: 4px;
+}
+
+.test-suites-row.test-case .test-suites-cell:first-child .test-suites-cell-content {
+  padding-left: 24px;
+}
+
+.test-suites-row.test-step .test-suites-cell:first-child .test-suites-cell-content {
+  padding-left: 58px;
+}
+
+.test-suites-cell.center {
+  text-align: center;
+}
+
+.test-suites-cell-content.center {
+  justify-content: center;
+}
+
+.test-suites-expand-button {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.test-suites-expand-button:hover {
+  background-color: #e5e7eb;
+}
+
+.test-suites-id {
+  font-size: 0.75rem;
+  color: #111827;
+}
+
+.test-suites-name {
+  font-size: 0.75rem;
+  color: #111827;
+}
+
+.test-suites-description {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.test-suites-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.test-suites-status-icon {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.test-suites-status-icon.passed {
+  background-color: #10b981;
+}
+
+.test-suites-status-icon.failed {
+  background-color: #ef4444;
+}
+
+.test-suites-status-icon.running {
+  background-color: #3b82f6;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.test-suites-status-icon.blocked {
+  background-color: #f59e0b;
+}
+
+.test-suites-status-icon.pending {
+  background-color: #9ca3af;
+}
+
+.test-suites-status-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.test-suites-status-text.passed {
+  color: #059669;
+}
+
+.test-suites-status-text.failed {
+  color: #dc2626;
+}
+
+.test-suites-status-text.running {
+  color: #2563eb;
+}
+
+.test-suites-status-text.blocked {
+  color: #d97706;
+}
+
+.test-suites-status-text.pending {
+  color: #4b5563;
+}
+
+.test-suites-progress,
+.test-suites-last-run,
+.test-suites-duration {
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.test-suites-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.test-suites-action-button {
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+}
+
+.test-suites-action-button:hover {
+  background-color: #f3f4f6;
+}
+
+.test-suites-action-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.test-suites-action-icon.run {
+  color: #059669;
+}
+
+.test-suites-action-icon.stop {
+  color: #dc2626;
+}
+
+.test-suites-action-icon.report {
+  color: #2563eb;
+}
+
+.test-suites-action-icon.edit {
+  color: #6b7280;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Even rows background */
+.test-suites-body tr:nth-child(even) {
+  background: #F8F9FD;
+} 

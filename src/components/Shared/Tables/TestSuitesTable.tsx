@@ -4,6 +4,7 @@ import { TestSuite } from '../../../api/testSuitesApi';
 import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
 import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
 import "../../../styles/dashboard/excel-viewer/backlog-table.css";
+import "../../../styles/dashboard/excel-viewer/test-suites.css";
 
 interface TestSuitesTableProps {
   testSuites: TestSuite[];
@@ -14,25 +15,7 @@ interface TestSuitesTableProps {
 
 // Helper functions
 const getStatusIcon = (status: string) => {
-  switch (status) {
-    case 'passed': return <span className="w-2 h-2 rounded-full bg-green-500"></span>;
-    case 'failed': return <span className="w-2 h-2 rounded-full bg-red-500"></span>;
-    case 'running': return <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>;
-    case 'blocked': return <span className="w-2 h-2 rounded-full bg-yellow-500"></span>;
-    case 'pending': return <span className="w-2 h-2 rounded-full bg-gray-400"></span>;
-    default: return <span className="w-2 h-2 rounded-full bg-gray-300"></span>;
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'passed': return 'text-green-600';
-    case 'failed': return 'text-red-600';
-    case 'running': return 'text-blue-600';
-    case 'blocked': return 'text-yellow-600';
-    case 'pending': return 'text-gray-600';
-    default: return 'text-gray-500';
-  }
+  return <span className={`test-suites-status-icon ${status}`}></span>;
 };
 
 const getStatusText = (status: string) => {
@@ -88,82 +71,69 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={userStory.id}>
         {/* User Story Row */}
-        <tr className="excel-table-row">
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="flex items-center justify-center space-x-2">
-                <button
-                  onClick={() => toggleExpanded(userStory.id)}
-                  className="p-1 hover:bg-gray-200 rounded"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-gray-600" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-gray-600" />
-                  )}
-                </button>
-                <span className="text-xs font-medium text-gray-900">{userStory.id}</span>
-              </div>
-            </div>
-          </td>
-          <td className="content-cell border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="text-xs text-gray-900 font-medium">{userStory.name}</div>
-              <div className="text-xs text-gray-500 mt-1 line-clamp-2">{userStory.description}</div>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="flex items-center justify-center space-x-2">
-                {getStatusIcon(userStory.status)}
-                <span className={`text-xs font-medium ${getStatusColor(userStory.status)}`}>
-                  {getStatusText(userStory.status)}
-                </span>
-              </div>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <span className="text-xs text-gray-600">{formatProgress(userStory.progress)}</span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <span className="text-xs text-gray-600">{formatLastRun(userStory.lastRun)}</span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <span className="text-xs text-gray-600">{formatDuration(userStory.duration)}</span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="flex items-center justify-center space-x-2">
-                {userStory.status === 'running' ? (
-                  <button className="p-1 hover:bg-gray-100 rounded" title="Stop">
-                    <Square className="h-3 w-3 text-red-600" />
-                  </button>
+        <tr className="test-suites-row">
+          <td className="test-suites-cell center">
+            <div className="test-suites-cell-content center">
+              <button
+                onClick={() => toggleExpanded(userStory.id)}
+                className="test-suites-expand-button"
+              >
+                {isExpanded ? (
+                  <ChevronDown className="test-suites-action-icon" />
                 ) : (
-                  <button 
-                    onClick={() => onRunTestSuite(userStory.id)}
-                    className="p-1 hover:bg-gray-100 rounded" 
-                    title="Run"
-                  >
-                    <Play className="h-3 w-3 text-green-600" />
-                  </button>
+                  <ChevronRight className="test-suites-action-icon" />
                 )}
+              </button>
+              <span className="test-suites-id">{userStory.id}</span>
+            </div>
+          </td>
+          <td className="test-suites-cell">
+            <div className="test-suites-cell-content">
+              <div className="test-suites-name">{userStory.name}</div>
+            </div>
+          </td>
+          <td className="test-suites-cell center">
+            <div className="test-suites-status">
+              {getStatusIcon(userStory.status)}
+              <span className={`test-suites-status-text ${userStory.status}`}>
+                {getStatusText(userStory.status)}
+              </span>
+            </div>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-progress">{formatProgress(userStory.progress)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-duration">{formatDuration(userStory.duration)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <div className="test-suites-actions">
+              {userStory.status === 'running' ? (
+                <button className="test-suites-action-button" title="Stop">
+                  <Square className="test-suites-action-icon stop" />
+                </button>
+              ) : (
                 <button 
-                  onClick={() => onDownloadReport(userStory.id)}
-                  className="p-1 hover:bg-gray-100 rounded" 
-                  title="Download Report"
+                  onClick={() => onRunTestSuite(userStory.id)}
+                  className="test-suites-action-button" 
+                  title="Run"
                 >
-                  <BarChart3 className="h-3 w-3 text-blue-600" />
+                  <Play className="test-suites-action-icon run" />
                 </button>
-                <button className="p-1 hover:bg-gray-100 rounded" title="Edit">
-                  <Edit className="h-3 w-3 text-gray-600" />
-                </button>
-              </div>
+              )}
+              <button 
+                onClick={() => onDownloadReport(userStory.id)}
+                className="test-suites-action-button" 
+                title="Download Report"
+              >
+                <BarChart3 className="test-suites-action-icon report" />
+              </button>
+              <button className="test-suites-action-button" title="Edit">
+                <Edit className="test-suites-action-icon edit" />
+              </button>
             </div>
           </td>
         </tr>
@@ -174,6 +144,45 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     );
   };
 
+  const renderTestStep = (step: any) => {
+    return (
+      <tr key={step.id} className="test-suites-row test-step">
+        <td className="test-suites-cell center">
+          <div className="test-suites-cell-content center">
+            <span className="test-suites-id">Step {step.stepNumber}</span>
+          </div>
+        </td>
+        <td className="test-suites-cell">
+          <div className="test-suites-cell-content">
+            <div className="test-suites-name">{step.description}</div>
+          </div>
+        </td>
+        <td className="test-suites-cell center">
+          <div className="test-suites-status">
+            {getStatusIcon(step.status)}
+            <span className={`test-suites-status-text ${step.status}`}>
+              {getStatusText(step.status)}
+            </span>
+          </div>
+        </td>
+        <td className="test-suites-cell center">
+          <span className="test-suites-progress">{formatProgress(step.progress)}</span>
+        </td>
+        <td className="test-suites-cell center">
+          <span className="test-suites-last-run">{formatLastRun(step.lastRun)}</span>
+        </td>
+        <td className="test-suites-cell center">
+          <span className="test-suites-duration">{formatDuration(step.duration)}</span>
+        </td>
+        <td className="test-suites-cell center">
+          <div className="test-suites-actions">
+            {/* Steps don't have actions */}
+          </div>
+        </td>
+      </tr>
+    );
+  };
+
   const renderTestCase = (testCase: any, parentId: string) => {
     const testCaseId = `${parentId}-${testCase.id}`;
     const isExpanded = expandedItems.has(testCaseId);
@@ -181,181 +190,88 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className="bg-gray-50 excel-table-row">
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="flex items-center justify-center space-x-2 pl-6">
-                {testCase.steps && testCase.steps.length > 0 && (
-                  <button
-                    onClick={() => toggleExpanded(testCaseId)}
-                    className="p-1 hover:bg-gray-200 rounded"
-                  >
-                    {isExpanded ? (
-                      <ChevronDown className="h-3 w-3 text-gray-600" />
-                    ) : (
-                      <ChevronRight className="h-3 w-3 text-gray-600" />
-                    )}
-                  </button>
-                )}
-                <span className="text-xs font-medium text-gray-800">{testCase.id}</span>
-              </div>
-            </div>
-          </td>
-          <td className="content-cell border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="text-xs text-gray-800">{testCase.name}</div>
-              <div className="text-xs text-gray-500 mt-1">{testCase.description}</div>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content flex items-center justify-center">
-              <div className="flex items-center space-x-2">
-                {getStatusIcon(testCase.status)}
-                <span className={`text-xs ${getStatusColor(testCase.status)}`}>
-                  {getStatusText(testCase.status)}
-                </span>
-              </div>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-xs text-gray-600">
-                {formatProgress(testCase.progress)}
-              </span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-xs text-gray-600">
-                {formatLastRun(testCase.lastRun)}
-              </span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-xs text-gray-600">
-                {formatDuration(testCase.duration)}
-              </span>
-            </div>
-          </td>
-          <td className="content-cell text-center border border-gray-200 p-2">
-            <div className="cell-content">
-              <div className="flex items-center justify-center space-x-2">
-                {testCase.status === 'running' ? (
-                  <button className="p-1 hover:bg-gray-100 rounded" title="Stop">
-                    <Square className="h-3 w-3 text-red-600" />
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => onRunTestCase(testCase.id)}
-                    className="p-1 hover:bg-gray-100 rounded" 
-                    title="Run"
-                  >
-                    <Play className="h-3 w-3 text-green-600" />
-                  </button>
-                )}
-                <button 
-                  onClick={() => onDownloadReport()}
-                  className="p-1 hover:bg-gray-100 rounded" 
-                  title="Download Report"
+        <tr className="test-suites-row test-case">
+          <td className="test-suites-cell center">
+            <div className="test-suites-cell-content center">
+              {testCase.steps && testCase.steps.length > 0 && (
+                <button
+                  onClick={() => toggleExpanded(testCaseId)}
+                  className="test-suites-expand-button"
                 >
-                  <BarChart3 className="h-3 w-3 text-blue-600" />
+                  {isExpanded ? (
+                    <ChevronDown className="test-suites-action-icon" />
+                  ) : (
+                    <ChevronRight className="test-suites-action-icon" />
+                  )}
                 </button>
-                <button className="p-1 hover:bg-gray-100 rounded" title="Edit">
-                  <Edit className="h-3 w-3 text-gray-600" />
+              )}
+              <span className="test-suites-id">{testCase.id}</span>
+            </div>
+          </td>
+          <td className="test-suites-cell">
+            <div className="test-suites-cell-content">
+              <div className="test-suites-name">{testCase.name}</div>
+            </div>
+          </td>
+          <td className="test-suites-cell center">
+            <div className="test-suites-status">
+              {getStatusIcon(testCase.status)}
+              <span className={`test-suites-status-text ${testCase.status}`}>
+                {getStatusText(testCase.status)}
+              </span>
+            </div>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-progress">{formatProgress(testCase.progress)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-last-run">{formatLastRun(testCase.lastRun)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <span className="test-suites-duration">{formatDuration(testCase.duration)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <div className="test-suites-actions">
+              {testCase.status === 'running' ? (
+                <button className="test-suites-action-button" title="Stop">
+                  <Square className="test-suites-action-icon stop" />
                 </button>
-                {/* Warning icon for incomplete test cases */}
-                {!testCase.hasSteps && (
-                  <span className="text-yellow-500" title="Test steps not defined">
-                    <AlertTriangle className="h-3 w-3" />
-                  </span>
-                )}
-              </div>
+              ) : (
+                <button 
+                  onClick={() => onRunTestCase(testCase.id)}
+                  className="test-suites-action-button"
+                  title="Run"
+                >
+                  <Play className="test-suites-action-icon run" />
+                </button>
+              )}
             </div>
           </td>
         </tr>
 
-        {/* Test Steps (when test case is expanded) */}
-        {isExpanded && testCase.steps && testCase.steps.map((step: any) => (
-          <tr key={`${testCaseId}-step-${step.id}`} className="bg-blue-50 excel-table-row">
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content">
-                <div className="flex items-center justify-center space-x-2 pl-12">
-                  <span className="text-xs font-medium text-gray-700">{step.id}</span>
-                </div>
-              </div>
-            </td>
-            <td className="content-cell border border-gray-200 p-2">
-              <div className="cell-content">
-                <div className="text-xs text-gray-700">{step.description}</div>
-              </div>
-            </td>
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content">
-                <div className="flex items-center justify-center space-x-2">
-                  {getStatusIcon(step.status)}
-                  <span className={`text-xs ${getStatusColor(step.status)}`}>
-                    {getStatusText(step.status)}
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content h-full flex items-center justify-center">
-                <span className="text-xs text-gray-500">
-                  {step.progress || '-'}
-                </span>
-              </div>
-            </td>
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content h-full flex items-center justify-center">
-                <span className="text-xs text-gray-400">-</span>
-              </div>
-            </td>
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content h-full flex items-center justify-center">
-                <span className="text-xs text-gray-400">-</span>
-              </div>
-            </td>
-            <td className="content-cell text-center border border-gray-200 p-2">
-              <div className="cell-content">
-                <div className="flex items-center justify-center space-x-1">
-                  <button className="p-1 hover:bg-gray-100 rounded" title="Run Step">
-                    <Play className="h-3 w-3 text-green-600" />
-                  </button>
-                  <button className="p-1 hover:bg-gray-100 rounded" title="Edit Step">
-                    <Edit className="h-3 w-3 text-gray-600" />
-                  </button>
-                </div>
-              </div>
-            </td>
-          </tr>
-        ))}
+        {/* Test Steps (when expanded) */}
+        {isExpanded && testCase.steps && testCase.steps.map(renderTestStep)}
       </React.Fragment>
     );
   };
 
   return (
-    <div className="backlog-table-wrapper">
-      {/* Header container */}
-      <div className="excel-header-and-tabs-container">
-        <div className="excel-table-header">
-          <div className="header-row">
-            <div className="header-cell id-column">ID</div>
-            <div className="header-cell objective-column">TEST OBJECTIVE</div>
-            <div className="header-cell status-column">STATUS</div>
-            <div className="header-cell progress-column">PROGRESS</div>
-            <div className="header-cell last-run-column">LAST RUN</div>
-            <div className="header-cell duration-column">DURATION</div>
-            <div className="header-cell actions-column">ACTIONS</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="excel-data-container">
-        <table className="excel-table">
-          <tbody className="excel-table-body">
-            {testSuites.map(userStory => renderUserStory(userStory))}
+    <div className="test-suites-wrapper">
+      <div className="test-suites-container">
+        <table className="test-suites-table">
+          <thead className="test-suites-header">
+            <tr>
+              <th className="test-suites-cell center">ID</th>
+              <th className="test-suites-cell">NAME</th>
+              <th className="test-suites-cell center">STATUS</th>
+              <th className="test-suites-cell center">PROGRESS</th>
+              <th className="test-suites-cell center">LAST RUN</th>
+              <th className="test-suites-cell center">DURATION</th>
+              <th className="test-suites-cell center">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody className="test-suites-body">
+            {testSuites.map(renderUserStory)}
           </tbody>
         </table>
       </div>
