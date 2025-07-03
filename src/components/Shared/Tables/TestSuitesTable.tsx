@@ -19,14 +19,21 @@ const getStatusIcon = (status: string) => {
 };
 
 const getStatusText = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case 'passed': return 'Passed';
     case 'failed': return 'Failed';
     case 'running': return 'Running';
     case 'blocked': return 'Blocked';
+    case 'not_finished': return 'Not Finished';
+    case 'not_run': return 'Pending';
     case 'pending': return 'Pending';
-    default: return 'Unknown';
+    default: return 'Pending';
   }
+};
+
+const getStatusClass = (status: string) => {
+  if (status.toLowerCase() === 'not_run') return 'pending';
+  return status.toLowerCase();
 };
 
 const formatProgress = (progress: any) => {
@@ -50,6 +57,62 @@ const formatDuration = (durationMs: number | null) => {
   if (!durationMs) return '-';
   const seconds = Math.round(durationMs / 1000);
   return `${seconds}s`;
+};
+
+const calculateStatus = (item: any) => {
+  // If it's a user story, check its test cases
+  if (item.testCases) {
+    const hasRunTests = item.testCases.some((tc: any) => tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed');
+    if (!hasRunTests) return 'pending';
+
+    const allTestsComplete = item.testCases.every((tc: any) => tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed');
+    if (!allTestsComplete) return 'not_finished';
+
+    const allTestsPassed = item.testCases.every((tc: any) => tc.status.toLowerCase() === 'passed');
+    return allTestsPassed ? 'passed' : 'failed';
+  }
+
+  // For test cases and steps, convert not_run to pending
+  return item.status.toLowerCase() === 'not_run' ? 'pending' : item.status.toLowerCase();
+};
+
+const StatusCell = ({ item }: { item: any }) => {
+  const status = calculateStatus(item);
+  return (
+    <div className="test-suites-status">
+      <div className={`test-suites-status-badge ${status}`}>
+        {getStatusText(status)}
+      </div>
+    </div>
+  );
+};
+
+// Helper function to determine test case status based on steps
+const calculateTestCaseStatus = (steps: any[]) => {
+  if (!steps || steps.length === 0) return 'pending';
+  
+  const hasRunSteps = steps.some(step => step.status !== 'unknown');
+  if (!hasRunSteps) return 'pending';
+  
+  const allStepsComplete = steps.every(step => step.status === 'passed' || step.status === 'failed');
+  if (!allStepsComplete) return 'not_finished';
+  
+  const allStepsPassed = steps.every(step => step.status === 'passed');
+  return allStepsPassed ? 'passed' : 'failed';
+};
+
+// Helper function to determine user story status based on test cases
+const calculateUserStoryStatus = (testCases: any[]) => {
+  if (!testCases || testCases.length === 0) return 'pending';
+  
+  const hasRunTests = testCases.some(tc => tc.status !== 'pending');
+  if (!hasRunTests) return 'pending';
+  
+  const allTestsComplete = testCases.every(tc => tc.status === 'passed' || tc.status === 'failed');
+  if (!allTestsComplete) return 'not_finished';
+  
+  const allTestsPassed = testCases.every(tc => tc.status === 'passed');
+  return allTestsPassed ? 'passed' : 'failed';
 };
 
 export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownloadReport }: TestSuitesTableProps) => {
@@ -93,12 +156,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <div className="test-suites-status">
-              {getStatusIcon(userStory.status)}
-              <span className={`test-suites-status-text ${userStory.status}`}>
-                {getStatusText(userStory.status)}
-              </span>
-            </div>
+            <StatusCell item={userStory} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-progress">{formatProgress(userStory.progress)}</span>
@@ -158,12 +216,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           </div>
         </td>
         <td className="test-suites-cell center">
-          <div className="test-suites-status">
-            {getStatusIcon(step.status)}
-            <span className={`test-suites-status-text ${step.status}`}>
-              {getStatusText(step.status)}
-            </span>
-          </div>
+          <StatusCell item={step} />
         </td>
         <td className="test-suites-cell center">
           <span className="test-suites-progress">{formatProgress(step.progress)}</span>
@@ -190,7 +243,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className="test-suites-row test-case">
+        <tr className="test-suites-row test-case" data-status={testCase.status.toLowerCase()}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
               {testCase.steps && testCase.steps.length > 0 && (
@@ -214,12 +267,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <div className="test-suites-status">
-              {getStatusIcon(testCase.status)}
-              <span className={`test-suites-status-text ${testCase.status}`}>
-                {getStatusText(testCase.status)}
-              </span>
-            </div>
+            <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-progress">{formatProgress(testCase.progress)}</span>

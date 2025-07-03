@@ -28,16 +28,16 @@
 
 .test-suites-table th:nth-child(2),
 .test-suites-table td:nth-child(2) {
-  width: 300px;
-  min-width: 300px;
-  max-width: 300px;
+  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
 }
 
 .test-suites-table th:nth-child(3),
 .test-suites-table td:nth-child(3) {
-  width: 100px;
-  min-width: 100px;
-  max-width: 100px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 
 .test-suites-header {
@@ -72,12 +72,18 @@
   background: #555;
 }
 
-.test-suites-row {
-  background-color: #F8F9FD; /* User Story rows - çok açık mavi, backlog'daki gibi */
+.test-suites-row,
+.test-suites-row.test-case,
+.test-suites-row.test-step,
+.test-suites-table tr {
+  background-color: #ffffff !important;
 }
 
-.test-suites-row.test-case {
-  background-color: #F5F9F5; /* Test Case rows - çok açık yeşilimsi */
+/* Remove any status-based background colors */
+.test-suites-row.test-case[data-status="passed"] td,
+.test-suites-row.test-case[data-status="passed"],
+.test-suites-row[data-status="passed"] {
+  background-color: #ffffff !important;
 }
 
 .test-suites-row.test-step {
@@ -188,59 +194,78 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
 }
 
-.test-suites-status-icon {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 9999px;
+.test-suites-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
-.test-suites-status-icon.passed {
+/* Status badge variations */
+.test-suites-status-badge.passed {
+  background-color: #ecfdf5;
+  color: #059669;
+}
+
+.test-suites-status-badge.failed {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.test-suites-status-badge.not_finished {
+  background-color: #fff7ed;
+  color: #c2410c;
+}
+
+.test-suites-status-badge.pending {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.test-suites-status-badge.running {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.test-suites-status-badge.blocked {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+
+.test-suites-status-badge.passed .status-icon {
   background-color: #10b981;
 }
 
-.test-suites-status-icon.failed {
+.test-suites-status-badge.failed .status-icon {
   background-color: #ef4444;
 }
 
-.test-suites-status-icon.running {
+.test-suites-status-badge.running .status-icon {
   background-color: #3b82f6;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-.test-suites-status-icon.blocked {
+.test-suites-status-badge.blocked .status-icon {
   background-color: #f59e0b;
 }
 
-.test-suites-status-icon.pending {
+.test-suites-status-badge.pending .status-icon,
+.test-suites-status-badge.unknown .status-icon {
   background-color: #9ca3af;
 }
 
-.test-suites-status-text {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.test-suites-status-text.passed {
-  color: #059669;
-}
-
-.test-suites-status-text.failed {
-  color: #dc2626;
-}
-
-.test-suites-status-text.running {
-  color: #2563eb;
-}
-
-.test-suites-status-text.blocked {
-  color: #d97706;
-}
-
-.test-suites-status-text.pending {
-  color: #4b5563;
+.test-suites-status-badge .status-icon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+  display: inline-block;
 }
 
 .test-suites-progress,
@@ -299,4 +324,12 @@
 /* Even rows background */
 .test-suites-body tr:nth-child(even) {
   background: #F8F9FD;
+}
+
+.test-suites-row.test-case .test-suites-status-badge.passed {
+  background-color: #f0fdf4;
+}
+
+.test-suites-table tr {
+  background-color: #ffffff;
 } 
