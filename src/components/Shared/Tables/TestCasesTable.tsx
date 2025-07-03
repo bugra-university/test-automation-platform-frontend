@@ -172,52 +172,11 @@ export const TestCasesTable = ({ testCases, onRunTestCase, onDownloadReport }: T
 
   return (
     <div className="table-container">
-      <div className="table-scroll-container">
-        <table className="excel-table">
-          <thead className="excel-table-header">
-            <tr>
-              <th className="text-center w-[120px]">
-                <div className="header-content">
-                  <span>ID</span>
-                </div>
-              </th>
-              <th className="w-[600px]">
-                <div className="header-content">
-                  <span>TEST CASE</span>
-                </div>
-              </th>
-              <th className="w-[120px]">
-                <div className="header-content">
-                  <span>STATUS</span>
-                </div>
-              </th>
-              <th className="w-[120px]">
-                <div className="header-content">
-                  <span>PROGRESS</span>
-                </div>
-              </th>
-              <th className="w-[140px]">
-                <div className="header-content">
-                  <span>LAST RUN</span>
-                </div>
-              </th>
-              <th className="w-[120px]">
-                <div className="header-content">
-                  <span>DURATION</span>
-                </div>
-              </th>
-              <th className="text-center w-[120px]">
-                <div className="header-content">
-                  <span>ACTIONS</span>
-                </div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="excel-table-body">
-            {testCases.map(testCase => renderTestCase(testCase))}
-          </tbody>
-        </table>
-      </div>
+      <table className="excel-table">
+        <tbody className="excel-table-body">
+          {testCases.map(testCase => renderTestCase(testCase))}
+        </tbody>
+      </table>
     </div>
   );
 }; 

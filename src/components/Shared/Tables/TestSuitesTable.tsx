@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Square, Play, BarChart3, Edit, AlertTriangle
 import { TestSuite } from '../../../api/testSuitesApi';
 import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
 import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
+import "../../../styles/dashboard/excel-viewer/backlog-table.css";
 
 interface TestSuitesTableProps {
   testSuites: TestSuite[];
@@ -87,8 +88,8 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={userStory.id}>
         {/* User Story Row */}
-        <tr>
-          <td className="content-cell text-center">
+        <tr className="excel-table-row">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
               <div className="flex items-center justify-center space-x-2">
                 <button
@@ -101,47 +102,47 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
                     <ChevronRight className="h-4 w-4 text-gray-600" />
                   )}
                 </button>
-                <span className="font-medium text-gray-900">{userStory.id}</span>
+                <span className="text-xs font-medium text-gray-900">{userStory.id}</span>
               </div>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell border border-gray-200 p-2">
             <div className="cell-content">
-              <div className="text-sm text-gray-900 font-medium">{userStory.name}</div>
+              <div className="text-xs text-gray-900 font-medium">{userStory.name}</div>
               <div className="text-xs text-gray-500 mt-1 line-clamp-2">{userStory.description}</div>
             </div>
           </td>
-          <td className="content-cell text-center">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 {getStatusIcon(userStory.status)}
-                <span className={`text-sm font-medium ${getStatusColor(userStory.status)}`}>
+                <span className={`text-xs font-medium ${getStatusColor(userStory.status)}`}>
                   {getStatusText(userStory.status)}
                 </span>
               </div>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
-              {formatProgress(userStory.progress)}
+              <span className="text-xs text-gray-600">{formatProgress(userStory.progress)}</span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
-              {formatLastRun(userStory.lastRun)}
+              <span className="text-xs text-gray-600">{formatLastRun(userStory.lastRun)}</span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
-              {formatDuration(userStory.duration)}
+              <span className="text-xs text-gray-600">{formatDuration(userStory.duration)}</span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
               <div className="flex items-center justify-center space-x-2">
                 {userStory.status === 'running' ? (
                   <button className="p-1 hover:bg-gray-100 rounded" title="Stop">
-                    <Square className="h-4 w-4 text-red-600" />
+                    <Square className="h-3 w-3 text-red-600" />
                   </button>
                 ) : (
                   <button 
@@ -149,7 +150,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
                     className="p-1 hover:bg-gray-100 rounded" 
                     title="Run"
                   >
-                    <Play className="h-4 w-4 text-green-600" />
+                    <Play className="h-3 w-3 text-green-600" />
                   </button>
                 )}
                 <button 
@@ -157,10 +158,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
                   className="p-1 hover:bg-gray-100 rounded" 
                   title="Download Report"
                 >
-                  <BarChart3 className="h-4 w-4 text-blue-600" />
+                  <BarChart3 className="h-3 w-3 text-blue-600" />
                 </button>
                 <button className="p-1 hover:bg-gray-100 rounded" title="Edit">
-                  <Edit className="h-4 w-4 text-gray-600" />
+                  <Edit className="h-3 w-3 text-gray-600" />
                 </button>
               </div>
             </div>
@@ -180,8 +181,8 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className="bg-gray-50">
-          <td className="content-cell text-center">
+        <tr className="bg-gray-50 excel-table-row">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
               <div className="flex items-center justify-center space-x-2 pl-6">
                 {testCase.steps && testCase.steps.length > 0 && (
@@ -196,48 +197,48 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
                     )}
                   </button>
                 )}
-                <span className="text-sm font-medium text-gray-800">{testCase.id}</span>
+                <span className="text-xs font-medium text-gray-800">{testCase.id}</span>
               </div>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell border border-gray-200 p-2">
             <div className="cell-content">
-              <div className="text-sm text-gray-800">{testCase.name}</div>
+              <div className="text-xs text-gray-800">{testCase.name}</div>
               <div className="text-xs text-gray-500 mt-1">{testCase.description}</div>
             </div>
           </td>
-          <td className="content-cell text-center">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content flex items-center justify-center">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(testCase.status)}
-                <span className={`text-sm ${getStatusColor(testCase.status)}`}>
+                <span className={`text-xs ${getStatusColor(testCase.status)}`}>
                   {getStatusText(testCase.status)}
                 </span>
               </div>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-gray-600">
                 {formatProgress(testCase.progress)}
               </span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-gray-600">
                 {formatLastRun(testCase.lastRun)}
               </span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content h-full flex items-center justify-center">
-              <span className="text-sm text-gray-600">
+              <span className="text-xs text-gray-600">
                 {formatDuration(testCase.duration)}
               </span>
             </div>
           </td>
-          <td className="content-cell">
+          <td className="content-cell text-center border border-gray-200 p-2">
             <div className="cell-content">
               <div className="flex items-center justify-center space-x-2">
                 {testCase.status === 'running' ? (
@@ -276,22 +277,22 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
 
         {/* Test Steps (when test case is expanded) */}
         {isExpanded && testCase.steps && testCase.steps.map((step: any) => (
-          <tr key={`${testCaseId}-step-${step.id}`} className="bg-blue-50">
-            <td className="content-cell text-center">
+          <tr key={`${testCaseId}-step-${step.id}`} className="bg-blue-50 excel-table-row">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content">
                 <div className="flex items-center justify-center space-x-2 pl-12">
                   <span className="text-xs font-medium text-gray-700">{step.id}</span>
                 </div>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell border border-gray-200 p-2">
               <div className="cell-content">
                 <div className="text-xs text-gray-700">{step.description}</div>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center space-x-2">
                   {getStatusIcon(step.status)}
                   <span className={`text-xs ${getStatusColor(step.status)}`}>
                     {getStatusText(step.status)}
@@ -299,24 +300,24 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
                 </div>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-500">
                   {step.progress || '-'}
                 </span>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-400">-</span>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content h-full flex items-center justify-center">
                 <span className="text-xs text-gray-400">-</span>
               </div>
             </td>
-            <td className="content-cell">
+            <td className="content-cell text-center border border-gray-200 p-2">
               <div className="cell-content">
                 <div className="flex items-center justify-center space-x-1">
                   <button className="p-1 hover:bg-gray-100 rounded" title="Run Step">
@@ -335,49 +336,29 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
   };
 
   return (
-    <table className="excel-table">
-        <thead className="excel-table-header">
-          <tr>
-            <th className="text-center w-[120px]">
-              <div className="header-content">
-                <span>ID</span>
-              </div>
-            </th>
-            <th className="w-[600px]">
-              <div className="header-content">
-                <span>TEST OBJECTIVE</span>
-              </div>
-            </th>
-            <th className="w-[120px]">
-              <div className="header-content">
-                <span>STATUS</span>
-              </div>
-            </th>
-            <th className="w-[120px]">
-              <div className="header-content">
-                <span>PROGRESS</span>
-              </div>
-            </th>
-            <th className="w-[140px]">
-              <div className="header-content">
-                <span>LAST RUN</span>
-              </div>
-            </th>
-            <th className="w-[120px]">
-              <div className="header-content">
-                <span>DURATION</span>
-              </div>
-            </th>
-            <th className="text-center w-[120px]">
-              <div className="header-content">
-                <span>ACTIONS</span>
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody className="excel-table-body">
-          {testSuites.map(userStory => renderUserStory(userStory))}
-        </tbody>
-      </table>
+    <div className="backlog-table-wrapper">
+      {/* Header container */}
+      <div className="excel-header-and-tabs-container">
+        <div className="excel-table-header">
+          <div className="header-row">
+            <div className="header-cell id-column">ID</div>
+            <div className="header-cell objective-column">TEST OBJECTIVE</div>
+            <div className="header-cell status-column">STATUS</div>
+            <div className="header-cell progress-column">PROGRESS</div>
+            <div className="header-cell last-run-column">LAST RUN</div>
+            <div className="header-cell duration-column">DURATION</div>
+            <div className="header-cell actions-column">ACTIONS</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="excel-data-container">
+        <table className="excel-table">
+          <tbody className="excel-table-body">
+            {testSuites.map(userStory => renderUserStory(userStory))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }; 

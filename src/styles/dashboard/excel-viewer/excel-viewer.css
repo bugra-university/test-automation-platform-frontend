@@ -4,7 +4,8 @@
 .table-container {
     background: white;
     padding: 1rem;
- 
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
 }
 
 .table-scroll-container {
@@ -40,3 +41,63 @@
 .excel-table-body tr:hover { background: #FFF0DA; }
 
 .selected-row { background: #F0F4FF !important; }
+
+.excel-data-container {
+    max-height: calc(100vh - 350px);
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    border-top-left-radius: 0;
+}
+
+.excel-header-and-tabs-container {
+    position: sticky;
+    top: 0;
+    z-index: 18;
+    background: white;
+}
+
+.excel-table-header {
+    background-color: #ECECEC;
+}
+
+.excel-table-header .header-row {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.header-cell {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4B5563;
+    text-align: center;
+}
+
+.header-cell.id-column {
+    width: 120px;
+}
+
+.header-cell.objective-column {
+    width: 600px;
+}
+
+.header-cell.status-column {
+    width: 120px;
+}
+
+.header-cell.progress-column {
+    width: 120px;
+}
+
+.header-cell.last-run-column {
+    width: 140px;
+}
+
+.header-cell.duration-column {
+    width: 120px;
+}
+
+.header-cell.actions-column {
+    width: 120px;
+}
