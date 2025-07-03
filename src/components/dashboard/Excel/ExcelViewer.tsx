@@ -579,8 +579,11 @@ export function ExcelViewer({
             Back to Upload
           </Button>
           <Button 
-            variant="outline"
-            className={isEditMode ? "" : "inline-flex items-center px-4 py-2 text-sm font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-[150px]"}
+            className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 w-[150px] ${
+              isEditMode 
+                ? 'bg-orange-100 text-orange-700 hover:bg-orange-200 hover:text-orange-700 border border-orange-300' 
+                : 'bg-blue-600 text-white hover:bg-blue-700 hover:text-white border border-blue-600'
+            }`}
             onClick={() => setIsEditMode?.(!isEditMode)}
           >
             {isEditMode ? (
