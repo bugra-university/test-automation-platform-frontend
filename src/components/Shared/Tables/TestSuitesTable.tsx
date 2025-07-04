@@ -67,7 +67,10 @@ const calculateUserStorySuccess = (item: any) => {
 
 // Simple status cell component
 const StatusCell = ({ item }: { item: any }) => {
-  const status = item.status?.toLowerCase() || 'pending';
+  const status = item.status?.toLowerCase() || 'not_run';
+  
+  // Common styles for Not Run state
+  const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
   
   // For User Stories, show success rate
   const userStorySuccess = calculateUserStorySuccess(item);
@@ -76,8 +79,8 @@ const StatusCell = ({ item }: { item: any }) => {
     if (executed === 0) {
       return (
         <div className="test-suites-status">
-          <div className="flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium bg-gray-300 text-gray-700">
-            Not Started
+          <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+            Not Run
           </div>
         </div>
       );
@@ -85,7 +88,7 @@ const StatusCell = ({ item }: { item: any }) => {
 
     return (
       <div className="test-suites-status">
-        <div className={`flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium
+        <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium min-w-[100px] justify-center
           ${successRate === 100 ? 'bg-green-500 text-white' : 
             successRate === 0 ? 'bg-red-500 text-white' : 
             'bg-yellow-400 text-white'}`}
@@ -97,21 +100,29 @@ const StatusCell = ({ item }: { item: any }) => {
   }
 
   // For individual test cases, show status
+  type StatusType = 'passed' | 'failed' | 'running' | 'not_run' | 'pending' | 'no_data';
+  
+  const statusConfig: Record<StatusType, { bg: string; text: string; textColor: string }> = {
+    passed: { bg: 'bg-green-500', text: 'Passed', textColor: 'text-white' },
+    failed: { bg: 'bg-red-500', text: 'Failed', textColor: 'text-white' },
+    running: { bg: 'bg-blue-400', text: 'Running', textColor: 'text-white' },
+    not_run: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' },
+    pending: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' },
+    no_data: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' }
+  };
+
+  const config = statusConfig[status as StatusType] || statusConfig.not_run;
+
   return (
     <div className="test-suites-status">
-      <div className={`flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium
-        ${status === 'passed' ? 'bg-green-500 text-white' : 
-          status === 'failed' ? 'bg-red-500 text-white' : 
-          status === 'running' ? 'bg-blue-400 text-white' : 
-          'bg-gray-300 text-gray-700'}`}
-      >
+      <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium min-w-[100px] justify-center ${config.bg} ${config.textColor}`}>
         {status === 'running' ? (
           <span className="flex items-center">
             <span className="loading loading-spinner loading-xs mr-2"></span>
-            Running
+            {config.text}
           </span>
         ) : (
-          getStatusText(status)
+          config.text
         )}
       </div>
     </div>
@@ -142,20 +153,23 @@ const calculateUserStoryProgress = (item: any): { executed: number; total: numbe
 
 // Simple progress component
 const ProgressBar = ({ item }: { item: any }) => {
-  const status = item.status?.toLowerCase() || 'pending';
+  const status = item.status?.toLowerCase() || 'not_run';
+  
+  // Common styles for Not Run state
+  const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
   
   // For User Stories, show execution progress
   const userStoryProgress = calculateUserStoryProgress(item);
   if (userStoryProgress) {
     return (
       <div className="progress-container">
-        <div className="relative w-full h-6 bg-gray-100 rounded-full overflow-hidden">
+        <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
           <div 
             className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-blue-400"
             style={{ width: `${userStoryProgress.percentage}%` }}
           />
           <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-            <span className="text-gray-700 px-2">
+            <span className={`${userStoryProgress.percentage > 50 ? 'text-white' : 'text-slate-600'} px-2`}>
               {`${userStoryProgress.percentage}% Executed`}
             </span>
           </div>
@@ -167,24 +181,39 @@ const ProgressBar = ({ item }: { item: any }) => {
   // For individual test cases, show pass/fail status
   const progress = status === 'running' ? 50 : (status === 'passed' || status === 'failed') ? 100 : 0;
   
+  type ProgressStatusType = 'passed' | 'failed' | 'running' | 'not_run' | 'pending' | 'no_data';
+  
+  const progressConfig: Record<ProgressStatusType, { bg: string; text: string; textColor: string }> = {
+    passed: { bg: 'bg-green-500', text: '100% Done', textColor: 'text-white' },
+    failed: { bg: 'bg-red-500', text: '100% Done', textColor: 'text-white' },
+    running: { bg: 'bg-blue-400', text: 'In Progress', textColor: 'text-white' },
+    not_run: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' },
+    pending: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' },
+    no_data: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' }
+  };
+
+  const config = progressConfig[status as ProgressStatusType] || progressConfig.not_run;
+  
   return (
     <div className="progress-container">
-      <div className="relative w-full h-6 bg-gray-100 rounded-full overflow-hidden">
-        <div 
-          className={`absolute top-0 left-0 h-full transition-all duration-300 rounded-full
-            ${status === 'passed' ? 'bg-green-500' : 
-              status === 'failed' ? 'bg-red-500' : 
-              status === 'running' ? 'bg-blue-400' : 
-              'bg-gray-300'}`}
-          style={{ width: `${progress}%` }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-          <span className={`${status === 'failed' || status === 'passed' ? 'text-white' : 'text-gray-700'} px-2`}>
-            {status === 'running' ? 'In Progress' : 
-             (status === 'passed' || status === 'failed') ? '100% Done' :
-             '0% Done'}
-          </span>
-        </div>
+      <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
+        {status === 'not_run' ? (
+          <div className={`flex items-center h-full text-xs font-medium ${notRunStyles}`}>
+            Not Run
+          </div>
+        ) : (
+          <>
+            <div 
+              className={`absolute top-0 left-0 h-full transition-all duration-300 rounded-full ${config.bg}`}
+              style={{ width: `${progress}%` }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
+              <span className={`${progress > 50 ? 'text-white' : config.textColor} px-2 min-w-[100px] text-center`}>
+                {config.text}
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -666,6 +695,10 @@ export const TestSuitesTable = ({
     const isExpanded = expandedIds.has(testCaseId);
     const progress = calculateTestCaseProgress(testCase);
     const isRunning = runningTests?.has(testCase.id);
+    const status = testCase.status?.toLowerCase() || 'not_run';
+    
+    // Common styles for Not Run state
+    const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
     
     // Determine progress type based on test case status or steps
     let progressType: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed' = 'pending';
@@ -694,7 +727,7 @@ export const TestSuitesTable = ({
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className={`test-suites-row test-case ${isRunning ? 'running' : ''}`} data-status={testCase.status?.toLowerCase() || 'pending'}>
+        <tr className={`test-suites-row test-case ${isRunning ? 'running' : ''}`}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
               {testCase.steps && testCase.steps.length > 0 && (
@@ -724,14 +757,26 @@ export const TestSuitesTable = ({
             <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">
-              {isRunning ? 'Running...' : formatLastRun(testCase.lastRun)}
-            </span>
+            {status === 'not_run' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                Not Run
+              </div>
+            ) : (
+              <span className="test-suites-last-run text-gray-600 min-w-[100px] flex justify-center">
+                {isRunning ? 'Running...' : formatLastRun(testCase.lastRun)}
+              </span>
+            )}
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">
-              {isRunning ? 'In Progress' : formatDuration(testCase.duration)}
-            </span>
+            {status === 'not_run' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                Not Run
+              </div>
+            ) : (
+              <span className="test-suites-duration text-gray-600 min-w-[100px] flex justify-center">
+                {isRunning ? 'In Progress' : formatDuration(testCase.duration)}
+              </span>
+            )}
           </td>
           <td className="test-suites-cell center">
             <ProgressBar item={testCase} />
