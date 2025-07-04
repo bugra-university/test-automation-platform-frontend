@@ -162,6 +162,37 @@ const calculateUserStoryStatus = (testCases: any[]) => {
   return allTestsPassed ? 'passed' : 'failed';
 };
 
+// Add new progress calculation functions
+const calculateUserStoryProgress = (userStory: any) => {
+  if (!userStory.testCases || userStory.testCases.length === 0) return 0;
+  
+  const completedTests = userStory.testCases.filter((tc: any) => 
+    tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed'
+  ).length;
+  
+  return (completedTests / userStory.testCases.length) * 100;
+};
+
+const calculateTestCaseProgress = (testCase: any) => {
+  const status = testCase.status.toLowerCase();
+  return (status === 'passed' || status === 'failed') ? 100 : 0;
+};
+
+// Add ProgressBar component
+const ProgressBar = ({ progress, type }: { progress: number, type: 'passed' | 'not_finished' | 'pending' }) => {
+  return (
+    <div className="test-suites-progress-bar-container">
+      <div 
+        className={`test-suites-progress-bar ${type}`}
+        style={{ width: `${progress}%` }}
+      />
+      <div className="test-suites-progress-text">
+        {Math.round(progress)}%
+      </div>
+    </div>
+  );
+};
+
 export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownloadReport }: TestSuitesTableProps) => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
@@ -177,6 +208,8 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
 
   const renderUserStory = (userStory: any) => {
     const isExpanded = expandedItems.has(userStory.id);
+    const progress = calculateUserStoryProgress(userStory);
+    const progressType = progress === 100 ? 'passed' : progress > 0 ? 'not_finished' : 'pending';
     
     return (
       <React.Fragment key={userStory.id}>
@@ -203,16 +236,19 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={userStory} />
+            <span className="test-suites-progress">{formatProgress(userStory.progress, userStory, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(userStory.progress, userStory, testSuites)}</span>
+            <StatusCell item={userStory} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">{formatLastRun(userStory.lastRun, userStory)}</span>
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-duration">{formatDuration(userStory.duration, userStory)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <ProgressBar progress={progress} type={progressType} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -286,6 +322,8 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
   const renderTestCase = (testCase: any, parentId: string) => {
     const testCaseId = `${parentId}-${testCase.id}`;
     const isExpanded = expandedItems.has(testCaseId);
+    const progress = calculateTestCaseProgress(testCase);
+    const progressType = progress === 100 ? 'passed' : 'pending';
     
     return (
       <React.Fragment key={testCaseId}>
@@ -314,16 +352,19 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={testCase} />
+            <span className="test-suites-progress">{formatProgress(testCase.progress, testCase, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(testCase.progress, testCase, testSuites)}</span>
+            <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">{formatLastRun(testCase.lastRun, testCase)}</span>
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-duration">{formatDuration(testCase.duration, testCase)}</span>
+          </td>
+          <td className="test-suites-cell center">
+            <ProgressBar progress={progress} type={progressType} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -358,10 +399,11 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <tr>
               <th className="test-suites-cell center">ID</th>
               <th className="test-suites-cell">NAME</th>
-              <th className="test-suites-cell center">STATUS</th>
               <th className="test-suites-cell center">TOTAL CASES</th>
+              <th className="test-suites-cell center">STATUS</th>
               <th className="test-suites-cell center">LAST RUN</th>
               <th className="test-suites-cell center">DURATION</th>
+              <th className="test-suites-cell center">PROGRESS</th>
               <th className="test-suites-cell center">ACTIONS</th>
             </tr>
           </thead>
