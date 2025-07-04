@@ -21,9 +21,9 @@
 /* Column widths */
 .test-suites-table th:first-child,
 .test-suites-table td:first-child {
-  width: 125px;
-  min-width: 125px;
-  max-width: 125px;
+  width: 110px;
+  min-width: 110px;
+  max-width: 110px;
 }
 
 .test-suites-table th:nth-child(2),
@@ -35,9 +35,9 @@
 
 .test-suites-table th:nth-child(3),
 .test-suites-table td:nth-child(3) {
-  width: 100px;
-  min-width: 100px;
-  max-width: 100px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 
 .test-suites-table th:nth-child(4),
@@ -212,11 +212,7 @@
   overflow: hidden;
 }
 
-.test-suites-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+
 
 .test-suites-status-badge {
   display: inline-flex;
@@ -367,13 +363,6 @@
   overflow: hidden;
   justify-content: center;
   align-items: center;
-}
-
-.test-suites-progress-bar-container .test-suites-status {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
 }
 
 .test-suites-progress-bar {

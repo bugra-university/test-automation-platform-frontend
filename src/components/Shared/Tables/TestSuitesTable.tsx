@@ -110,7 +110,7 @@ const calculateUserStoryExecutionStatus = (item: any) => {
 const StatusCell = ({ item }: { item: any }) => {
   // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
+  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
   
   // For User Stories, show success rate
   const userStorySuccess = calculateUserStorySuccess(item);
@@ -210,7 +210,7 @@ const calculateUserStoryProgress = (item: any) => {
 const ProgressBar = ({ item }: { item: any }) => {
   // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
+  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
   
   // For User Stories, show execution progress
   const userStoryProgress = calculateUserStoryProgress(item);
@@ -218,28 +218,18 @@ const ProgressBar = ({ item }: { item: any }) => {
     // Check if user story has any data
     if (!hasUserStoryData(item)) {
       return (
-        <div className="progress-container">
-          <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
-            <div className={`flex items-center h-full text-xs font-medium ${noDataStyles}`}>
-              No Data
-            </div>
+        <div className="test-suites-status">
+          <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+            No Data
           </div>
         </div>
       );
     }
 
     return (
-      <div className="progress-container">
-        <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
-          <div 
-            className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-blue-400"
-            style={{ width: `${userStoryProgress.percentage}%` }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-            <span className={`${userStoryProgress.percentage > 50 ? 'text-white' : 'text-slate-600'} px-2`}>
-              {`${userStoryProgress.percentage}% Executed`}
-            </span>
-          </div>
+      <div className="test-suites-status">
+        <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-blue-400 text-white min-w-[100px] justify-center">
+          {`${userStoryProgress.percentage}% Executed`}
         </div>
       </div>
     );
@@ -251,11 +241,9 @@ const ProgressBar = ({ item }: { item: any }) => {
   
   if (!hasData) {
     return (
-      <div className="progress-container">
-        <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
-          <div className={`flex items-center h-full text-xs font-medium ${noDataStyles}`}>
-            No Data
-          </div>
+      <div className="test-suites-status">
+        <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+          No Data
         </div>
       </div>
     );
@@ -277,25 +265,9 @@ const ProgressBar = ({ item }: { item: any }) => {
   const config = progressConfig[hasData ? (status as ProgressStatusType) : 'no_data'] || progressConfig.no_data;
   
   return (
-    <div className="progress-container">
-      <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
-        {!hasData || status === 'no_data' ? (
-          <div className={`flex items-center h-full text-xs font-medium ${config.bg} ${config.textColor}`}>
-            {config.text}
-          </div>
-        ) : (
-          <>
-            <div 
-              className={`absolute top-0 left-0 h-full transition-all duration-300 rounded-full ${config.bg}`}
-              style={{ width: `${progress}%` }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
-              <span className={`${progress > 50 ? 'text-white' : config.textColor} px-2 min-w-[100px] text-center`}>
-                {config.text}
-              </span>
-            </div>
-          </>
-        )}
+    <div className="test-suites-status">
+      <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${config.bg} ${config.textColor} min-w-[100px] justify-center`}>
+        {config.text}
       </div>
     </div>
   );
@@ -494,7 +466,7 @@ const formatTotalCases = (item: any) => {
     if (!item.testCases || item.testCases.length === 0) {
       return (
         <div className="test-suites-status">
-          <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-200 text-slate-700 min-w-[100px] justify-center">
+          <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-200 text-slate-700 min-w-[80px] justify-center">
             No Data
           </div>
         </div>
@@ -650,7 +622,7 @@ export const TestSuitesTable = ({
     
     // Common styles
     const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
+    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
     const notFinishedStyles = 'bg-yellow-400 text-white min-w-[100px] justify-center';
     
     // Get last run and duration
@@ -688,16 +660,22 @@ export const TestSuitesTable = ({
           </td>
           <td className="test-suites-cell center">
             {executionStatus === 'no_data' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
-                No Data
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                  No Data
+                </div>
               </div>
             ) : executionStatus === 'not_run' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
-                Not Run
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                  Not Run
+                </div>
               </div>
             ) : executionStatus === 'not_finished' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
-                Not Finished
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
+                  Not Finished
+                </div>
               </div>
             ) : (
               <span className="test-suites-last-run text-gray-600 min-w-[100px] flex justify-center">
@@ -707,16 +685,22 @@ export const TestSuitesTable = ({
           </td>
           <td className="test-suites-cell center">
             {executionStatus === 'no_data' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
-                No Data
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                  No Data
+                </div>
               </div>
             ) : executionStatus === 'not_run' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
-                Not Run
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                  Not Run
+                </div>
               </div>
             ) : executionStatus === 'not_finished' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
-                Not Finished
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
+                  Not Finished
+                </div>
               </div>
             ) : (
               <span className="test-suites-duration text-gray-600 min-w-[100px] flex justify-center">
@@ -823,7 +807,7 @@ export const TestSuitesTable = ({
     
     // Common styles
     const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
+    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
     
     // Find parent user story for progress calculation
     const parentUserStory = testSuites.find(us => us.id === parentId);
@@ -863,12 +847,16 @@ export const TestSuitesTable = ({
           </td>
           <td className="test-suites-cell center">
             {!hasData ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
-                No Data
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                  No Data
+                </div>
               </div>
             ) : status === 'not_run' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
-                Not Run
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                  Not Run
+                </div>
               </div>
             ) : (
               <span className="test-suites-last-run text-gray-600 min-w-[100px] flex justify-center">
@@ -878,12 +866,16 @@ export const TestSuitesTable = ({
           </td>
           <td className="test-suites-cell center">
             {!hasData ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
-                No Data
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                  No Data
+                </div>
               </div>
             ) : status === 'not_run' ? (
-              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
-                Not Run
+              <div className="test-suites-status">
+                <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                  Not Run
+                </div>
               </div>
             ) : (
               <span className="test-suites-duration text-gray-600 min-w-[100px] flex justify-center">
