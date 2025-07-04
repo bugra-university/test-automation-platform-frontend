@@ -36,9 +36,26 @@ const getStatusClass = (status: string) => {
   return status.toLowerCase();
 };
 
-const formatProgress = (progress: any) => {
+const formatProgress = (progress: any, item: any, testSuites: any[]) => {
   if (!progress || typeof progress !== 'object') return '-';
-  return `${progress.completed || 0}/${progress.total || 0}`;
+  
+  // For test cases, show position out of total parent cases
+  if (item.id && item.id.startsWith('TC')) {
+    // Extract TC number from id (e.g., "TC01" -> 1)
+    const tcNumber = parseInt(item.id.replace('TC', ''));
+    
+    // Find parent user story to get total test cases
+    const userStory = testSuites.find(us => 
+      us.testCases && us.testCases.some((tc: any) => tc.id === item.id)
+    );
+    
+    if (tcNumber && userStory?.progress?.total) {
+      return `${tcNumber}/${userStory.progress.total}`;
+    }
+  }
+  
+  // For user stories, just show total
+  return `${progress.total || 0}`;
 };
 
 const formatLastRun = (lastRun: string | null) => {
@@ -159,7 +176,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <StatusCell item={userStory} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(userStory.progress)}</span>
+            <span className="test-suites-progress">{formatProgress(userStory.progress, userStory, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">{formatLastRun(userStory.lastRun)}</span>
@@ -219,7 +236,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           <StatusCell item={step} />
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-progress">{formatProgress(step.progress)}</span>
+          <span className="test-suites-progress">{formatProgress(step.progress, step, testSuites)}</span>
         </td>
         <td className="test-suites-cell center">
           <span className="test-suites-last-run">{formatLastRun(step.lastRun)}</span>
@@ -270,7 +287,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(testCase.progress)}</span>
+            <span className="test-suites-progress">{formatProgress(testCase.progress, testCase, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">{formatLastRun(testCase.lastRun)}</span>
@@ -312,7 +329,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
               <th className="test-suites-cell center">ID</th>
               <th className="test-suites-cell">NAME</th>
               <th className="test-suites-cell center">STATUS</th>
-              <th className="test-suites-cell center">PROGRESS</th>
+              <th className="test-suites-cell center">TOTAL CASES</th>
               <th className="test-suites-cell center">LAST RUN</th>
               <th className="test-suites-cell center">DURATION</th>
               <th className="test-suites-cell center">ACTIONS</th>
