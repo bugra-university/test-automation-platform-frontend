@@ -496,10 +496,10 @@ const formatTotalCases = (item: any) => {
   if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_')) {
     if (!item.testCases || item.testCases.length === 0) {
       return (
-        <div className="test-suites-status">
-                  <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70">
-          No Data
-        </div>
+                <div className="test-suites-status">
+          <div className="flex items-center h-5 px-2 rounded-full text-xs font-medium bg-slate-50 text-slate-400 min-w-[50px] justify-center opacity-70">
+            No Data
+          </div>
         </div>
       );
     }

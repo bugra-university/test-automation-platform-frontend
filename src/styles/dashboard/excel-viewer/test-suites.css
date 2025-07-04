@@ -35,9 +35,9 @@
 
 .test-suites-table th:nth-child(3),
 .test-suites-table td:nth-child(3) {
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
+  width: 90px;
+  min-width: 90px;
+  max-width: 90px;
 }
 
 .test-suites-table th:nth-child(4),
@@ -194,12 +194,15 @@
 
 .test-suites-id {
   font-size: 0.75rem;
-  color: #111827;
+  font-weight: 600;
+  color: #4B5563;
+  text-transform: uppercase;
 }
 
 .test-suites-name {
   font-size: 0.75rem;
-  color: #111827;
+  font-weight: 600;
+  color: #4B5563;
 }
 
 .test-suites-description {
