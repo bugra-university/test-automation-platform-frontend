@@ -26,7 +26,7 @@ const getStatusText = (status: string) => {
     'running': 'Running',
     'pending': 'Pending'
   };
-  return statusMap[status.toLowerCase()] || 'Pending';
+  return statusMap[status] || 'Pending';
 };
 
 const getStatusClass = (status: string) => {
@@ -39,30 +39,92 @@ const StatusCell = ({ item }: { item: any }) => {
   
   return (
     <div className="test-suites-status">
-      <div className={`test-suites-status-badge ${status}`}>
+      <div className={`flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium
+        ${status === 'passed' ? 'bg-green-500 text-white' : 
+          status === 'failed' ? 'bg-red-500 text-white' : 
+          status === 'running' ? 'bg-blue-400 text-white' : 
+          'bg-gray-300 text-gray-700'}`}
+      >
         {status === 'running' ? (
-          <span className="loading loading-spinner loading-sm"></span>
+          <span className="flex items-center">
+            <span className="loading loading-spinner loading-xs mr-2"></span>
+            Running
+          </span>
         ) : (
-          getStatusIcon(status)
+          getStatusText(status)
         )}
-        {getStatusText(status)}
       </div>
     </div>
   );
 };
 
+// Calculate progress for User Story
+const calculateUserStoryProgress = (item: any): { executed: number; total: number; percentage: number; } | null => {
+  // If it's not a User Story, return null
+  if (!item?.id?.startsWith('US_') || !item.testCases) {
+    return null;
+  }
+
+  const totalTests = item.testCases.length;
+  if (totalTests === 0) return null;
+
+  // Count tests that have been run (have a status)
+  const executedTests = item.testCases.filter((tc: any) => 
+    tc.status && ['passed', 'failed', 'running'].includes(tc.status.toLowerCase())
+  ).length;
+
+  return {
+    executed: executedTests,
+    total: totalTests,
+    percentage: Math.round((executedTests / totalTests) * 100)
+  };
+};
+
 // Simple progress component
 const ProgressBar = ({ item }: { item: any }) => {
   const status = item.status?.toLowerCase() || 'pending';
+  
+  // For User Stories, show execution progress
+  const userStoryProgress = calculateUserStoryProgress(item);
+  if (userStoryProgress) {
+    return (
+      <div className="progress-container">
+        <div className="relative w-full h-6 bg-gray-100 rounded-full overflow-hidden">
+          <div 
+            className="absolute top-0 left-0 h-full transition-all duration-300 rounded-full bg-blue-400"
+            style={{ width: `${userStoryProgress.percentage}%` }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
+            <span className="text-gray-700 px-2">
+              {`${userStoryProgress.percentage}% Executed`}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // For individual test cases, show pass/fail status
   const progress = status === 'running' ? 50 : (status === 'passed' || status === 'failed') ? 100 : 0;
   
   return (
     <div className="progress-container">
-      <div 
-        className={`progress-bar ${status}`}
-        style={{ width: `${progress}%` }}
-      >
-        {status === 'running' ? 'In Progress' : `${progress}% ${status === 'passed' ? 'Passed' : status === 'failed' ? 'Failed' : 'Pending'}`}
+      <div className="relative w-full h-6 bg-gray-100 rounded-full overflow-hidden">
+        <div 
+          className={`absolute top-0 left-0 h-full transition-all duration-300 rounded-full
+            ${status === 'passed' ? 'bg-green-500' : 
+              status === 'failed' ? 'bg-red-500' : 
+              status === 'running' ? 'bg-blue-400' : 
+              'bg-gray-300'}`}
+          style={{ width: `${progress}%` }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
+          <span className={`${status === 'failed' || status === 'passed' ? 'text-white' : 'text-gray-700'} px-2`}>
+            {status === 'running' ? 'In Progress' : 
+             (status === 'passed' || status === 'failed') ? '100% Done' :
+             '0% Done'}
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -197,16 +259,6 @@ const calculateStatus = (item: any, runningTests?: Set<string>) => {
 };
 
 // Add new progress calculation functions
-const calculateUserStoryProgress = (userStory: any) => {
-  if (!userStory.testCases || userStory.testCases.length === 0) return 0;
-  
-  const completedTests = userStory.testCases.filter((tc: any) => 
-    tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed')
-  ).length;
-  
-  return (completedTests / userStory.testCases.length) * 100;
-};
-
 const calculateTestCaseProgress = (testCase: any) => {
   if (!testCase.status && (!testCase.steps || testCase.steps.length === 0)) return 0;
   
@@ -419,7 +471,9 @@ export const TestSuitesTable = ({
   const renderUserStory = (userStory: any) => {
     const isExpanded = expandedIds.has(userStory.id);
     const progress = calculateUserStoryProgress(userStory);
-    const progressType = progress === 100 ? 'passed' : progress > 0 ? 'not_finished' : 'pending';
+    const progressType = progress?.percentage === 100 ? 'passed' : 
+                        progress?.percentage && progress.percentage > 0 ? 'not_finished' : 
+                        'pending';
     
     return (
       <React.Fragment key={userStory.id}>
