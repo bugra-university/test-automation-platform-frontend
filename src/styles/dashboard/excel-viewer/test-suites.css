@@ -231,8 +231,9 @@
 
 /* Status badge variations */
 .test-suites-status-badge.passed {
-  background-color: #ecfdf5;
-  color: #059669;
+  background-color: #ecfdf5;  /* Light green background */
+  color: #059669;            /* Green text */
+  border: 1px solid #a7f3d0; /* Light green border */
 }
 
 .test-suites-status-badge.failed {
@@ -241,8 +242,9 @@
 }
 
 .test-suites-status-badge.not_finished {
-  background-color: #fff7ed;
-  color: #c2410c;
+  background-color: #eff6ff;  /* Light blue background */
+  color: #2563eb;            /* Blue text */
+  border: 1px solid #bfdbfe; /* Light blue border */
 }
 
 .test-suites-status-badge.pending {

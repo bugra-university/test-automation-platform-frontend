@@ -58,7 +58,22 @@ const formatProgress = (progress: any, item: any, testSuites: any[]) => {
   return `${progress.total || 0}`;
 };
 
-const formatLastRun = (lastRun: string | null) => {
+const formatLastRun = (lastRun: string | null, item: any) => {
+  // For user stories with some completed test cases but not all
+  if (item.id?.startsWith('US_') && item.testCases) {
+    const hasCompletedTests = item.testCases.some((tc: any) => tc.lastRun);
+    const allTestsComplete = item.testCases.every((tc: any) => tc.lastRun);
+    if (hasCompletedTests && !allTestsComplete) {
+      return (
+        <div className="test-suites-status">
+          <div className="test-suites-status-badge not_finished">
+            Not Finished
+          </div>
+        </div>
+      );
+    }
+  }
+  
   if (!lastRun) return 'Never';
   const date = new Date(lastRun);
   return date.toLocaleString('tr-TR', {
@@ -70,7 +85,22 @@ const formatLastRun = (lastRun: string | null) => {
   });
 };
 
-const formatDuration = (durationMs: number | null) => {
+const formatDuration = (durationMs: number | null, item: any) => {
+  // For user stories with some completed test cases but not all
+  if (item.id?.startsWith('US_') && item.testCases) {
+    const hasCompletedTests = item.testCases.some((tc: any) => tc.duration);
+    const allTestsComplete = item.testCases.every((tc: any) => tc.duration);
+    if (hasCompletedTests && !allTestsComplete) {
+      return (
+        <div className="test-suites-status">
+          <div className="test-suites-status-badge not_finished">
+            Not Finished
+          </div>
+        </div>
+      );
+    }
+  }
+
   if (!durationMs) return '-';
   const seconds = Math.round(durationMs / 1000);
   return `${seconds}s`;
@@ -179,10 +209,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <span className="test-suites-progress">{formatProgress(userStory.progress, userStory, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun)}</span>
+            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun, userStory)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">{formatDuration(userStory.duration)}</span>
+            <span className="test-suites-duration">{formatDuration(userStory.duration, userStory)}</span>
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -239,10 +269,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           <span className="test-suites-progress">{formatProgress(step.progress, step, testSuites)}</span>
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-last-run">{formatLastRun(step.lastRun)}</span>
+          <span className="test-suites-last-run">{formatLastRun(step.lastRun, step)}</span>
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-duration">{formatDuration(step.duration)}</span>
+          <span className="test-suites-duration">{formatDuration(step.duration, step)}</span>
         </td>
         <td className="test-suites-cell center">
           <div className="test-suites-actions">
@@ -290,10 +320,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <span className="test-suites-progress">{formatProgress(testCase.progress, testCase, testSuites)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">{formatLastRun(testCase.lastRun)}</span>
+            <span className="test-suites-last-run">{formatLastRun(testCase.lastRun, testCase)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">{formatDuration(testCase.duration)}</span>
+            <span className="test-suites-duration">{formatDuration(testCase.duration, testCase)}</span>
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
