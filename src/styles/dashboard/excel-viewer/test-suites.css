@@ -193,16 +193,44 @@
 }
 
 .test-suites-id {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: #4B5563;
   text-transform: uppercase;
 }
 
-.test-suites-name {
+/* Test Case ID'leri (alt seviye) - biraz daha küçük */
+.test-suites-row.test-case .test-suites-id {
   font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+/* Test Step ID'leri (en alt seviye) - en küçük */
+.test-suites-row.test-step .test-suites-id {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: #9CA3AF;
+}
+
+.test-suites-name {
+  font-size: 0.8rem;
   font-weight: 600;
   color: #4B5563;
+}
+
+/* Test Case NAME'leri (alt seviye) - biraz daha küçük */
+.test-suites-row.test-case .test-suites-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+/* Test Step NAME'leri (en alt seviye) - en küçük */
+.test-suites-row.test-step .test-suites-name {
+  font-size: 0.68rem;
+  font-weight: 400;
+  color: #9CA3AF;
 }
 
 .test-suites-description {
