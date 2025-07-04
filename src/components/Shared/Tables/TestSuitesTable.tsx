@@ -14,28 +14,85 @@ interface TestSuitesTableProps {
   runningTests?: Set<string>;
 }
 
-// Helper functions
+// Simple status helpers
 const getStatusIcon = (status: string) => {
-  return <span className={`test-suites-status-icon ${status}`}></span>;
+  return <span className={`test-suites-status-icon ${status.toLowerCase()}`}></span>;
 };
 
 const getStatusText = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'passed': return 'Passed';
-    case 'failed': return 'Failed';
-    case 'running': return 'Running';
-    case 'blocked': return 'Blocked';
-    case 'not_finished': return 'Not Finished';
-    case 'not_run': return 'Pending';
-    case 'pending': return 'Pending';
-    case 'no_data': return 'No Data';
-    default: return 'Pending';
-  }
+  const statusMap: { [key: string]: string } = {
+    'passed': 'Passed',
+    'failed': 'Failed',
+    'running': 'Running',
+    'pending': 'Pending'
+  };
+  return statusMap[status.toLowerCase()] || 'Pending';
 };
 
 const getStatusClass = (status: string) => {
-  if (status.toLowerCase() === 'not_run') return 'pending';
   return status.toLowerCase();
+};
+
+// Simple status cell component
+const StatusCell = ({ item }: { item: any }) => {
+  const status = item.status?.toLowerCase() || 'pending';
+  
+  return (
+    <div className="test-suites-status">
+      <div className={`test-suites-status-badge ${status}`}>
+        {status === 'running' ? (
+          <span className="loading loading-spinner loading-sm"></span>
+        ) : (
+          getStatusIcon(status)
+        )}
+        {getStatusText(status)}
+      </div>
+    </div>
+  );
+};
+
+// Simple progress component
+const ProgressBar = ({ item }: { item: any }) => {
+  const status = item.status?.toLowerCase() || 'pending';
+  const progress = status === 'running' ? 50 : (status === 'passed' || status === 'failed') ? 100 : 0;
+  
+  return (
+    <div className="progress-container">
+      <div 
+        className={`progress-bar ${status}`}
+        style={{ width: `${progress}%` }}
+      >
+        {status === 'running' ? 'In Progress' : `${progress}% ${status === 'passed' ? 'Passed' : status === 'failed' ? 'Failed' : 'Pending'}`}
+      </div>
+    </div>
+  );
+};
+
+// Simple formatters
+const formatLastRun = (lastRun: string | null) => {
+  if (!lastRun) return (
+    <div className="test-suites-status">
+      <div className="test-suites-status-badge pending">
+        Not Run
+      </div>
+    </div>
+  );
+
+  const date = new Date(lastRun);
+  return date.toLocaleString();
+};
+
+const formatDuration = (durationMs: number | null) => {
+  if (!durationMs) return (
+    <div className="test-suites-status">
+      <div className="test-suites-status-badge pending">
+        No Data
+      </div>
+    </div>
+  );
+
+  const seconds = Math.round(durationMs / 1000);
+  return `${seconds}s`;
 };
 
 const formatProgress = (progress: any, item: any, testSuites: any[]) => {
@@ -61,183 +118,82 @@ const formatProgress = (progress: any, item: any, testSuites: any[]) => {
   return `${progress.total || 0}`;
 };
 
-const formatLastRun = (lastRun: string | null, item: any) => {
-  // For user stories with some completed test cases but not all
-  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && item.testCases) {
-    const hasCompletedTests = item.testCases.some((tc: any) => tc.lastRun);
-    const allTestsComplete = item.testCases.every((tc: any) => tc.lastRun);
-    if (hasCompletedTests && !allTestsComplete) {
-      return (
-        <div className="test-suites-status">
-          <div className="test-suites-status-badge not_finished">
-            Not Finished
-          </div>
-        </div>
-      );
-    }
-  }
-
-  // Check if it's a user story with no test cases data
-  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
-    return (
-      <div className="test-suites-status">
-        <div className="test-suites-status-badge no_data">
-          No Data
-        </div>
-      </div>
-    );
-  }
-  
-  if (!lastRun) {
-    return (
-      <div className="test-suites-status">
-        <div className="test-suites-status-badge pending">
-          Pending
-        </div>
-      </div>
-    );
-  }
-
-  const date = new Date(lastRun);
-  return date.toLocaleString('tr-TR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
-
-const formatDuration = (durationMs: number | null, item: any) => {
-  // For user stories with some completed test cases but not all
-  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && item.testCases) {
-    const hasCompletedTests = item.testCases.some((tc: any) => tc.duration);
-    const allTestsComplete = item.testCases.every((tc: any) => tc.duration);
-    if (hasCompletedTests && !allTestsComplete) {
-      return (
-        <div className="test-suites-status">
-          <div className="test-suites-status-badge not_finished">
-            Not Finished
-          </div>
-        </div>
-      );
-    }
-  }
-
-  // Check if it's a user story with no test cases data
-  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
-    return (
-      <div className="test-suites-status">
-        <div className="test-suites-status-badge no_data">
-          No Data
-        </div>
-      </div>
-    );
-  }
-
-  if (!durationMs) {
-    return (
-      <div className="test-suites-status">
-        <div className="test-suites-status-badge pending">
-          Pending
-        </div>
-      </div>
-    );
-  }
-
-  const seconds = Math.round(durationMs / 1000);
-  return `${seconds}s`;
-};
-
 const calculateStatus = (item: any, runningTests?: Set<string>) => {
-  // Check if test is currently running
+  // 1. Önce test çalışıyor mu kontrol et
   if (runningTests?.has(item.id)) {
     return 'running';
   }
 
-  // If it's a user story, check its test cases
-  if (item?.testCases) {
-    // Check if no test cases data
-    if (item.testCases.length === 0) return 'no_data';
-    
-    // Check if any test cases are running
+  // 2. Backend'den gelen test durumunu kontrol et
+  if (item?.status) {
+    const status = item.status.toLowerCase();
+    // Backend'den gelen durumu frontend'in anladığı formata çevir
+    switch (status) {
+      case 'completed':
+      case 'pass':
+      case 'passed':
+        return 'passed';
+      case 'failed':
+      case 'fail':
+        return 'failed';
+      case 'running':
+        return 'running';
+      case 'not_run':
+      case 'pending':
+        return 'pending';
+      default:
+        // Bilinmeyen durumlar için pending
+        return 'pending';
+    }
+  }
+
+  // 3. User Story ise test case'lerin durumlarına bak
+  if (item?.testCases && item.testCases.length > 0) {
     const hasRunningTests = item.testCases.some((tc: any) => runningTests?.has(tc.id));
     if (hasRunningTests) return 'running';
-    
-    const hasRunTests = item.testCases.some((tc: any) => tc.status && tc.status.toLowerCase() === 'passed' || tc.status && tc.status.toLowerCase() === 'failed');
-    if (!hasRunTests) return 'pending';
 
-    const allTestsComplete = item.testCases.every((tc: any) => tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed'));
+    const hasCompletedTests = item.testCases.some((tc: any) => 
+      tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed' || 
+                   tc.status.toLowerCase() === 'completed' || tc.status.toLowerCase() === 'pass' ||
+                   tc.status.toLowerCase() === 'fail'));
+
+    if (!hasCompletedTests) return 'pending';
+
+    const allTestsComplete = item.testCases.every((tc: any) => 
+      tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed' ||
+                   tc.status.toLowerCase() === 'completed' || tc.status.toLowerCase() === 'pass' ||
+                   tc.status.toLowerCase() === 'fail'));
+
     if (!allTestsComplete) return 'not_finished';
 
-    const allTestsPassed = item.testCases.every((tc: any) => tc.status && tc.status.toLowerCase() === 'passed');
+    const allTestsPassed = item.testCases.every((tc: any) => 
+      tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'completed' || 
+                   tc.status.toLowerCase() === 'pass'));
+
     return allTestsPassed ? 'passed' : 'failed';
   }
 
-  // If it's a test case with steps, calculate status based on steps
+  // 4. Test Case ise ve step'leri varsa
   if (item?.steps && item.steps.length > 0) {
-    const hasRunSteps = item.steps.some((step: any) => step.status && (step.status === 'passed' || step.status === 'failed'));
+    // Step'lerin durumunu sadece test case'in kendi durumu yoksa kontrol et
+    const hasRunSteps = item.steps.some((step: any) => 
+      step.status && (step.status.toLowerCase() === 'passed' || step.status.toLowerCase() === 'failed'));
+    
     if (!hasRunSteps) return 'pending';
 
-    const allStepsComplete = item.steps.every((step: any) => step.status && (step.status === 'passed' || step.status === 'failed'));
+    const allStepsComplete = item.steps.every((step: any) => 
+      step.status && (step.status.toLowerCase() === 'passed' || step.status.toLowerCase() === 'failed'));
+    
     if (!allStepsComplete) return 'not_finished';
 
-    const allStepsPassed = item.steps.every((step: any) => step.status === 'passed');
+    const allStepsPassed = item.steps.every((step: any) => 
+      step.status && step.status.toLowerCase() === 'passed');
+    
     return allStepsPassed ? 'passed' : 'failed';
   }
 
-  // For test cases and steps, convert not_run to pending
-  if (item?.status) {
-    return item.status.toLowerCase() === 'not_run' ? 'pending' : item.status.toLowerCase();
-  }
-  
+  // 5. Hiçbir durum belirtilmemişse pending
   return 'pending';
-};
-
-const StatusCell = ({ item, runningTests }: { item: any, runningTests?: Set<string> }) => {
-  const status = calculateStatus(item, runningTests);
-  return (
-    <div className="test-suites-status">
-      <div className={`test-suites-status-badge ${status}`}>
-        {status === 'running' ? (
-          <div className="flex items-center">
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
-            Running
-          </div>
-        ) : (
-          getStatusText(status)
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Helper function to determine test case status based on steps
-const calculateTestCaseStatus = (steps: any[]) => {
-  if (!steps || steps.length === 0) return 'pending';
-  
-  const hasRunSteps = steps.some(step => step.status !== 'unknown');
-  if (!hasRunSteps) return 'pending';
-  
-  const allStepsComplete = steps.every(step => step.status === 'passed' || step.status === 'failed');
-  if (!allStepsComplete) return 'not_finished';
-  
-  const allStepsPassed = steps.every(step => step.status === 'passed');
-  return allStepsPassed ? 'passed' : 'failed';
-};
-
-// Helper function to determine user story status based on test cases
-const calculateUserStoryStatus = (testCases: any[]) => {
-  if (!testCases || testCases.length === 0) return 'pending';
-  
-  const hasRunTests = testCases.some(tc => tc.status !== 'pending');
-  if (!hasRunTests) return 'pending';
-  
-  const allTestsComplete = testCases.every(tc => tc.status === 'passed' || tc.status === 'failed');
-  if (!allTestsComplete) return 'not_finished';
-  
-  const allTestsPassed = testCases.every(tc => tc.status === 'passed');
-  return allTestsPassed ? 'passed' : 'failed';
 };
 
 // Add new progress calculation functions
@@ -326,46 +282,6 @@ const formatTotalCases = (item: any) => {
   return '-';
 };
 
-// Add ProgressBar component
-const ProgressBar = ({ progress, type, item }: { progress: number, type: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed', item?: any }) => {
-  // If it's a user story with no test cases data
-  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
-    return (
-      <div className="test-suites-progress-bar-container">
-        <div className="test-suites-status">
-          <div className="test-suites-status-badge no_data">
-            No Data
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const roundedProgress = Math.round(progress);
-  return (
-    <div className="test-suites-progress-bar-container">
-      <div 
-        className={`test-suites-progress-bar ${type}`}
-        style={{ width: type === 'pending' ? '100%' : `${roundedProgress}%` }}
-      >
-        <div className="test-suites-progress-text">
-          {roundedProgress}% {type.charAt(0).toUpperCase() + type.slice(1)}
-        </div>
-      </div>
-      {type !== 'pending' && roundedProgress < 100 && (
-        <div 
-          className="test-suites-progress-bar pending"
-          style={{ width: `${100 - roundedProgress}%` }}
-        >
-          <div className="test-suites-progress-text">
-            Pending
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // New function to format test case progress (step position)
 const formatTestCaseProgress = (testCase: any, parentUserStory: any) => {
   if (!testCase?.id || !parentUserStory?.testCases) return '-';
@@ -386,6 +302,54 @@ const formatStepProgress = (step: any, testCase: any) => {
   if (!step?.stepNumber || !testCase?.steps) return '-';
   
   return `${step.stepNumber}/${testCase.steps.length}`;
+};
+
+const calculateProgress = (item: any) => {
+  // Önce status'u al
+  const status = calculateStatus(item);
+  
+  // Eğer test failed ise, progress da failed olmalı
+  if (status === 'failed') {
+    return {
+      type: 'failed',
+      progress: 100,
+      text: '100% Failed'
+    };
+  }
+  
+  // Eğer test passed ise
+  if (status === 'passed') {
+    return {
+      type: 'passed',
+      progress: 100,
+      text: '100% Passed'
+    };
+  }
+  
+  // Eğer test running ise
+  if (status === 'running') {
+    // Step'lere göre ilerleme hesapla
+    if (item?.steps) {
+      const totalSteps = item.steps.length;
+      const completedSteps = item.steps.filter((step: any) => 
+        step.status === 'passed' || step.status === 'failed'
+      ).length;
+      
+      const progress = Math.round((completedSteps / totalSteps) * 100);
+      return {
+        type: 'running',
+        progress: progress,
+        text: `${progress}% Complete`
+      };
+    }
+  }
+  
+  // Diğer durumlar için (pending, not_finished)
+  return {
+    type: 'pending',
+    progress: 0,
+    text: 'Pending'
+  };
 };
 
 export const TestSuitesTable = ({ 
@@ -485,16 +449,16 @@ export const TestSuitesTable = ({
             {formatTotalCases(userStory)}
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={userStory} runningTests={runningTests} />
+            <StatusCell item={userStory} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun, userStory)}</span>
+            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun)}</span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">{formatDuration(userStory.duration, userStory)}</span>
+            <span className="test-suites-duration">{formatDuration(userStory.duration)}</span>
           </td>
           <td className="test-suites-cell center">
-            <ProgressBar progress={progress} type={progressType} item={userStory} />
+            <ProgressBar item={userStory} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -551,16 +515,16 @@ export const TestSuitesTable = ({
           <span className="test-suites-progress">{formatStepProgress(step, testCase)}</span>
         </td>
         <td className="test-suites-cell center">
-          <StatusCell item={step} runningTests={runningTests} />
+          <StatusCell item={step} />
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-last-run">{formatLastRun(step.lastRun, step)}</span>
+          <span className="test-suites-last-run">{formatLastRun(step.lastRun)}</span>
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-duration">{formatDuration(step.duration, step)}</span>
+          <span className="test-suites-duration">{formatDuration(step.duration)}</span>
         </td>
         <td className="test-suites-cell center">
-          <ProgressBar progress={stepProgress} type={stepProgressType} item={step} />
+          <ProgressBar item={step} />
         </td>
         <td className="test-suites-cell center">
           <div className="test-suites-actions">
@@ -643,20 +607,20 @@ export const TestSuitesTable = ({
             <span className="test-suites-progress">{formatTestCaseProgress(testCase, parentUserStory)}</span>
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={testCase} runningTests={runningTests} />
+            <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">
-              {isRunning ? 'Running...' : formatLastRun(testCase.lastRun, testCase)}
+              {isRunning ? 'Running...' : formatLastRun(testCase.lastRun)}
             </span>
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-duration">
-              {isRunning ? 'In Progress' : formatDuration(testCase.duration, testCase)}
+              {isRunning ? 'In Progress' : formatDuration(testCase.duration)}
             </span>
           </td>
           <td className="test-suites-cell center">
-            <ProgressBar progress={progress} type={progressType} item={testCase} />
+            <ProgressBar item={testCase} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
