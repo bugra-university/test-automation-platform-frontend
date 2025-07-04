@@ -110,7 +110,7 @@ const calculateUserStoryExecutionStatus = (item: any) => {
 const StatusCell = ({ item }: { item: any }) => {
   // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
+  const noDataStyles = 'bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70';
   
   // For User Stories, show success rate
   const userStorySuccess = calculateUserStorySuccess(item);
@@ -210,7 +210,7 @@ const calculateUserStoryProgress = (item: any) => {
 const ProgressBar = ({ item }: { item: any }) => {
   // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
+  const noDataStyles = 'bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70';
   
   // For User Stories, show execution progress
   const userStoryProgress = calculateUserStoryProgress(item);
@@ -228,8 +228,16 @@ const ProgressBar = ({ item }: { item: any }) => {
 
     return (
       <div className="test-suites-status">
-        <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-blue-400 text-white min-w-[100px] justify-center">
-          {`${userStoryProgress.percentage}% Executed`}
+        <div className="relative w-full h-6 bg-slate-200 rounded-full overflow-hidden min-w-[100px]">
+          <div 
+            className="absolute top-0 left-0 h-full bg-blue-400 rounded-full transition-all duration-300"
+            style={{ width: `${userStoryProgress.percentage}%` }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
+            <span className={`${userStoryProgress.percentage > 50 ? 'text-white' : 'text-slate-600'} px-2`}>
+              {`${userStoryProgress.percentage}% Executed`}
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -264,6 +272,29 @@ const ProgressBar = ({ item }: { item: any }) => {
 
   const config = progressConfig[hasData ? (status as ProgressStatusType) : 'no_data'] || progressConfig.no_data;
   
+  // For progress bars (passed, failed, running)
+  if (hasData && (status === 'passed' || status === 'failed' || status === 'running')) {
+    const progressPercentage = progress;
+    const bgColor = status === 'passed' ? 'bg-green-500' : status === 'failed' ? 'bg-red-500' : 'bg-blue-400';
+    
+    return (
+      <div className="test-suites-status">
+        <div className="relative w-full h-6 bg-slate-200 rounded-full overflow-hidden min-w-[100px]">
+          <div 
+            className={`absolute top-0 left-0 h-full ${bgColor} rounded-full transition-all duration-300`}
+            style={{ width: `${progressPercentage}%` }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center text-xs font-medium">
+            <span className={`${progressPercentage > 50 ? 'text-white' : 'text-slate-600'} px-2`}>
+              {config.text}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // For simple badges (no data, not run, etc.)
   return (
     <div className="test-suites-status">
       <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${config.bg} ${config.textColor} min-w-[100px] justify-center`}>
@@ -466,9 +497,9 @@ const formatTotalCases = (item: any) => {
     if (!item.testCases || item.testCases.length === 0) {
       return (
         <div className="test-suites-status">
-          <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-200 text-slate-700 min-w-[80px] justify-center">
-            No Data
-          </div>
+                  <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70">
+          No Data
+        </div>
         </div>
       );
     }
@@ -622,7 +653,7 @@ export const TestSuitesTable = ({
     
     // Common styles
     const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
+    const noDataStyles = 'bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70';
     const notFinishedStyles = 'bg-yellow-400 text-white min-w-[100px] justify-center';
     
     // Get last run and duration
@@ -807,7 +838,7 @@ export const TestSuitesTable = ({
     
     // Common styles
     const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[80px] justify-center';
+    const noDataStyles = 'bg-slate-50 text-slate-400 min-w-[80px] justify-center opacity-70';
     
     // Find parent user story for progress calculation
     const parentUserStory = testSuites.find(us => us.id === parentId);
