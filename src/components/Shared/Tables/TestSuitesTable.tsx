@@ -74,7 +74,16 @@ const formatLastRun = (lastRun: string | null, item: any) => {
     }
   }
   
-  if (!lastRun) return 'Never';
+  if (!lastRun) {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge pending">
+          Pending
+        </div>
+      </div>
+    );
+  }
+
   const date = new Date(lastRun);
   return date.toLocaleString('tr-TR', {
     year: 'numeric',
@@ -101,7 +110,16 @@ const formatDuration = (durationMs: number | null, item: any) => {
     }
   }
 
-  if (!durationMs) return '-';
+  if (!durationMs) {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge pending">
+          Pending
+        </div>
+      </div>
+    );
+  }
+
   const seconds = Math.round(durationMs / 1000);
   return `${seconds}s`;
 };
@@ -180,15 +198,27 @@ const calculateTestCaseProgress = (testCase: any) => {
 
 // Add ProgressBar component
 const ProgressBar = ({ progress, type }: { progress: number, type: 'passed' | 'not_finished' | 'pending' }) => {
+  const roundedProgress = Math.round(progress);
   return (
     <div className="test-suites-progress-bar-container">
       <div 
         className={`test-suites-progress-bar ${type}`}
-        style={{ width: `${progress}%` }}
-      />
-      <div className="test-suites-progress-text">
-        {Math.round(progress)}%
+        style={{ width: type === 'pending' ? '100%' : `${roundedProgress}%` }}
+      >
+        <div className="test-suites-progress-text">
+          {roundedProgress}% {type.charAt(0).toUpperCase() + type.slice(1)}
+        </div>
       </div>
+      {type !== 'pending' && roundedProgress < 100 && (
+        <div 
+          className="test-suites-progress-bar pending"
+          style={{ width: `${100 - roundedProgress}%` }}
+        >
+          <div className="test-suites-progress-text">
+            Pending
+          </div>
+        </div>
+      )}
     </div>
   );
 };
