@@ -494,7 +494,7 @@ const formatTotalCases = (item: any) => {
     if (!item.testCases || item.testCases.length === 0) {
       return (
         <div className="test-suites-status">
-          <div className="test-suites-status-badge no_data">
+          <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-200 text-slate-700 min-w-[100px] justify-center">
             No Data
           </div>
         </div>
