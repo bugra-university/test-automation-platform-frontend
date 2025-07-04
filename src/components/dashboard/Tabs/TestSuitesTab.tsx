@@ -20,6 +20,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
   const [testSuites, setTestSuites] = useState<TestSuite[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [runningTests, setRunningTests] = useState<Set<string>>(new Set());
 
   const loadTestSuites = async (projectId: number) => {
     try {
@@ -39,21 +40,115 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
     }
   };
 
+  // Set up SSE connection for real-time updates
+  useEffect(() => {
+    if (!selectedProjectId) return;
+
+    const eventSource = new EventSource(`/api/projects/${selectedProjectId}/events`);
+    
+    const handleTestComplete = async (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received test completion event:', data);
+        
+        // Remove from running tests
+        if (data.testCaseId) {
+          setRunningTests(prev => {
+            const next = new Set(prev);
+            next.delete(data.testCaseId);
+            return next;
+          });
+        }
+        
+        // Refresh test suites data
+        await loadTestSuites(selectedProjectId);
+      } catch (error) {
+        console.error('Error handling test completion event:', error);
+      }
+    };
+
+    eventSource.addEventListener('test_case_completed', handleTestComplete);
+    eventSource.addEventListener('test_suite_completed', handleTestComplete);
+
+    return () => {
+      eventSource.removeEventListener('test_case_completed', handleTestComplete);
+      eventSource.removeEventListener('test_suite_completed', handleTestComplete);
+      eventSource.close();
+    };
+  }, [selectedProjectId]);
+
   useEffect(() => {
     if (selectedProjectId) {
       loadTestSuites(selectedProjectId);
     }
   }, [selectedProjectId]);
 
+  const pollTestStatus = async (projectId: number, testCaseId: string) => {
+    let attempts = 0;
+    const maxAttempts = 60; // 2 minutes with 2-second intervals
+    
+    const poll = async () => {
+      try {
+        const response = await testSuitesApi.getLatestTestRuns(projectId);
+        const testRuns = response.testRuns || [];
+        
+        // Find test run for this test case
+        const relevantRun = testRuns.find((run: any) => {
+          const params = run.parameters || {};
+          return params.testCaseId === testCaseId;
+        });
+
+        if (relevantRun) {
+          if (relevantRun.status === 'COMPLETED' || relevantRun.status === 'FAILED') {
+            // Test finished - refresh data and stop polling
+            await loadTestSuites(projectId);
+            setRunningTests(prev => {
+              const next = new Set(prev);
+              next.delete(testCaseId);
+              return next;
+            });
+            return;
+          }
+        }
+
+        // Continue polling if not complete and not exceeded max attempts
+        if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(poll, 2000);
+        }
+      } catch (error) {
+        console.error('Error polling test status:', error);
+      }
+    };
+
+    // Start polling
+    poll();
+  };
+
   const handleRunTestSuite = async (userStoryId: string) => {
     if (!selectedProjectId) return;
     
     try {
       const response = await testSuitesApi.runTestSuite(selectedProjectId, userStoryId, testConfig);
-      if (!response.success) {
+      if (response.success) {
+        // Mark all test cases in this suite as running
+        const userStory = testSuites.find(us => us.id === userStoryId);
+        if (userStory?.testCases) {
+          const testCaseIds = userStory.testCases.map(tc => tc.id);
+          setRunningTests(prev => {
+            const next = new Set(prev);
+            testCaseIds.forEach(id => next.add(id));
+            return next;
+          });
+          
+          // Start polling for each test case
+          testCaseIds.forEach(id => {
+            pollTestStatus(selectedProjectId, id);
+          });
+        }
+      } else {
         console.error('Failed to start test suite execution');
       }
-      // Execution status will be updated via SSE
     } catch (err) {
       console.error('Error running test suite:', err);
     }
@@ -64,10 +159,19 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
     
     try {
       const response = await testSuitesApi.runTestCase(selectedProjectId, testCaseId, testConfig);
-      if (!response.success) {
+      if (response.success) {
+        // Mark test case as running
+        setRunningTests(prev => {
+          const next = new Set(prev);
+          next.add(testCaseId);
+          return next;
+        });
+        
+        // Start polling for status
+        pollTestStatus(selectedProjectId, testCaseId);
+      } else {
         console.error('Failed to start test case execution');
       }
-      // Execution status will be updated via SSE
     } catch (err) {
       console.error('Error running test case:', err);
     }
@@ -144,6 +248,7 @@ export function TestSuitesTab({ selectedProjectId, testConfig }: TestSuitesTabPr
               onRunTestSuite={handleRunTestSuite}
               onRunTestCase={handleRunTestCase}
               onDownloadReport={handleDownloadReport}
+              runningTests={runningTests}
             />
           )}
         </div>

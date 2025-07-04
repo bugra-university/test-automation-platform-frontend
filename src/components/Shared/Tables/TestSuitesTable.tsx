@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Square, Play, BarChart3, Edit, AlertTriangle } from 'lucide-react';
-import { TestSuite } from '../../../api/testSuitesApi';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronRight, Square, Play, BarChart3, Edit, AlertTriangle, Loader } from 'lucide-react';
+import { TestSuite, testSuitesApi } from '../../../api/testSuitesApi';
 import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
 import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
 import "../../../styles/dashboard/excel-viewer/backlog-table.css";
@@ -11,6 +11,7 @@ interface TestSuitesTableProps {
   onRunTestSuite: (userStoryId: string) => void;
   onRunTestCase: (testCaseId: string) => void;
   onDownloadReport: (userStoryId?: string) => void;
+  runningTests?: Set<string>;
 }
 
 // Helper functions
@@ -148,11 +149,20 @@ const formatDuration = (durationMs: number | null, item: any) => {
   return `${seconds}s`;
 };
 
-const calculateStatus = (item: any) => {
+const calculateStatus = (item: any, runningTests?: Set<string>) => {
+  // Check if test is currently running
+  if (runningTests?.has(item.id)) {
+    return 'running';
+  }
+
   // If it's a user story, check its test cases
   if (item?.testCases) {
     // Check if no test cases data
     if (item.testCases.length === 0) return 'no_data';
+    
+    // Check if any test cases are running
+    const hasRunningTests = item.testCases.some((tc: any) => runningTests?.has(tc.id));
+    if (hasRunningTests) return 'running';
     
     const hasRunTests = item.testCases.some((tc: any) => tc.status && tc.status.toLowerCase() === 'passed' || tc.status && tc.status.toLowerCase() === 'failed');
     if (!hasRunTests) return 'pending';
@@ -184,12 +194,19 @@ const calculateStatus = (item: any) => {
   return 'pending';
 };
 
-const StatusCell = ({ item }: { item: any }) => {
-  const status = calculateStatus(item);
+const StatusCell = ({ item, runningTests }: { item: any, runningTests?: Set<string> }) => {
+  const status = calculateStatus(item, runningTests);
   return (
     <div className="test-suites-status">
       <div className={`test-suites-status-badge ${status}`}>
-        {getStatusText(status)}
+        {status === 'running' ? (
+          <div className="flex items-center">
+            <Loader className="w-4 h-4 mr-2 animate-spin" />
+            Running
+          </div>
+        ) : (
+          getStatusText(status)
+        )}
       </div>
     </div>
   );
@@ -371,21 +388,72 @@ const formatStepProgress = (step: any, testCase: any) => {
   return `${step.stepNumber}/${testCase.steps.length}`;
 };
 
-export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownloadReport }: TestSuitesTableProps) => {
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+export const TestSuitesTable = ({ 
+  testSuites: initialTestSuites, 
+  onRunTestSuite, 
+  onRunTestCase, 
+  onDownloadReport,
+  runningTests 
+}: TestSuitesTableProps) => {
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  const [testSuites, setTestSuites] = useState(initialTestSuites);
+  const projectId = 2; // TODO: Get from context or props
+
+  // Function to refresh table data
+  const refreshTableData = async () => {
+    try {
+      const response = await testSuitesApi.getTestSuites(projectId);
+      if (response.success && response.testSuites) {
+        setTestSuites(response.testSuites);
+        console.log('Table data refreshed successfully');
+      }
+    } catch (error) {
+      console.error('Error refreshing table data:', error);
+    }
+  };
+
+  // Set up SSE connection for real-time updates
+  useEffect(() => {
+    const eventSource = new EventSource(`/api/projects/${projectId}/events`);
+    
+    const handleTestComplete = async (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received test completion event:', data);
+        await refreshTableData();
+      } catch (error) {
+        console.error('Error handling test completion event:', error);
+      }
+    };
+
+    eventSource.addEventListener('test_case_completed', handleTestComplete);
+    eventSource.addEventListener('test_suite_completed', handleTestComplete);
+
+    // Cleanup function
+    return () => {
+      eventSource.removeEventListener('test_case_completed', handleTestComplete);
+      eventSource.removeEventListener('test_suite_completed', handleTestComplete);
+      eventSource.close();
+    };
+  }, [projectId]);
+
+  // Update local state when props change
+  useEffect(() => {
+    setTestSuites(initialTestSuites);
+  }, [initialTestSuites]);
 
   const toggleExpanded = (id: string) => {
-    const newExpanded = new Set(expandedItems);
+    const newExpanded = new Set(expandedIds);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
     } else {
       newExpanded.add(id);
     }
-    setExpandedItems(newExpanded);
+    setExpandedIds(newExpanded);
   };
 
   const renderUserStory = (userStory: any) => {
-    const isExpanded = expandedItems.has(userStory.id);
+    const isExpanded = expandedIds.has(userStory.id);
     const progress = calculateUserStoryProgress(userStory);
     const progressType = progress === 100 ? 'passed' : progress > 0 ? 'not_finished' : 'pending';
     
@@ -417,7 +485,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             {formatTotalCases(userStory)}
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={userStory} />
+            <StatusCell item={userStory} runningTests={runningTests} />
           </td>
           <td className="test-suites-cell center">
             <span className="test-suites-last-run">{formatLastRun(userStory.lastRun, userStory)}</span>
@@ -483,7 +551,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           <span className="test-suites-progress">{formatStepProgress(step, testCase)}</span>
         </td>
         <td className="test-suites-cell center">
-          <StatusCell item={step} />
+          <StatusCell item={step} runningTests={runningTests} />
         </td>
         <td className="test-suites-cell center">
           <span className="test-suites-last-run">{formatLastRun(step.lastRun, step)}</span>
@@ -517,8 +585,9 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
 
   const renderTestCase = (testCase: any, parentId: string) => {
     const testCaseId = `${parentId}-${testCase.id}`;
-    const isExpanded = expandedItems.has(testCaseId);
+    const isExpanded = expandedIds.has(testCaseId);
     const progress = calculateTestCaseProgress(testCase);
+    const isRunning = runningTests?.has(testCase.id);
     
     // Determine progress type based on test case status or steps
     let progressType: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed' = 'pending';
@@ -547,7 +616,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className="test-suites-row test-case" data-status={testCase.status?.toLowerCase() || 'pending'}>
+        <tr className={`test-suites-row test-case ${isRunning ? 'running' : ''}`} data-status={testCase.status?.toLowerCase() || 'pending'}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
               {testCase.steps && testCase.steps.length > 0 && (
@@ -574,13 +643,17 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <span className="test-suites-progress">{formatTestCaseProgress(testCase, parentUserStory)}</span>
           </td>
           <td className="test-suites-cell center">
-            <StatusCell item={testCase} />
+            <StatusCell item={testCase} runningTests={runningTests} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">{formatLastRun(testCase.lastRun, testCase)}</span>
+            <span className="test-suites-last-run">
+              {isRunning ? 'Running...' : formatLastRun(testCase.lastRun, testCase)}
+            </span>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">{formatDuration(testCase.duration, testCase)}</span>
+            <span className="test-suites-duration">
+              {isRunning ? 'In Progress' : formatDuration(testCase.duration, testCase)}
+            </span>
           </td>
           <td className="test-suites-cell center">
             <ProgressBar progress={progress} type={progressType} item={testCase} />
