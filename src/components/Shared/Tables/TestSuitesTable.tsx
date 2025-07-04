@@ -33,10 +33,70 @@ const getStatusClass = (status: string) => {
   return status.toLowerCase();
 };
 
+// Calculate success rate for User Story
+const calculateUserStorySuccess = (item: any) => {
+  // If it's not a User Story, return null
+  if (!item?.id?.startsWith('US_') || !item.testCases) {
+    return null;
+  }
+
+  // Count executed tests
+  const executedTests = item.testCases.filter((tc: any) => 
+    tc.status && ['passed', 'failed'].includes(tc.status.toLowerCase())
+  );
+
+  if (executedTests.length === 0) {
+    return {
+      executed: 0,
+      passed: 0,
+      successRate: 0
+    };
+  }
+
+  // Count passed tests
+  const passedTests = executedTests.filter((tc: any) => 
+    tc.status.toLowerCase() === 'passed'
+  ).length;
+
+  return {
+    executed: executedTests.length,
+    passed: passedTests,
+    successRate: Math.round((passedTests / executedTests.length) * 100)
+  };
+};
+
 // Simple status cell component
 const StatusCell = ({ item }: { item: any }) => {
   const status = item.status?.toLowerCase() || 'pending';
   
+  // For User Stories, show success rate
+  const userStorySuccess = calculateUserStorySuccess(item);
+  if (userStorySuccess !== null) {
+    const { executed, successRate } = userStorySuccess;
+    if (executed === 0) {
+      return (
+        <div className="test-suites-status">
+          <div className="flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium bg-gray-300 text-gray-700">
+            Not Started
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="test-suites-status">
+        <div className={`flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium
+          ${successRate === 100 ? 'bg-green-500 text-white' : 
+            successRate === 0 ? 'bg-red-500 text-white' : 
+            'bg-yellow-400 text-white'}`}
+        >
+          {`${successRate}% Success`}
+        </div>
+      </div>
+    );
+  }
+
+  // For individual test cases, show status
   return (
     <div className="test-suites-status">
       <div className={`flex items-center justify-center h-6 px-3 rounded-full text-xs font-medium
