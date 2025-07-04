@@ -365,6 +365,15 @@
   height: 24px;
   border-radius: 4px;
   overflow: hidden;
+  justify-content: center;
+  align-items: center;
+}
+
+.test-suites-progress-bar-container .test-suites-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .test-suites-progress-bar {
@@ -394,4 +403,18 @@
 
 .test-suites-progress-bar.pending .test-suites-progress-text {
   color: #6c757d;
+}
+
+.test-suites-progress-bar.failed {
+  background-color: #ef4444;
+}
+
+.test-suites-status-badge.no_data {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  display: inline-block;
 } 

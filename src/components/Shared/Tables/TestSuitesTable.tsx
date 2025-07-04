@@ -27,6 +27,7 @@ const getStatusText = (status: string) => {
     case 'not_finished': return 'Not Finished';
     case 'not_run': return 'Pending';
     case 'pending': return 'Pending';
+    case 'no_data': return 'No Data';
     default: return 'Pending';
   }
 };
@@ -37,21 +38,22 @@ const getStatusClass = (status: string) => {
 };
 
 const formatProgress = (progress: any, item: any, testSuites: any[]) => {
-  if (!progress || typeof progress !== 'object') return '-';
-  
-  // For test cases, show position out of total parent cases
-  if (item.id && item.id.startsWith('TC')) {
-    // Extract TC number from id (e.g., "TC01" -> 1)
-    const tcNumber = parseInt(item.id.replace('TC', ''));
-    
-    // Find parent user story to get total test cases
-    const userStory = testSuites.find(us => 
-      us.testCases && us.testCases.some((tc: any) => tc.id === item.id)
-    );
-    
-    if (tcNumber && userStory?.progress?.total) {
-      return `${tcNumber}/${userStory.progress.total}`;
+  if (!progress || typeof progress !== 'object') {
+    // For test cases, show position out of total parent steps
+    if (item?.id && typeof item.id === 'string' && item.id.startsWith('TC')) {
+      // Extract TC number from id (e.g., "TC01" -> 1)
+      const tcNumber = parseInt(item.id.replace('TC', ''));
+      
+      // Find parent user story to get total test cases
+      const userStory = testSuites.find(us => 
+        us.testCases && us.testCases.some((tc: any) => tc.id === item.id)
+      );
+      
+      if (tcNumber && userStory?.testCases) {
+        return `${tcNumber}/${userStory.testCases.length}`;
+      }
     }
+    return '-';
   }
   
   // For user stories, just show total
@@ -60,7 +62,7 @@ const formatProgress = (progress: any, item: any, testSuites: any[]) => {
 
 const formatLastRun = (lastRun: string | null, item: any) => {
   // For user stories with some completed test cases but not all
-  if (item.id?.startsWith('US_') && item.testCases) {
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && item.testCases) {
     const hasCompletedTests = item.testCases.some((tc: any) => tc.lastRun);
     const allTestsComplete = item.testCases.every((tc: any) => tc.lastRun);
     if (hasCompletedTests && !allTestsComplete) {
@@ -72,6 +74,17 @@ const formatLastRun = (lastRun: string | null, item: any) => {
         </div>
       );
     }
+  }
+
+  // Check if it's a user story with no test cases data
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge no_data">
+          No Data
+        </div>
+      </div>
+    );
   }
   
   if (!lastRun) {
@@ -96,7 +109,7 @@ const formatLastRun = (lastRun: string | null, item: any) => {
 
 const formatDuration = (durationMs: number | null, item: any) => {
   // For user stories with some completed test cases but not all
-  if (item.id?.startsWith('US_') && item.testCases) {
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && item.testCases) {
     const hasCompletedTests = item.testCases.some((tc: any) => tc.duration);
     const allTestsComplete = item.testCases.every((tc: any) => tc.duration);
     if (hasCompletedTests && !allTestsComplete) {
@@ -108,6 +121,17 @@ const formatDuration = (durationMs: number | null, item: any) => {
         </div>
       );
     }
+  }
+
+  // Check if it's a user story with no test cases data
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge no_data">
+          No Data
+        </div>
+      </div>
+    );
   }
 
   if (!durationMs) {
@@ -126,19 +150,38 @@ const formatDuration = (durationMs: number | null, item: any) => {
 
 const calculateStatus = (item: any) => {
   // If it's a user story, check its test cases
-  if (item.testCases) {
-    const hasRunTests = item.testCases.some((tc: any) => tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed');
+  if (item?.testCases) {
+    // Check if no test cases data
+    if (item.testCases.length === 0) return 'no_data';
+    
+    const hasRunTests = item.testCases.some((tc: any) => tc.status && tc.status.toLowerCase() === 'passed' || tc.status && tc.status.toLowerCase() === 'failed');
     if (!hasRunTests) return 'pending';
 
-    const allTestsComplete = item.testCases.every((tc: any) => tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed');
+    const allTestsComplete = item.testCases.every((tc: any) => tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed'));
     if (!allTestsComplete) return 'not_finished';
 
-    const allTestsPassed = item.testCases.every((tc: any) => tc.status.toLowerCase() === 'passed');
+    const allTestsPassed = item.testCases.every((tc: any) => tc.status && tc.status.toLowerCase() === 'passed');
     return allTestsPassed ? 'passed' : 'failed';
   }
 
+  // If it's a test case with steps, calculate status based on steps
+  if (item?.steps && item.steps.length > 0) {
+    const hasRunSteps = item.steps.some((step: any) => step.status && (step.status === 'passed' || step.status === 'failed'));
+    if (!hasRunSteps) return 'pending';
+
+    const allStepsComplete = item.steps.every((step: any) => step.status && (step.status === 'passed' || step.status === 'failed'));
+    if (!allStepsComplete) return 'not_finished';
+
+    const allStepsPassed = item.steps.every((step: any) => step.status === 'passed');
+    return allStepsPassed ? 'passed' : 'failed';
+  }
+
   // For test cases and steps, convert not_run to pending
-  return item.status.toLowerCase() === 'not_run' ? 'pending' : item.status.toLowerCase();
+  if (item?.status) {
+    return item.status.toLowerCase() === 'not_run' ? 'pending' : item.status.toLowerCase();
+  }
+  
+  return 'pending';
 };
 
 const StatusCell = ({ item }: { item: any }) => {
@@ -185,19 +228,102 @@ const calculateUserStoryProgress = (userStory: any) => {
   if (!userStory.testCases || userStory.testCases.length === 0) return 0;
   
   const completedTests = userStory.testCases.filter((tc: any) => 
-    tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed'
+    tc.status && (tc.status.toLowerCase() === 'passed' || tc.status.toLowerCase() === 'failed')
   ).length;
   
   return (completedTests / userStory.testCases.length) * 100;
 };
 
 const calculateTestCaseProgress = (testCase: any) => {
+  if (!testCase.status && (!testCase.steps || testCase.steps.length === 0)) return 0;
+  
+  // If test case has steps, calculate based on completed steps
+  if (testCase.steps && testCase.steps.length > 0) {
+    const completedSteps = testCase.steps.filter((step: any) => 
+      step.status === 'passed' || step.status === 'failed'
+    ).length;
+    return (completedSteps / testCase.steps.length) * 100;
+  }
+  
+  // If no steps, use test case status
+  if (!testCase.status) return 0;
   const status = testCase.status.toLowerCase();
   return (status === 'passed' || status === 'failed') ? 100 : 0;
 };
 
+const getStatus = (item: any) => {
+  // Check for no data first
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge no_data">
+          No Data
+        </div>
+      </div>
+    );
+  }
+
+  // For test cases or user stories with data
+  if (item.status === 'passed') {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge passed">
+          Passed
+        </div>
+      </div>
+    );
+  }
+
+  if (item.status === 'not_finished') {
+    return (
+      <div className="test-suites-status">
+        <div className="test-suites-status-badge not_finished">
+          Not Finished
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="test-suites-status">
+      <div className="test-suites-status-badge pending">
+        Pending
+      </div>
+    </div>
+  );
+};
+
+const formatTotalCases = (item: any) => {
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_')) {
+    if (!item.testCases || item.testCases.length === 0) {
+      return (
+        <div className="test-suites-status">
+          <div className="test-suites-status-badge no_data">
+            No Data
+          </div>
+        </div>
+      );
+    }
+    return item.testCases.length;
+  }
+  return '-';
+};
+
 // Add ProgressBar component
-const ProgressBar = ({ progress, type }: { progress: number, type: 'passed' | 'not_finished' | 'pending' }) => {
+const ProgressBar = ({ progress, type, item }: { progress: number, type: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed', item?: any }) => {
+  // If it's a user story with no test cases data
+  if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_') && (!item.testCases || item.testCases.length === 0)) {
+    return (
+      <div className="test-suites-progress-bar-container">
+        <div className="test-suites-status">
+          <div className="test-suites-status-badge no_data">
+            No Data
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const roundedProgress = Math.round(progress);
   return (
     <div className="test-suites-progress-bar-container">
@@ -221,6 +347,28 @@ const ProgressBar = ({ progress, type }: { progress: number, type: 'passed' | 'n
       )}
     </div>
   );
+};
+
+// New function to format test case progress (step position)
+const formatTestCaseProgress = (testCase: any, parentUserStory: any) => {
+  if (!testCase?.id || !parentUserStory?.testCases) return '-';
+  
+  // Extract TC number from id (e.g., "TC01" -> 1)
+  const tcNumber = parseInt(testCase.id.replace('TC', ''));
+  const totalTestCases = parentUserStory.testCases.length;
+  
+  if (tcNumber && totalTestCases) {
+    return `${tcNumber}/${totalTestCases}`;
+  }
+  
+  return '-';
+};
+
+// New function to format step progress (step position within test case)
+const formatStepProgress = (step: any, testCase: any) => {
+  if (!step?.stepNumber || !testCase?.steps) return '-';
+  
+  return `${step.stepNumber}/${testCase.steps.length}`;
 };
 
 export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onDownloadReport }: TestSuitesTableProps) => {
@@ -266,7 +414,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(userStory.progress, userStory, testSuites)}</span>
+            {formatTotalCases(userStory)}
           </td>
           <td className="test-suites-cell center">
             <StatusCell item={userStory} />
@@ -278,7 +426,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <span className="test-suites-duration">{formatDuration(userStory.duration, userStory)}</span>
           </td>
           <td className="test-suites-cell center">
-            <ProgressBar progress={progress} type={progressType} />
+            <ProgressBar progress={progress} type={progressType} item={userStory} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -315,7 +463,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     );
   };
 
-  const renderTestStep = (step: any) => {
+  const renderTestStep = (step: any, testCase: any) => {
+    const stepProgress = step.status === 'passed' || step.status === 'failed' ? 100 : 0;
+    const stepProgressType = step.status === 'passed' ? 'passed' : step.status === 'failed' ? 'failed' : 'pending';
+    
     return (
       <tr key={step.id} className="test-suites-row test-step">
         <td className="test-suites-cell center">
@@ -329,10 +480,10 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           </div>
         </td>
         <td className="test-suites-cell center">
-          <StatusCell item={step} />
+          <span className="test-suites-progress">{formatStepProgress(step, testCase)}</span>
         </td>
         <td className="test-suites-cell center">
-          <span className="test-suites-progress">{formatProgress(step.progress, step, testSuites)}</span>
+          <StatusCell item={step} />
         </td>
         <td className="test-suites-cell center">
           <span className="test-suites-last-run">{formatLastRun(step.lastRun, step)}</span>
@@ -341,8 +492,23 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
           <span className="test-suites-duration">{formatDuration(step.duration, step)}</span>
         </td>
         <td className="test-suites-cell center">
+          <ProgressBar progress={stepProgress} type={stepProgressType} item={step} />
+        </td>
+        <td className="test-suites-cell center">
           <div className="test-suites-actions">
-            {/* Steps don't have actions */}
+            {step.status === 'running' ? (
+              <button className="test-suites-action-button" title="Stop Step">
+                <Square className="test-suites-action-icon stop" />
+              </button>
+            ) : (
+              <button 
+                onClick={() => onRunTestCase(`${testCase.id}-step-${step.stepNumber}`)}
+                className="test-suites-action-button"
+                title="Run Step"
+              >
+                <Play className="test-suites-action-icon run" />
+              </button>
+            )}
           </div>
         </td>
       </tr>
@@ -353,12 +519,35 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
     const testCaseId = `${parentId}-${testCase.id}`;
     const isExpanded = expandedItems.has(testCaseId);
     const progress = calculateTestCaseProgress(testCase);
-    const progressType = progress === 100 ? 'passed' : 'pending';
+    
+    // Determine progress type based on test case status or steps
+    let progressType: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed' = 'pending';
+    if (testCase.steps && testCase.steps.length > 0) {
+      const hasFailedSteps = testCase.steps.some((step: any) => step.status === 'failed');
+      const allStepsComplete = testCase.steps.every((step: any) => step.status === 'passed' || step.status === 'failed');
+      const allStepsPassed = testCase.steps.every((step: any) => step.status === 'passed');
+      
+      if (allStepsComplete && allStepsPassed) {
+        progressType = 'passed';
+      } else if (hasFailedSteps) {
+        progressType = 'failed';
+      } else if (progress > 0) {
+        progressType = 'not_finished';
+      }
+    } else if (testCase.status) {
+      const status = testCase.status.toLowerCase();
+      if (status === 'passed') progressType = 'passed';
+      else if (status === 'failed') progressType = 'failed';
+      else if (status === 'not_finished') progressType = 'not_finished';
+    }
+    
+    // Find parent user story for progress calculation
+    const parentUserStory = testSuites.find(us => us.id === parentId);
     
     return (
       <React.Fragment key={testCaseId}>
         {/* Test Case Row */}
-        <tr className="test-suites-row test-case" data-status={testCase.status.toLowerCase()}>
+        <tr className="test-suites-row test-case" data-status={testCase.status?.toLowerCase() || 'pending'}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
               {testCase.steps && testCase.steps.length > 0 && (
@@ -382,7 +571,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             </div>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatProgress(testCase.progress, testCase, testSuites)}</span>
+            <span className="test-suites-progress">{formatTestCaseProgress(testCase, parentUserStory)}</span>
           </td>
           <td className="test-suites-cell center">
             <StatusCell item={testCase} />
@@ -394,7 +583,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
             <span className="test-suites-duration">{formatDuration(testCase.duration, testCase)}</span>
           </td>
           <td className="test-suites-cell center">
-            <ProgressBar progress={progress} type={progressType} />
+            <ProgressBar progress={progress} type={progressType} item={testCase} />
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
@@ -416,7 +605,7 @@ export const TestSuitesTable = ({ testSuites, onRunTestSuite, onRunTestCase, onD
         </tr>
 
         {/* Test Steps (when expanded) */}
-        {isExpanded && testCase.steps && testCase.steps.map(renderTestStep)}
+        {isExpanded && testCase.steps && testCase.steps.map((step: any) => renderTestStep(step, testCase))}
       </React.Fragment>
     );
   };
