@@ -35,46 +35,97 @@ const getStatusClass = (status: string) => {
 
 // Calculate success rate for User Story
 const calculateUserStorySuccess = (item: any) => {
-  // If it's not a User Story, return null
-  if (!item?.id?.startsWith('US_') || !item.testCases) {
-    return null;
+  if (!item.testCases) return null;
+  
+  // Check if this is a user story
+  if (!item.id?.startsWith('US_')) return null;
+  
+  // Check if user story has any data
+  if (!hasUserStoryData(item)) {
+    return { executed: 0, successRate: 0 };
   }
 
-  // Count executed tests
-  const executedTests = item.testCases.filter((tc: any) => 
-    tc.status && ['passed', 'failed'].includes(tc.status.toLowerCase())
-  );
-
-  if (executedTests.length === 0) {
-    return {
-      executed: 0,
-      passed: 0,
-      successRate: 0
-    };
-  }
-
-  // Count passed tests
-  const passedTests = executedTests.filter((tc: any) => 
-    tc.status.toLowerCase() === 'passed'
+  const totalTestCases = item.testCases.length;
+  const executedTestCases = item.testCases.filter((tc: any) => 
+    tc.status === 'passed' || tc.status === 'failed'
+  ).length;
+  
+  const passedTestCases = item.testCases.filter((tc: any) => 
+    tc.status === 'passed'
   ).length;
 
   return {
-    executed: executedTests.length,
-    passed: passedTests,
-    successRate: Math.round((passedTests / executedTests.length) * 100)
+    executed: executedTestCases,
+    successRate: executedTestCases > 0 ? Math.round((passedTestCases / executedTestCases) * 100) : 0
   };
+};
+
+// Add helper functions for user story calculations
+const calculateUserStoryLastRun = (item: any) => {
+  if (!item.testCases || item.testCases.length === 0) return null;
+  
+  // Get all test cases with last run dates
+  const testCasesWithRuns = item.testCases
+    .filter((tc: any) => tc.lastRun)
+    .map((tc: any) => ({
+      ...tc,
+      lastRunDate: new Date(tc.lastRun)
+    }));
+
+  if (testCasesWithRuns.length === 0) return null;
+
+  // Find the most recent run
+  const mostRecentRun = testCasesWithRuns.reduce((latest: any, current: any) => 
+    current.lastRunDate > latest.lastRunDate ? current : latest
+  );
+
+  return mostRecentRun.lastRun;
+};
+
+const calculateUserStoryDuration = (item: any) => {
+  if (!item.testCases || item.testCases.length === 0) return null;
+  
+  // Sum up durations of all executed test cases
+  const totalDuration = item.testCases
+    .filter((tc: any) => tc.duration)
+    .reduce((sum: number, tc: any) => sum + (parseInt(tc.duration) || 0), 0);
+
+  return totalDuration > 0 ? `${totalDuration}s` : null;
+};
+
+const calculateUserStoryExecutionStatus = (item: any) => {
+  if (!item.testCases || item.testCases.length === 0) return 'no_data';
+  
+  const totalTests = item.testCases.length;
+  const executedTests = item.testCases.filter((tc: any) => 
+    tc.status === 'passed' || tc.status === 'failed'
+  ).length;
+
+  if (executedTests === 0) return 'not_run';
+  if (executedTests < totalTests) return 'not_finished';
+  return 'completed';
 };
 
 // Simple status cell component
 const StatusCell = ({ item }: { item: any }) => {
-  const status = item.status?.toLowerCase() || 'not_run';
-  
-  // Common styles for Not Run state
+  // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
+  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
   
   // For User Stories, show success rate
   const userStorySuccess = calculateUserStorySuccess(item);
   if (userStorySuccess !== null) {
+    // Check if user story has any data
+    if (!hasUserStoryData(item)) {
+      return (
+        <div className="test-suites-status">
+          <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+            No Data
+          </div>
+        </div>
+      );
+    }
+
     const { executed, successRate } = userStorySuccess;
     if (executed === 0) {
       return (
@@ -99,7 +150,9 @@ const StatusCell = ({ item }: { item: any }) => {
     );
   }
 
-  // For individual test cases, show status
+  // For individual test cases
+  const status = item.status?.toLowerCase() || 'not_run';
+  
   type StatusType = 'passed' | 'failed' | 'running' | 'not_run' | 'pending' | 'no_data';
   
   const statusConfig: Record<StatusType, { bg: string; text: string; textColor: string }> = {
@@ -108,10 +161,10 @@ const StatusCell = ({ item }: { item: any }) => {
     running: { bg: 'bg-blue-400', text: 'Running', textColor: 'text-white' },
     not_run: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' },
     pending: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' },
-    no_data: { bg: 'bg-slate-100', text: 'Not Run', textColor: 'text-slate-600' }
+    no_data: { bg: 'bg-slate-200', text: 'No Data', textColor: 'text-slate-700' }
   };
 
-  const config = statusConfig[status as StatusType] || statusConfig.not_run;
+  const config = statusConfig[status as StatusType] || statusConfig.no_data;
 
   return (
     <div className="test-suites-status">
@@ -130,37 +183,51 @@ const StatusCell = ({ item }: { item: any }) => {
 };
 
 // Calculate progress for User Story
-const calculateUserStoryProgress = (item: any): { executed: number; total: number; percentage: number; } | null => {
-  // If it's not a User Story, return null
-  if (!item?.id?.startsWith('US_') || !item.testCases) {
-    return null;
+const calculateUserStoryProgress = (item: any) => {
+  if (!item.testCases) return null;
+  
+  // Check if this is a user story
+  if (!item.id?.startsWith('US_')) return null;
+  
+  // Check if user story has any data
+  if (!hasUserStoryData(item)) {
+    return { percentage: 0, total: 0, completed: 0 };
   }
 
-  const totalTests = item.testCases.length;
-  if (totalTests === 0) return null;
-
-  // Count tests that have been run (have a status)
-  const executedTests = item.testCases.filter((tc: any) => 
-    tc.status && ['passed', 'failed', 'running'].includes(tc.status.toLowerCase())
+  const totalTestCases = item.testCases.length;
+  const executedTestCases = item.testCases.filter((tc: any) => 
+    tc.status === 'passed' || tc.status === 'failed'
   ).length;
 
   return {
-    executed: executedTests,
-    total: totalTests,
-    percentage: Math.round((executedTests / totalTests) * 100)
+    percentage: totalTestCases > 0 ? Math.round((executedTestCases / totalTestCases) * 100) : 0,
+    total: totalTestCases,
+    completed: executedTestCases
   };
 };
 
 // Simple progress component
 const ProgressBar = ({ item }: { item: any }) => {
-  const status = item.status?.toLowerCase() || 'not_run';
-  
-  // Common styles for Not Run state
+  // Common styles
   const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
+  const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
   
   // For User Stories, show execution progress
   const userStoryProgress = calculateUserStoryProgress(item);
-  if (userStoryProgress) {
+  if (userStoryProgress !== null) {
+    // Check if user story has any data
+    if (!hasUserStoryData(item)) {
+      return (
+        <div className="progress-container">
+          <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
+            <div className={`flex items-center h-full text-xs font-medium ${noDataStyles}`}>
+              No Data
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="progress-container">
         <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
@@ -178,7 +245,22 @@ const ProgressBar = ({ item }: { item: any }) => {
     );
   }
 
-  // For individual test cases, show pass/fail status
+  // For individual test cases
+  const status = item.status?.toLowerCase() || 'not_run';
+  const hasData = item.steps && item.steps.length > 0;
+  
+  if (!hasData) {
+    return (
+      <div className="progress-container">
+        <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
+          <div className={`flex items-center h-full text-xs font-medium ${noDataStyles}`}>
+            No Data
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const progress = status === 'running' ? 50 : (status === 'passed' || status === 'failed') ? 100 : 0;
   
   type ProgressStatusType = 'passed' | 'failed' | 'running' | 'not_run' | 'pending' | 'no_data';
@@ -189,17 +271,17 @@ const ProgressBar = ({ item }: { item: any }) => {
     running: { bg: 'bg-blue-400', text: 'In Progress', textColor: 'text-white' },
     not_run: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' },
     pending: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' },
-    no_data: { bg: notRunStyles, text: 'Not Run', textColor: 'text-slate-600' }
+    no_data: { bg: noDataStyles, text: 'No Data', textColor: 'text-slate-700' }
   };
 
-  const config = progressConfig[status as ProgressStatusType] || progressConfig.not_run;
+  const config = progressConfig[hasData ? (status as ProgressStatusType) : 'no_data'] || progressConfig.no_data;
   
   return (
     <div className="progress-container">
       <div className="relative w-full h-6 bg-slate-50 rounded-full overflow-hidden">
-        {status === 'not_run' ? (
-          <div className={`flex items-center h-full text-xs font-medium ${notRunStyles}`}>
-            Not Run
+        {!hasData || status === 'no_data' ? (
+          <div className={`flex items-center h-full text-xs font-medium ${config.bg} ${config.textColor}`}>
+            {config.text}
           </div>
         ) : (
           <>
@@ -493,6 +575,11 @@ const calculateProgress = (item: any) => {
   };
 };
 
+// Add helper function to check if user story has data
+const hasUserStoryData = (item: any) => {
+  return item.testCases && item.testCases.length > 0;
+};
+
 export const TestSuitesTable = ({ 
   testSuites: initialTestSuites, 
   onRunTestSuite, 
@@ -559,15 +646,20 @@ export const TestSuitesTable = ({
 
   const renderUserStory = (userStory: any) => {
     const isExpanded = expandedIds.has(userStory.id);
-    const progress = calculateUserStoryProgress(userStory);
-    const progressType = progress?.percentage === 100 ? 'passed' : 
-                        progress?.percentage && progress.percentage > 0 ? 'not_finished' : 
-                        'pending';
+    const executionStatus = calculateUserStoryExecutionStatus(userStory);
     
+    // Common styles
+    const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
+    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
+    const notFinishedStyles = 'bg-yellow-400 text-white min-w-[100px] justify-center';
+    
+    // Get last run and duration
+    const lastRun = calculateUserStoryLastRun(userStory);
+    const duration = calculateUserStoryDuration(userStory);
+
     return (
       <React.Fragment key={userStory.id}>
-        {/* User Story Row */}
-        <tr className="test-suites-row">
+        <tr className="test-suites-row user-story">
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
               <button
@@ -595,10 +687,42 @@ export const TestSuitesTable = ({
             <StatusCell item={userStory} />
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-last-run">{formatLastRun(userStory.lastRun)}</span>
+            {executionStatus === 'no_data' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                No Data
+              </div>
+            ) : executionStatus === 'not_run' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                Not Run
+              </div>
+            ) : executionStatus === 'not_finished' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
+                Not Finished
+              </div>
+            ) : (
+              <span className="test-suites-last-run text-gray-600 min-w-[100px] flex justify-center">
+                {formatLastRun(lastRun)}
+              </span>
+            )}
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-duration">{formatDuration(userStory.duration)}</span>
+            {executionStatus === 'no_data' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                No Data
+              </div>
+            ) : executionStatus === 'not_run' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
+                Not Run
+              </div>
+            ) : executionStatus === 'not_finished' ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notFinishedStyles}`}>
+                Not Finished
+              </div>
+            ) : (
+              <span className="test-suites-duration text-gray-600 min-w-[100px] flex justify-center">
+                {duration}
+              </span>
+            )}
           </td>
           <td className="test-suites-cell center">
             <ProgressBar item={userStory} />
@@ -631,9 +755,9 @@ export const TestSuitesTable = ({
             </div>
           </td>
         </tr>
-
-        {/* Test Cases (when expanded) */}
-        {isExpanded && userStory.testCases.map((testCase: any) => renderTestCase(testCase, userStory.id))}
+        {isExpanded && userStory.testCases && userStory.testCases.map((testCase: any) => 
+          renderTestCase(testCase, userStory.id)
+        )}
       </React.Fragment>
     );
   };
@@ -693,40 +817,19 @@ export const TestSuitesTable = ({
   const renderTestCase = (testCase: any, parentId: string) => {
     const testCaseId = `${parentId}-${testCase.id}`;
     const isExpanded = expandedIds.has(testCaseId);
-    const progress = calculateTestCaseProgress(testCase);
     const isRunning = runningTests?.has(testCase.id);
     const status = testCase.status?.toLowerCase() || 'not_run';
+    const hasData = testCase.steps && testCase.steps.length > 0;
     
-    // Common styles for Not Run state
+    // Common styles
     const notRunStyles = 'bg-slate-100 text-slate-600 min-w-[100px] justify-center';
-    
-    // Determine progress type based on test case status or steps
-    let progressType: 'passed' | 'not_finished' | 'pending' | 'no_data' | 'failed' = 'pending';
-    if (testCase.steps && testCase.steps.length > 0) {
-      const hasFailedSteps = testCase.steps.some((step: any) => step.status === 'failed');
-      const allStepsComplete = testCase.steps.every((step: any) => step.status === 'passed' || step.status === 'failed');
-      const allStepsPassed = testCase.steps.every((step: any) => step.status === 'passed');
-      
-      if (allStepsComplete && allStepsPassed) {
-        progressType = 'passed';
-      } else if (hasFailedSteps) {
-        progressType = 'failed';
-      } else if (progress > 0) {
-        progressType = 'not_finished';
-      }
-    } else if (testCase.status) {
-      const status = testCase.status.toLowerCase();
-      if (status === 'passed') progressType = 'passed';
-      else if (status === 'failed') progressType = 'failed';
-      else if (status === 'not_finished') progressType = 'not_finished';
-    }
+    const noDataStyles = 'bg-slate-200 text-slate-700 min-w-[100px] justify-center';
     
     // Find parent user story for progress calculation
     const parentUserStory = testSuites.find(us => us.id === parentId);
     
     return (
       <React.Fragment key={testCaseId}>
-        {/* Test Case Row */}
         <tr className={`test-suites-row test-case ${isRunning ? 'running' : ''}`}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
@@ -751,13 +854,19 @@ export const TestSuitesTable = ({
             </div>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">{formatTestCaseProgress(testCase, parentUserStory)}</span>
+            <span className="test-suites-progress">
+              {formatTestCaseProgress(testCase, parentUserStory)}
+            </span>
           </td>
           <td className="test-suites-cell center">
             <StatusCell item={testCase} />
           </td>
           <td className="test-suites-cell center">
-            {status === 'not_run' ? (
+            {!hasData ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                No Data
+              </div>
+            ) : status === 'not_run' ? (
               <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
                 Not Run
               </div>
@@ -768,7 +877,11 @@ export const TestSuitesTable = ({
             )}
           </td>
           <td className="test-suites-cell center">
-            {status === 'not_run' ? (
+            {!hasData ? (
+              <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${noDataStyles}`}>
+                No Data
+              </div>
+            ) : status === 'not_run' ? (
               <div className={`flex items-center h-6 px-3 rounded-full text-xs font-medium ${notRunStyles}`}>
                 Not Run
               </div>
@@ -783,15 +896,15 @@ export const TestSuitesTable = ({
           </td>
           <td className="test-suites-cell center">
             <div className="test-suites-actions">
-              {testCase.status === 'running' ? (
-                <button className="test-suites-action-button" title="Stop">
+              {isRunning ? (
+                <button className="test-suites-action-button" title="Stop Test Case">
                   <Square className="test-suites-action-icon stop" />
                 </button>
               ) : (
                 <button 
                   onClick={() => onRunTestCase(testCase.id)}
                   className="test-suites-action-button"
-                  title="Run"
+                  title="Run Test Case"
                 >
                   <Play className="test-suites-action-icon run" />
                 </button>
@@ -799,8 +912,6 @@ export const TestSuitesTable = ({
             </div>
           </td>
         </tr>
-
-        {/* Test Steps (when expanded) */}
         {isExpanded && testCase.steps && testCase.steps.map((step: any) => renderTestStep(step, testCase))}
       </React.Fragment>
     );
