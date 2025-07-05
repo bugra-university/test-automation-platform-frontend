@@ -207,7 +207,7 @@
 }
 
 .test-suites-id {
-  font-size: 0.8rem;
+  font-size: 0.820rem;
   font-weight: 600;
   color: #4B5563;
   text-transform: uppercase;
@@ -222,13 +222,13 @@
 
 /* Test Step ID'leri (en alt seviye) - en küçük */
 .test-suites-row.test-step .test-suites-id {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 400;
   color: #9CA3AF;
 }
 
 .test-suites-name {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: #4B5563;
 }
@@ -372,12 +372,13 @@
 }
 
 .test-suites-action-icon {
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .test-suites-action-icon.run {
-  color: #059669;
+  color: #10b981;
+  fill: #10b981;
 }
 
 .test-suites-action-icon.stop {
@@ -385,11 +386,11 @@
 }
 
 .test-suites-action-icon.report {
-  color: #2563eb;
+  color: #3b82f6;
 }
 
 .test-suites-action-icon.edit {
-  color: #6b7280;
+  color: #6366f1;
 }
 
 @keyframes pulse {

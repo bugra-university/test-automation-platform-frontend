@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Square, Play, BarChart3, Edit, AlertTriangle, Loader } from 'lucide-react';
+import { ChevronDown, ChevronRight, Square, Play, FileBarChart2, FileEdit, AlertTriangle, Loader } from 'lucide-react';
 import { TestSuite, testSuitesApi } from '../../../api/testSuitesApi';
 import "../../../styles/dashboard/excel-viewer/excel-viewer.css";
 import "../../../styles/dashboard/excel-viewer/sheet-tabs.css";
@@ -762,10 +762,10 @@ export const TestSuitesTable = ({
                 className="test-suites-action-button" 
                 title="Download Report"
               >
-                <BarChart3 className="test-suites-action-icon report" />
+                <FileBarChart2 className="test-suites-action-icon report" />
               </button>
               <button className="test-suites-action-button" title="Edit">
-                <Edit className="test-suites-action-icon edit" />
+                <FileEdit className="test-suites-action-icon edit" />
               </button>
             </div>
           </td>
