@@ -501,14 +501,14 @@ const formatTotalCases = (item: any) => {
   if (item?.id && typeof item.id === 'string' && item.id.startsWith('US_')) {
     if (!item.testCases || item.testCases.length === 0) {
       return (
-                <div className="test-suites-status">
+        <div className="test-suites-status">
           <div className="flex items-center h-5 px-2 rounded-full text-xs font-medium bg-slate-50 text-slate-400 min-w-[50px] justify-center opacity-70">
             No Data
           </div>
         </div>
       );
     }
-    return <span className="test-suites-total-cases">{item.testCases.length}</span>;
+    return <span className="test-suites-total-cases-circle">{item.testCases.length}</span>;
   }
   return <span className="test-suites-total-cases">-</span>;
 };
