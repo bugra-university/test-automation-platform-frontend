@@ -83,6 +83,10 @@
   font-weight: 600;
   color: #4B5563;
   text-transform: uppercase;
+  border-bottom: 1px solid #e5e7eb;
+  border-top: none;
+  border-left: none;
+  border-right: none;
 }
 
 .test-suites-container::-webkit-scrollbar {
@@ -146,7 +150,6 @@
 }
 
 .test-suites-row.test-case:hover td {
-  border: 1px solid #e5e7eb;
   position: relative;
   z-index: 1;
 }
@@ -161,7 +164,10 @@
 } */
 
 .test-suites-cell {
-  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-bottom: 1px solid #e5e7eb;
+  border-left: none;
+  border-right: none;
   padding: 0.5rem;
   font-size: 0.75rem;
   color: #374151;

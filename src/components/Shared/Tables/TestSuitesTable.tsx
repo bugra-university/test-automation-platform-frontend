@@ -308,7 +308,7 @@ const ProgressBar = ({ item }: { item: any }) => {
 const formatLastRun = (lastRun: string | null) => {
   if (!lastRun) return (
     <div className="test-suites-status">
-      <div className="test-suites-status-badge pending">
+      <div className="flex items-center h-6 px-3 rounded-full text-xs font-medium bg-slate-100 text-slate-600 min-w-[100px] justify-center">
         Not Run
       </div>
     </div>
