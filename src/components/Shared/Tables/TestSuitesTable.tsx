@@ -326,7 +326,7 @@ const formatLastRun = (lastRun: string | null) => {
 const formatDuration = (durationMs: number | null) => {
   if (!durationMs) return (
     <div className="test-suites-status">
-      <div className="test-suites-status-badge pending">
+      <div className="flex items-center h-5 px-2 rounded-full text-xs font-medium bg-slate-50 text-slate-400 min-w-[50px] justify-center opacity-70">
         No Data
       </div>
     </div>
