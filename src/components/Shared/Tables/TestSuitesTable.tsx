@@ -503,9 +503,9 @@ const formatTotalCases = (item: any) => {
         </div>
       );
     }
-    return item.testCases.length;
+    return <span className="test-suites-total-cases">{item.testCases.length}</span>;
   }
-  return '-';
+  return <span className="test-suites-total-cases">-</span>;
 };
 
 // New function to format test case progress (step position)
@@ -860,16 +860,16 @@ export const TestSuitesTable = ({
                   )}
                 </button>
               )}
-              <span className="test-suites-id">{testCase.id}</span>
+              <span className="test-suites-id text-[0.75rem] font-medium text-gray-400">{testCase.id}</span>
             </div>
           </td>
           <td className="test-suites-cell">
             <div className="test-suites-cell-content">
-              <div className="test-suites-name">{testCase.name}</div>
+              <div className="test-suites-name text-[0.75rem] font-medium text-gray-400">{testCase.name}</div>
             </div>
           </td>
           <td className="test-suites-cell center">
-            <span className="test-suites-progress">
+            <span className="test-suites-progress text-[0.75rem] font-medium text-gray-400">
               {formatTestCaseProgress(testCase, parentUserStory)}
             </span>
           </td>
@@ -890,7 +890,7 @@ export const TestSuitesTable = ({
                 </div>
               </div>
             ) : (
-              <span className="test-suites-last-run text-gray-600 min-w-[100px] flex justify-center">
+              <span className="test-suites-last-run text-[0.75rem] font-medium text-gray-400 min-w-[100px] flex justify-center">
                 {isRunning ? 'Running...' : formatLastRun(testCase.lastRun)}
               </span>
             )}
@@ -909,7 +909,7 @@ export const TestSuitesTable = ({
                 </div>
               </div>
             ) : (
-              <span className="test-suites-duration text-gray-600 min-w-[100px] flex justify-center">
+              <span className="test-suites-duration text-[0.75rem] font-medium text-gray-400 min-w-[100px] flex justify-center">
                 {isRunning ? 'In Progress' : formatDuration(testCase.duration)}
               </span>
             )}
