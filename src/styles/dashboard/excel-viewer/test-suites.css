@@ -7,7 +7,6 @@
   overflow: auto;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  border-top-left-radius: 0;
   padding-bottom: 20px;
 }
 
@@ -77,7 +76,7 @@
 .test-suites-header th {
   background-color: #ECECEC;
   position: sticky;
-  top: -1px;
+  top: 0;
   z-index: 2;
   font-size: 0.75rem;
   font-weight: 600;
@@ -173,8 +172,18 @@
   color: #374151;
 }
 
+/* Ensure header cells have consistent border */
+.test-suites-header th {
+  border-bottom: 1px solid #e5e7eb;
+}
+
 /* Remove top border from body cells to prevent double border with header */
 .test-suites-table tbody tr:first-child td {
+  border-top: none;
+}
+
+/* Ensure no gap between header and first row */
+.test-suites-table tbody tr:first-child {
   border-top: none;
 }
 
