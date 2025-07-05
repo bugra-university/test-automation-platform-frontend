@@ -542,26 +542,30 @@
   font-weight: 600;
 }
 
-.test-suites-id-badge {
+.test-suites-id-badge, .test-suites-id-badge:active, .test-suites-id-badge:focus, .test-suites-id-badge:visited {
   display: inline-flex;
   align-items: center;
   gap: 0.35em;
   padding: 0.18em 0.7em;
   border-radius: 1.2em;
-  background: #6366f1; /* güzel bir mor-mavi */
-  color: #fff;
+  background: #6366f1 !important;
+  color: #fff !important;
   font-weight: 600;
   font-size: 0.98em;
   box-shadow: 0 1px 4px 0 rgba(99,102,241,0.08);
   transition: background 0.2s;
+  border: none;
+  cursor: pointer;
 }
 
-.test-suites-row.test-case .test-suites-id-badge {
-  background: #10b981; /* test case için yeşil badge */
+.test-suites-row.test-case .test-suites-id-badge, .test-suites-row.test-case .test-suites-id-badge:active, .test-suites-row.test-case .test-suites-id-badge:focus {
+  background: #3b82f6 !important;
+  color: #fff !important;
 }
 
-.test-suites-row.test-step .test-suites-id-badge {
-  background: #64748b; /* test step için gri-mavi badge */
+.test-suites-row.test-step .test-suites-id-badge, .test-suites-row.test-step .test-suites-id-badge:active, .test-suites-row.test-step .test-suites-id-badge:focus {
+  background: #64748b !important;
+  color: #fff !important;
 }
 
 .test-suites-id-badge .test-suites-action-icon {
@@ -570,4 +574,19 @@
   height: 1em;
   color: #fff;
   opacity: 0.85;
+}
+
+.test-suites-step-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.32em;
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 50%;
+  background: #64748b;
+  color: #fff;
+  font-size: 0.92em;
+  font-weight: 600;
+  box-shadow: 0 1px 2px 0 rgba(100,116,139,0.10);
 } 
