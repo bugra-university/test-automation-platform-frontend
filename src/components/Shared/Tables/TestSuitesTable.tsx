@@ -315,7 +315,12 @@ const formatLastRun = (lastRun: string | null) => {
   );
 
   const date = new Date(lastRun);
-  return date.toLocaleString();
+  return date.toLocaleString('tr-TR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).replace(',', '');
 };
 
 const formatDuration = (durationMs: number | null) => {
@@ -778,14 +783,11 @@ export const TestSuitesTable = ({
   };
 
   const renderTestStep = (step: any, testCase: any) => {
-    const stepProgress = step.status === 'passed' || step.status === 'failed' ? 100 : 0;
-    const stepProgressType = step.status === 'passed' ? 'passed' : step.status === 'failed' ? 'failed' : 'pending';
-    
     return (
       <tr key={step.id} className="test-suites-row test-step">
-        <td className="test-suites-cell center">
-          <div className="test-suites-cell-content center">
-            <span className="test-suites-id">Step {step.stepNumber}</span>
+        <td className="test-suites-cell">
+          <div className="test-suites-cell-content">
+            <span className="test-suites-id" data-step-number={step.stepNumber}>STEP</span>
           </div>
         </td>
         <td className="test-suites-cell">
