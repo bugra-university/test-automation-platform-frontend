@@ -763,16 +763,6 @@ export const TestSuitesTable = ({
                   <Play className="test-suites-action-icon run" />
                 </button>
               )}
-              <button 
-                onClick={() => onDownloadReport(userStory.id)}
-                className="test-suites-action-button" 
-                title="Download Report"
-              >
-                <FileBarChart2 className="test-suites-action-icon report" />
-              </button>
-              <button className="test-suites-action-button" title="Edit">
-                <FileEdit className="test-suites-action-icon edit" />
-              </button>
             </div>
           </td>
         </tr>
@@ -938,6 +928,13 @@ export const TestSuitesTable = ({
                   <Play className="test-suites-action-icon run" />
                 </button>
               )}
+              <button 
+                onClick={() => onDownloadReport(testCase.id)}
+                className="test-suites-action-button"
+                title="Download Report"
+              >
+                <FileBarChart2 className="test-suites-action-icon report" />
+              </button>
             </div>
           </td>
         </tr>
