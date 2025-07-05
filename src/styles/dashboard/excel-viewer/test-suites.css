@@ -3,7 +3,7 @@
 }
 
 .test-suites-container {
-  max-height: calc(100vh - 330px);
+  max-height: calc(100vh - 300px);
   overflow: auto;
   border: 1px solid #e5e7eb;
   border-radius: 12px;
@@ -535,4 +535,9 @@
   font-size: 12px;
   display: inline-block;
   opacity: 0.7;
+}
+
+.test-suites-row:not(.test-case):not(.test-step) .test-suites-total-cases {
+  font-size: 1.15em;
+  font-weight: 600;
 } 
