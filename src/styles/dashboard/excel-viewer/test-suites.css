@@ -117,12 +117,13 @@
 }
 
 .test-suites-row.test-step {
-  background-color: #FAFAFA; /* Test Step rows - çok açık gri */
-  font-size: 0.7rem;
+  background-color: #FAFAFA;
+  font-size: 0.75rem;
 }
 
 .test-suites-row.test-step .test-suites-cell {
-  padding: 0.25rem 0.5rem;
+  padding: 0.5rem;
+  color: #6B7280;
 }
 
 /* Even rows slightly darker variations */
@@ -135,7 +136,7 @@
 }
 
 .test-suites-body tr:nth-child(even).test-suites-row.test-step {
-  background-color: #F5F5F5; /* Test Step even rows */
+  background-color: #EDF4ED; /* Test Step even rows */
 }
 
 /* Hover effect */
@@ -223,8 +224,8 @@
 /* Test Step ID'leri (en alt seviye) - en küçük */
 .test-suites-row.test-step .test-suites-id {
   font-size: 0.75rem;
-  font-weight: 400;
-  color: #9CA3AF;
+  font-weight: 500;
+  color: #6B7280;
 }
 
 .test-suites-name {
@@ -242,9 +243,9 @@
 
 /* Test Step NAME'leri (en alt seviye) - en küçük */
 .test-suites-row.test-step .test-suites-name {
-  font-size: 0.68rem;
-  font-weight: 400;
-  color: #9CA3AF;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
 }
 
 .test-suites-description {
@@ -256,8 +257,6 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-
 
 .test-suites-status-badge {
   display: inline-flex;
@@ -341,8 +340,9 @@
   color: #4B5563;
 }
 
-/* Test Case'lerde Total Cases - hafif küçük */
-.test-suites-row.test-case .test-suites-total-cases {
+/* Test Case'lerde ve Step'lerde Total Cases - hafif küçük */
+.test-suites-row.test-case .test-suites-total-cases,
+.test-suites-row.test-step .test-suites-total-cases {
   font-size: 0.75rem;
   font-weight: 500;
   color: #6B7280;
@@ -352,7 +352,19 @@
 .test-suites-last-run,
 .test-suites-duration {
   font-size: 0.75rem;
-  color: #4b5563;
+  color: #6B7280;
+}
+
+/* Test Case ve Step'lerde progress, last run ve duration */
+.test-suites-row.test-case .test-suites-progress,
+.test-suites-row.test-case .test-suites-last-run,
+.test-suites-row.test-case .test-suites-duration,
+.test-suites-row.test-step .test-suites-progress,
+.test-suites-row.test-step .test-suites-last-run,
+.test-suites-row.test-step .test-suites-duration {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6B7280;
 }
 
 .test-suites-actions {
