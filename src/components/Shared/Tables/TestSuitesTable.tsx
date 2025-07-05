@@ -670,17 +670,19 @@ export const TestSuitesTable = ({
         <tr className="test-suites-row user-story">
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
-              <button
-                onClick={() => toggleExpanded(userStory.id)}
-                className="test-suites-expand-button"
-              >
-                {isExpanded ? (
-                  <ChevronDown className="test-suites-action-icon" />
-                ) : (
-                  <ChevronRight className="test-suites-action-icon" />
-                )}
-              </button>
-              <span className="test-suites-id">{userStory.id}</span>
+              <span className="test-suites-id-badge">
+                <button
+                  onClick={() => toggleExpanded(userStory.id)}
+                  className="test-suites-expand-button"
+                  style={{padding: 0, background: 'none', border: 'none', boxShadow: 'none'}}>
+                  {isExpanded ? (
+                    <ChevronDown className="test-suites-action-icon" />
+                  ) : (
+                    <ChevronRight className="test-suites-action-icon" />
+                  )}
+                </button>
+                {userStory.id}
+              </span>
             </div>
           </td>
           <td className="test-suites-cell">
@@ -787,7 +789,7 @@ export const TestSuitesTable = ({
       <tr key={step.id} className="test-suites-row test-step">
         <td className="test-suites-cell">
           <div className="test-suites-cell-content">
-            <span className="test-suites-id" data-step-number={step.stepNumber}>STEP</span>
+            <span className="test-suites-id-badge">{step.id || 'STEP'}</span>
           </div>
         </td>
         <td className="test-suites-cell">
@@ -850,19 +852,21 @@ export const TestSuitesTable = ({
         <tr className={`test-suites-row test-case ${isRunning ? 'running' : ''}`}>
           <td className="test-suites-cell center">
             <div className="test-suites-cell-content center">
-              {testCase.steps && testCase.steps.length > 0 && (
-                <button
-                  onClick={() => toggleExpanded(testCaseId)}
-                  className="test-suites-expand-button"
-                >
-                  {isExpanded ? (
-                    <ChevronDown className="test-suites-action-icon" />
-                  ) : (
-                    <ChevronRight className="test-suites-action-icon" />
-                  )}
-                </button>
-              )}
-              <span className="test-suites-id text-[0.75rem] font-medium text-gray-400">{testCase.id}</span>
+              <span className="test-suites-id-badge">
+                {testCase.steps && testCase.steps.length > 0 && (
+                  <button
+                    onClick={() => toggleExpanded(testCaseId)}
+                    className="test-suites-expand-button"
+                    style={{padding: 0, background: 'none', border: 'none', boxShadow: 'none'}}>
+                    {isExpanded ? (
+                      <ChevronDown className="test-suites-action-icon" />
+                    ) : (
+                      <ChevronRight className="test-suites-action-icon" />
+                    )}
+                  </button>
+                )}
+                {testCase.id}
+              </span>
             </div>
           </td>
           <td className="test-suites-cell">
