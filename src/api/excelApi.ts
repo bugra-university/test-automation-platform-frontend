@@ -38,7 +38,7 @@ export const uploadAndSaveExcel = async (projectId: number, file: File): Promise
             data: error.response?.data,
             error: error.message
         });
-        
+
         if (error.response) {
             return {
                 success: false,
@@ -58,17 +58,15 @@ export const getProjectExcel = async (projectId: number): Promise<ProjectExcelDa
         const response = await apiClient.get(`/api/projects/${projectId}/latest-excel`, {
             responseType: 'blob'
         });
-        
-        // Check if response has data
+
         if (response.data.size === 0) {
             console.log('No Excel data found for project:', projectId);
             return null;
         }
 
-        // Get filename from headers or use default
         const contentDisposition = response.headers['content-disposition'];
         let fileName = `project_${projectId}_data.xlsx`;
-        
+
         if (contentDisposition) {
             const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
             if (fileNameMatch) {
@@ -104,7 +102,7 @@ export const deleteProjectExcel = async (projectId: number): Promise<UploadRespo
             data: error.response?.data,
             error: error.message
         });
-        
+
         if (error.response) {
             return {
                 success: false,

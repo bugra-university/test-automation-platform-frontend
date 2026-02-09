@@ -1,8 +1,8 @@
-// Re-export types from hooks for centralized type management
+
 export type { MainLayoutState, MainLayoutActions } from '../hooks/useMainLayoutState';
 export type { TabHandlers } from '../hooks/useTabHandlers';
 
-// Additional component prop types
+
 export interface LeftTabsProps {
     activeTab: string;
     onTabClick: (tabId: string) => void;

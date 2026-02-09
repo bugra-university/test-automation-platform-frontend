@@ -9,7 +9,7 @@ interface TestCasesTableProps {
   onDownloadReport: (testCaseId?: string) => void;
 }
 
-// Helper functions
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'passed': return <span className="w-2 h-2 rounded-full bg-green-500"></span>;
@@ -81,10 +81,10 @@ export const TestCasesTable = ({ testCases, onRunTestCase, onDownloadReport }: T
 
   const renderTestCase = (testCase: any) => {
     const isExpanded = expandedItems.has(testCase.id);
-    
+
     return (
       <React.Fragment key={testCase.id}>
-        {/* Test Case Row */}
+
         <tr className="bg-gray-50">
           <td className="content-cell text-center">
             <div className="cell-content">
@@ -138,17 +138,17 @@ export const TestCasesTable = ({ testCases, onRunTestCase, onDownloadReport }: T
                     <Square className="h-3 w-3 text-red-600" />
                   </button>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => onRunTestCase(testCase.id)}
-                    className="p-1 hover:bg-gray-100 rounded" 
+                    className="p-1 hover:bg-gray-100 rounded"
                     title="Run"
                   >
                     <Play className="h-3 w-3 text-green-600" />
                   </button>
                 )}
-                <button 
+                <button
                   onClick={() => onDownloadReport(testCase.id)}
-                  className="p-1 hover:bg-gray-100 rounded" 
+                  className="p-1 hover:bg-gray-100 rounded"
                   title="Download Report"
                 >
                   <BarChart3 className="h-3 w-3 text-blue-600" />
@@ -156,7 +156,7 @@ export const TestCasesTable = ({ testCases, onRunTestCase, onDownloadReport }: T
                 <button className="p-1 hover:bg-gray-100 rounded" title="Edit">
                   <Edit className="h-3 w-3 text-gray-600" />
                 </button>
-                {/* Warning icon for incomplete test cases */}
+
                 {!testCase.hasSteps && (
                   <span className="text-yellow-500" title="Test steps not defined">
                     <AlertTriangle className="h-3 w-3" />

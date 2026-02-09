@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-// Projects table specific styles
+
 import "../../../styles/dashboard/excel-viewer/projects-table.css";
 import {
   Table,
@@ -70,132 +70,153 @@ interface ProjectsTableProps {
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('tr-TR', {
     day: '2-digit',
-    month: '2-digit', 
+    month: '2-digit',
     year: 'numeric'
   });
 };
 
-// Status classes are now handled in CSS
+
 
 const createColumns = (
-  onDeleteProject?: (project: Project) => void, 
+  onDeleteProject?: (project: Project) => void,
   onEditProject?: (project: Project) => void,
   setRowSelection?: (selection: RowSelectionState) => void
 ): ColumnDef<Project>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <input
-        type="checkbox"
-        className="projects-regular-checkbox"
-        checked={false}
-        onChange={() => {}}
-        disabled={true}
-        aria-label="Select all (disabled for single selection)"
-        style={{ opacity: 0.3 }}
-      />
-    ),
-    cell: ({ row }) => (
-      <input
-        type="checkbox"
-        className="projects-regular-checkbox"
-        checked={row.getIsSelected()}
-        onChange={(e) => {
-          e.stopPropagation();
-          if (e.target.checked) {
-            // Single selection: clear all others and select this one
-            const newSelection: RowSelectionState = {};
-            newSelection[row.index] = true;
-            setRowSelection?.(newSelection);
-          } else {
-            // Deselect
-            setRowSelection?.({});
-          }
-        }}
-        aria-label="Select row"
-      />
-    ),
-    size: 28,
-    enableSorting: false,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">PROJECT NAME</span>
-      </div>
-    ),
-    accessorKey: "name",
-    cell: ({ row }) => (
-      <div className="projects-cell-name">
-        {row.getValue("name")}
-      </div>
-    ),
-    size: 250,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">DESCRIPTION</span>
-      </div>
-    ),
-    accessorKey: "description",
-    cell: ({ row }) => (
-      <div className="projects-cell-description">
-        {row.getValue("description") || "No description"}
-      </div>
-    ),
-    size: 300,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">CREATED DATE</span>
-      </div>
-    ),
-    accessorKey: "createdAt",
-    cell: ({ row }) => (
-      <div className="projects-cell-date">
-        {formatDate(row.getValue("createdAt"))}
-      </div>
-    ),
-    size: 150,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">TEST CASES</span>
-      </div>
-    ), 
-    accessorKey: "testCases",
-    cell: ({ row }) => {
-      const testCases = row.original.name === "testv1" ? "98 Cases | 5 Test Runs" : "156 Cases | 12 Test Runs";
-      return (
-        <div className="projects-cell-test-cases">
-          {testCases}
-        </div>
-      );
+    {
+      id: "select",
+      header: ({ table }) => (
+        <input
+          type="checkbox"
+          className="projects-regular-checkbox"
+          checked={false}
+          onChange={() => { }}
+          disabled={true}
+          aria-label="Select all (disabled for single selection)"
+          style={{ opacity: 0.3 }}
+        />
+      ),
+      cell: ({ row }) => (
+        <input
+          type="checkbox"
+          className="projects-regular-checkbox"
+          checked={row.getIsSelected()}
+          onChange={(e) => {
+            e.stopPropagation();
+            if (e.target.checked) {
+
+              const newSelection: RowSelectionState = {};
+              newSelection[row.index] = true;
+              setRowSelection?.(newSelection);
+            } else {
+
+              setRowSelection?.({});
+            }
+          }}
+          aria-label="Select row"
+        />
+      ),
+      size: 28,
+      enableSorting: false,
     },
-    size: 200,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">STATUS</span>
-      </div>
-    ),
-    accessorKey: "status",
-    cell: ({ row }) => {
-      const projectName = row.original.name;
-      const hasExcel = projectName === "testv1"; // testv1 has Excel, default doesn't
-      const isSelected = row.getIsSelected();
-      
-      if (isSelected) {
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">PROJECT NAME</span>
+        </div>
+      ),
+      accessorKey: "name",
+      cell: ({ row }) => (
+        <div className="projects-cell-name">
+          {row.getValue("name")}
+        </div>
+      ),
+      size: 250,
+    },
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">DESCRIPTION</span>
+        </div>
+      ),
+      accessorKey: "description",
+      cell: ({ row }) => (
+        <div className="projects-cell-description">
+          {row.getValue("description") || "No description"}
+        </div>
+      ),
+      size: 300,
+    },
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">CREATED DATE</span>
+        </div>
+      ),
+      accessorKey: "createdAt",
+      cell: ({ row }) => (
+        <div className="projects-cell-date">
+          {formatDate(row.getValue("createdAt"))}
+        </div>
+      ),
+      size: 150,
+    },
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">TEST CASES</span>
+        </div>
+      ),
+      accessorKey: "testCases",
+      cell: ({ row }) => {
+        const testCases = row.original.name === "testv1" ? "98 Cases | 5 Test Runs" : "156 Cases | 12 Test Runs";
+        return (
+          <div className="projects-cell-test-cases">
+            {testCases}
+          </div>
+        );
+      },
+      size: 200,
+    },
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">STATUS</span>
+        </div>
+      ),
+      accessorKey: "status",
+      cell: ({ row }) => {
+        const projectName = row.original.name;
+        const hasExcel = projectName === "testv1";
+        const isSelected = row.getIsSelected();
+
+        if (isSelected) {
+          if (hasExcel) {
+            return (
+              <div className="projects-cell-actions flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <span className="projects-status-badge projects-status-active">
+                  Selected
+                </span>
+              </div>
+            );
+          } else {
+            return (
+              <div className="projects-cell-actions flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                <span className="projects-status-badge projects-status-pending">
+                  No Excel file
+                </span>
+              </div>
+            );
+          }
+        }
+
         if (hasExcel) {
           return (
             <div className="projects-cell-actions flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-600" />
               <span className="projects-status-badge projects-status-active">
-                Selected
+                Active
               </span>
             </div>
           );
@@ -209,74 +230,53 @@ const createColumns = (
             </div>
           );
         }
-      }
-      
-      if (hasExcel) {
-        return (
-          <div className="projects-cell-actions flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <span className="projects-status-badge projects-status-active">
-              Active
-            </span>
-          </div>
-        );
-      } else {
-        return (
-          <div className="projects-cell-actions flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-yellow-600" />
-            <span className="projects-status-badge projects-status-pending">
-              No Excel file
-            </span>
-          </div>
-        );
-      }
+      },
+      size: 140,
     },
-    size: 140,
-  },
-  {
-    header: ({ column }) => (
-      <div className="header-content">
-        <span className="projects-header-text">ACTIONS</span>
-      </div>
-    ),
-    id: "actions",
-    cell: ({ row }) => (
-      <div className="projects-cell-actions">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="projects-action-button">
-              <MoreVertical className="projects-action-icon" strokeWidth={2} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem 
-              className="projects-dropdown-item"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditProject?.(row.original);
-              }}
-            >
-              <Pencil className="projects-dropdown-icon" strokeWidth={1.5} />
-              <span>Edit</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="projects-dropdown-item projects-dropdown-item-delete"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteProject?.(row.original);
-              }}
-            >
-              <Trash2 className="projects-dropdown-icon" strokeWidth={1.5} />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
-    size: 100,
-    enableSorting: false,
-  },
-];
+    {
+      header: ({ column }) => (
+        <div className="header-content">
+          <span className="projects-header-text">ACTIONS</span>
+        </div>
+      ),
+      id: "actions",
+      cell: ({ row }) => (
+        <div className="projects-cell-actions">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="projects-action-button">
+                <MoreVertical className="projects-action-icon" strokeWidth={2} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                className="projects-dropdown-item"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditProject?.(row.original);
+                }}
+              >
+                <Pencil className="projects-dropdown-icon" strokeWidth={1.5} />
+                <span>Edit</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="projects-dropdown-item projects-dropdown-item-delete"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteProject?.(row.original);
+                }}
+              >
+                <Trash2 className="projects-dropdown-icon" strokeWidth={1.5} />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+      size: 100,
+      enableSorting: false,
+    },
+  ];
 
 export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEditProject, selectedProject, onProjectExcelUpload }: ProjectsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -288,7 +288,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
 
   const columns = createColumns(onDeleteProject, onEditProject, setRowSelection);
 
-  // Sync selectedProject with table row selection
+
   useEffect(() => {
     if (selectedProject && projects.length > 0) {
       const projectIndex = projects.findIndex(p => p.id === selectedProject.id);
@@ -300,7 +300,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
     }
   }, [selectedProject, projects]);
 
-  // Handle row selection changes
+
   useEffect(() => {
     const selectedRowIndices = Object.keys(rowSelection).filter(key => rowSelection[key]);
     if (selectedRowIndices.length > 0) {
@@ -347,9 +347,9 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
                   {header.isPlaceholder
                     ? null
                     : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
                 </TableHead>
               ))}
             </TableRow>
@@ -361,7 +361,7 @@ export function ProjectsTable({ projects, onProjectSelect, onDeleteProject, onEd
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={(e) => {
-                    // Single selection: clear all others and select this one
+
                     const newSelection: RowSelectionState = {};
                     newSelection[row.index] = true;
                     setRowSelection(newSelection);

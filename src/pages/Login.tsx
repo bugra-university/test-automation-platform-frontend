@@ -33,7 +33,10 @@ const Login: React.FC = () => {
     try {
       await loginWithCredentials(formData.username, formData.password);
     } catch (error: any) {
-      setError(error.response?.data?.message ?? 'An error occurred while signing in');
+      const msg = error.response?.data?.message
+        ?? error.message
+        ?? 'An error occurred while signing in';
+      setError(msg);
     } finally {
       setIsLoading(false);
     }

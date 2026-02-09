@@ -325,8 +325,8 @@ const TestSidebar: React.FC<TestSidebarProps> = ({ activeTab, onTabClick, active
                 </div>
               </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white border border-gray-200 shadow-md rounded-md overflow-hidden" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal bg-white px-4 py-3">
+            <DropdownMenuContent className="w-56 !bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden opacity-100" style={{ backgroundColor: '#ffffff' }} align="end" side="top" forceMount>
+              <DropdownMenuLabel className="font-normal !bg-white px-4 py-3" style={{ backgroundColor: '#ffffff' }}>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{user?.name || "User"}</p>
                   <p className="text-xs text-gray-500">

@@ -9,7 +9,7 @@ interface TestRunsTableProps {
   onViewDetails: (testRunId: string) => void;
 }
 
-// Helper functions
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'passed': return <span className="w-2 h-2 rounded-full bg-green-500"></span>;
@@ -116,16 +116,16 @@ export const TestRunsTable = ({ testRuns, onDownloadReport, onViewDetails }: Tes
         <td className="content-cell">
           <div className="cell-content">
             <div className="flex items-center justify-center space-x-2">
-              <button 
+              <button
                 onClick={() => onViewDetails(testRun.id)}
-                className="p-1 hover:bg-gray-100 rounded" 
+                className="p-1 hover:bg-gray-100 rounded"
                 title="View Details"
               >
                 <BarChart3 className="h-3 w-3 text-blue-600" />
               </button>
-              <button 
+              <button
                 onClick={() => onDownloadReport(testRun.id)}
-                className="p-1 hover:bg-gray-100 rounded" 
+                className="p-1 hover:bg-gray-100 rounded"
                 title="Download Report"
               >
                 <Download className="h-3 w-3 text-gray-600" />

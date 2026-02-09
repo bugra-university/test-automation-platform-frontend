@@ -5,12 +5,7 @@ import { Button } from "../../ui/button";
 import { useToast } from "../../ui/UseToast";
 import { ProjectsTable } from "../../Shared/Tables/ProjectsTable";
 import { AlertDelete } from "../../ui/alert-dialog";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
+
 import {
     Dialog,
     DialogContent,
@@ -153,7 +148,7 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
             title: "Excel File Required",
             description: `Please upload an Excel file for "${project.name}" project first.`,
         });
-        
+
         // TODO: Open upload dialog or redirect to upload page
         console.log('Opening upload for project:', project.name);
     };
@@ -253,17 +248,17 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                 {/* Action Cards */}
                 <div className="grid grid-cols-2 gap-8 pb-8">
                     {/* First Row */}
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '12px', 
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease-in-out',
                         transform: 'translateY(0)',
-                    }} 
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                    onClick={() => setShowCreateForm(true)}>
+                    }}
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                        onClick={() => setShowCreateForm(true)}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                             <Plus style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
@@ -275,16 +270,16 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                         </div>
                     </div>
 
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '12px', 
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease-in-out',
                         transform: 'translateY(0)',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                             <FolderKanban style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
@@ -297,16 +292,16 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     </div>
 
                     {/* Second Row */}
-                    <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'flex-start', 
-                        gap: '12px', 
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
                         cursor: 'pointer',
                         transition: 'transform 0.2s ease-in-out',
                         transform: 'translateY(0)',
                     }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-                    onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
                         <div style={{ padding: '12px', backgroundColor: '#EBF5FF', borderRadius: '4px', boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)' }}>
                             <User style={{ height: '28px', width: '28px', color: '#2563eb' }} strokeWidth={1.5} />
                         </div>
@@ -345,8 +340,8 @@ export function ProjectsTab({ onProjectSelect, loadProjectExcelAndSwitchTab, tab
                     </div>
                 ) : (
                     <div className="mt-6">
-                        <ProjectsTable 
-                            projects={projects} 
+                        <ProjectsTable
+                            projects={projects}
                             onProjectSelect={loadProjectExcelAndSwitchTab || onProjectSelect}
                             onDeleteProject={handleDeleteProject}
                             onEditProject={handleEditProject}

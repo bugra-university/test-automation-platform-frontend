@@ -47,7 +47,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
   const [loadingProjects, setLoadingProjects] = useState<boolean>(false);
   const [showProjectDropdown, setShowProjectDropdown] = useState<boolean>(false);
 
-  // Use testConfig from props instead of local state
   const isHeadlessMode = testConfig.isHeadless;
   const selectedBrowser = testConfig.browser;
 
@@ -59,7 +58,6 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
     onTestConfigChange({ ...testConfig, browser: value });
   };
 
-  // Load projects when component mounts
   useEffect(() => {
     const loadProjects = async () => {
       setLoadingProjects(true);
@@ -78,72 +76,68 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
 
   return (
     <div className="p-4">
-      {/* Project Selection */}
       <div className="p-3 rounded-lg">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Select Target Project</h3>
-          <div className="relative">
-            <button
-              onClick={() => setShowProjectDropdown(!showProjectDropdown)}
-              disabled={loadingProjects}
-              className="w-full px-3 py-2 text-sm bg-white rounded-md shadow-sm text-left focus:outline-none disabled:bg-gray-100"
-            >
-              {loadingProjects ? (
-                'Loading projects...'
-              ) : activeProject ? (
-                <span className="flex items-center">
-                  <span className="font-medium">{activeProject.name}</span>
-                  <span className="ml-2 text-gray-500 text-xs">#{activeProject.id}</span>
-                </span>
-              ) : (
-                'Choose a project...'
-              )}
-              <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+        <div className="relative">
+          <button
+            onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+            disabled={loadingProjects}
+            className="w-full px-3 py-2 text-sm bg-white rounded-md shadow-sm text-left focus:outline-none disabled:bg-gray-100"
+          >
+            {loadingProjects ? (
+              'Loading projects...'
+            ) : activeProject ? (
+              <span className="flex items-center">
+                <span className="font-medium">{activeProject.name}</span>
+                <span className="ml-2 text-gray-500 text-xs">#{activeProject.id}</span>
               </span>
-            </button>
-            
-            {showProjectDropdown && (
-              <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                {projects.length === 0 ? (
-                  <div className="px-3 py-2 text-gray-500 text-sm">No projects found</div>
-                ) : (
-                  projects.map((project) => (
-                    <button
-                      key={project.id}
-                      onClick={() => {
-                        onProjectSelect(project);
-                        setShowProjectDropdown(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none ${
-                        activeProject?.id === project.id ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium">{project.name}</div>
-                          {project.description && (
-                            <div className="text-xs text-gray-500 truncate">{project.description}</div>
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-400">#{project.id}</span>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
+            ) : (
+              'Choose a project...'
             )}
-          </div>
-          
+            <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </span>
+          </button>
+
+          {showProjectDropdown && (
+            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+              {projects.length === 0 ? (
+                <div className="px-3 py-2 text-gray-500 text-sm">No projects found</div>
+              ) : (
+                projects.map((project) => (
+                  <button
+                    key={project.id}
+                    onClick={() => {
+                      onProjectSelect(project);
+                      setShowProjectDropdown(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100 focus:outline-none ${activeProject?.id === project.id ? 'bg-blue-100 text-blue-900' : 'text-gray-900'
+                      }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-medium">{project.name}</div>
+                        {project.description && (
+                          <div className="text-xs text-gray-500 truncate">{project.description}</div>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-400">#{project.id}</span>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
-      {/* Divider */}
+      </div>
+
       {showTable && currentFile && activeProject && (
         <div className="mt-4 border-t border-gray-200"></div>
       )}
 
-      {/* Save Status */}
       <div className="mt-4 p-3 rounded-lg">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Save Status</h3>
         <div className="flex flex-wrap gap-y-2 gap-x-2">
@@ -156,41 +150,35 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
         </div>
       </div>
 
-      {/* Divider */}
       <hr className="my-4 border-gray-200" />
 
-      {/* Test Configuration */}
       <div className="p-3 rounded-lg">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Test Configuration</h3>
-        
-        {/* Browser Mode Toggle */}
+
         <div className="mb-3">
           <label className="text-xs font-medium text-gray-700 mb-2 block">Browser Mode</label>
           <div className="flex gap-2">
             <button
               onClick={() => setIsHeadlessMode(true)}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
-                isHeadlessMode
+              className={`px-3 py-1 text-xs font-medium rounded-full ${isHeadlessMode
                   ? 'bg-blue-100 text-blue-700 border border-blue-300'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               Headless
             </button>
             <button
               onClick={() => setIsHeadlessMode(false)}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
-                !isHeadlessMode
+              className={`px-3 py-1 text-xs font-medium rounded-full ${!isHeadlessMode
                   ? 'bg-green-100 text-green-700 border border-green-300'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+                }`}
             >
               Show Browser
             </button>
           </div>
         </div>
 
-        {/* Browser Selection */}
         <div className="mb-3">
           <label className="text-xs font-medium text-gray-700 mb-2 block">Browser Type</label>
           <select
@@ -204,11 +192,9 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
           </select>
         </div>
 
-        {/* Current Settings Display */}
         <div className="flex flex-wrap gap-2">
-          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-            isHeadlessMode ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
-          }`}>
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${isHeadlessMode ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+            }`}>
             Mode: {isHeadlessMode ? 'Headless' : 'Visible'}
           </div>
           <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
@@ -217,72 +203,63 @@ export const ActionsPanel: React.FC<ActionsPanelProps> = ({
         </div>
       </div>
 
-      {/* Divider */}
       <hr className="my-4 border-gray-200" />
-
-      {/* Actions - All buttons moved to bottom */}
       <div className="p-3 rounded-lg">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Database</h3>
-          <div className="flex flex-wrap gap-2">
-            {/* Edit Mode Toggle */}
-            <button
-              onClick={onEditModeToggle}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
-                isExcelEditMode
-                  ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                  : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={onEditModeToggle}
+            className={`px-3 py-1 text-xs font-medium rounded-full ${isExcelEditMode
+                ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
               }`}
-            >
-              {isExcelEditMode ? 'Disable Edit' : 'Enable Edit'}
-            </button>
+          >
+            {isExcelEditMode ? 'Disable Edit' : 'Enable Edit'}
+          </button>
 
-            {/* Delete Excel File */}
-            {activeProject && (
-              <button
-                onClick={() => {
-                  if (window.confirm(`Are you sure you want to delete the Excel file and ALL related data for project "${activeProject.name}"?\n\nThis will permanently delete:\n• Excel file\n• All test cases\n• All backlog items\n• All test steps\n\nThis action cannot be undone!`)) {
-                    onDeleteExcel?.(activeProject.id);
-                  }
-                }}
-                className="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 hover:bg-red-200"
-              >
-                Delete Excel
-              </button>
-            )}
-
-            {/* Upload New Excel */}
+          {activeProject && (
             <button
-              onClick={onUploadNewExcel}
-              className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200"
+              onClick={() => {
+                if (window.confirm(`Are you sure you want to delete the Excel file and ALL related data for project "${activeProject.name}"?\n\nThis will permanently delete:\n• Excel file\n• All test cases\n• All backlog items\n• All test steps\n\nThis action cannot be undone!`)) {
+                  onDeleteExcel?.(activeProject.id);
+                }
+              }}
+              className="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 hover:bg-red-200"
             >
-              Upload New
+              Delete Excel
             </button>
+          )}
 
-            {/* Save to Database */}
-            <button
-              onClick={onSaveToDatabase}
-              disabled={isSaving || !currentFile || !activeProject}
-              className={`px-3 py-1 text-xs font-medium rounded-full ${
-                !currentFile
+          <button
+            onClick={onUploadNewExcel}
+            className="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-700 hover:bg-purple-200"
+          >
+            Upload New
+          </button>
+
+          <button
+            onClick={onSaveToDatabase}
+            disabled={isSaving || !currentFile || !activeProject}
+            className={`px-3 py-1 text-xs font-medium rounded-full ${!currentFile
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : !activeProject
                   ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                  : !activeProject 
-                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                    : isSaving 
-                      ? 'bg-green-200 text-green-700 cursor-not-allowed'
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
+                  : isSaving
+                    ? 'bg-green-200 text-green-700 cursor-not-allowed'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
               }`}
-            >
-              {isSaving 
-                ? 'Saving...' 
-                : !currentFile 
-                  ? 'Select File' 
-                  : !activeProject 
-                    ? 'Select Project' 
-                    : 'Save to DB'
-              }
-            </button>
-          </div>
+          >
+            {isSaving
+              ? 'Saving...'
+              : !currentFile
+                ? 'Select File'
+                : !activeProject
+                  ? 'Select Project'
+                  : 'Save to DB'
+            }
+          </button>
         </div>
+      </div>
     </div>
   );
 }; 

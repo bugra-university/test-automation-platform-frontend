@@ -11,9 +11,8 @@ export const TabContainer: React.FC<TabContainerProps> = ({
   actions,
   children
 }) => {
-  // Only show header if title or actions exist
   const showHeader = title || actions;
-  
+
   return (
     <div className="tab-container h-full flex flex-col">
       {showHeader && (

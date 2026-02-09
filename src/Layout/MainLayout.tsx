@@ -20,48 +20,59 @@ import { InfoPanel } from '../components/Shared/MainLayout/components/InfoPanel'
 import { formatSaveTime } from '../components/Shared/MainLayout/utils/formatters';
 import { uploadAndSaveExcel } from '../api/excelApi';
 import { useToast } from '../components/ui/UseToast';
+import { Toaster } from '../components/ui/toaster';
 import { ActionsPanel } from '../components/Shared/MainLayout/components/ActionsPanel';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use custom hooks for state management
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [state, actions] = useMainLayoutState();
   const { handleTabClick, handleRightTabClick } = useTabHandlers(state, actions);
   const { toast } = useToast();
 
-  // Global SSE managers (persistent across tab changes)
   const globalSSEManagerRef = useRef<any>(null);
   const globalStepSSEManagerRef = useRef<any>(null);
 
-  // Global SSE event handler
   const handleGlobalSSEEvent = useCallback((event: any) => {
     console.log('[MainLayout] 🌐 Global SSE event received:', event.eventType, event.data);
-    
-    // Broadcast to all components that might be interested
-    window.dispatchEvent(new CustomEvent('globalSSEEvent', { 
-      detail: { eventType: event.eventType, data: event.data } 
-    }));
-  }, []);
 
-  // Global Step SSE event handler
+    if (event.eventType === 'test_case_completed' && event.data) {
+      const data = event.data;
+      const passed = data.success === true;
+      const durationSec = data.duration != null
+        ? (typeof data.duration === 'number' ? (data.duration / 1000).toFixed(1) : data.duration)
+        : '—';
+      console.log('[MainLayout] 🧪 Showing toast for test complete:', data.testCaseId, passed, durationSec);
+      try {
+        toast({
+          title: passed ? 'Test geçti' : 'Test kaldı',
+          description: `${data.testCaseId || 'Test'} ${durationSec}s içinde tamamlandı. ${passed ? 'Tüm adımlar geçti.' : 'Detay için rapora bakın.'}`,
+        });
+      } catch (e) {
+        console.error('[MainLayout] Toast error:', e);
+      }
+    }
+
+    window.dispatchEvent(new CustomEvent('globalSSEEvent', {
+      detail: { eventType: event.eventType, data: event.data }
+    }));
+  }, [toast]);
+
   const handleGlobalStepSSEEvent = useCallback((event: any) => {
     console.log('[MainLayout] 🌐 Global Step SSE event received:', event.eventType, event.data);
-    
-    // Broadcast to all components that might be interested
-    window.dispatchEvent(new CustomEvent('globalStepSSEEvent', { 
-      detail: { eventType: event.eventType, data: event.data } 
+
+    window.dispatchEvent(new CustomEvent('globalStepSSEEvent', {
+      detail: { eventType: event.eventType, data: event.data }
     }));
   }, []);
 
-  // Setup global SSE connections when active project changes
   useEffect(() => {
     if (state.activeProject?.id) {
       const projectId = state.activeProject.id;
       console.log('[MainLayout] 🔌 Setting up global SSE connections for project:', projectId);
 
-      // Cleanup existing connections
       if (globalSSEManagerRef.current) {
         globalSSEManagerRef.current.disconnect();
       }
@@ -69,11 +80,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
         globalStepSSEManagerRef.current.disconnect();
       }
 
-      // Create new global SSE connections
       globalSSEManagerRef.current = testSuitesApi.createEventStream(projectId, handleGlobalSSEEvent);
       globalStepSSEManagerRef.current = stepTrackingApi.createStepEventStream(projectId, handleGlobalStepSSEEvent);
 
-      // Connect
       globalSSEManagerRef.current.connect(projectId, handleGlobalSSEEvent);
       globalStepSSEManagerRef.current.connect(projectId, handleGlobalStepSSEEvent);
 
@@ -91,22 +100,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
     }
   }, [state.activeProject?.id, handleGlobalSSEEvent, handleGlobalStepSSEEvent]);
 
-  // Load table statistics on component mount
   useEffect(() => {
     actions.loadTableStatistics();
   }, [actions]);
 
-  // Using the FullScreen utility component
   const { handleFullscreen } = FullScreen({ isTableVisible: state.showTable });
-    // Using the Delete utility component
   const { handleDelete, showDeleteDialog, confirmDelete, cancelDelete, isDeleting } = Delete({
-    isTableVisible: state.showTable, 
+    isTableVisible: state.showTable,
     setShowTable: actions.customSetShowTable,
     fileName: state.currentFileName,
     onDeleteSuccess: () => {
-      // Clear save info after successful deletion
       actions.setLastSaveInfo({ status: null, timestamp: null, message: undefined });
-      // Reload table statistics after deletion
       actions.loadTableStatistics();
       if (process.env.NODE_ENV === 'development') {
         console.log('Database deletion completed successfully');
@@ -115,78 +119,77 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
   });
 
   const handleSaveToDatabase = async () => {
-    const activeProjectId = state.activeProject?.id; 
+    const activeProjectId = state.activeProject?.id;
     console.log('Save to database initiated', {
-        activeProject: state.activeProject,
-        currentFile: state.currentFile ? {
-            name: state.currentFile.name,
-            size: state.currentFile.size,
-            type: state.currentFile.type
-        } : null
+      activeProject: state.activeProject,
+      currentFile: state.currentFile ? {
+        name: state.currentFile.name,
+        size: state.currentFile.size,
+        type: state.currentFile.type
+      } : null
     });
 
     if (!activeProjectId) {
-        console.warn('No project selected');
-        toast({
-            title: "No Project Selected",
-            description: "Please select a project before saving.",
-        });
-        return;
+      console.warn('No project selected');
+      toast({
+        title: "No Project Selected",
+        description: "Please select a project before saving.",
+      });
+      return;
     }
 
     if (!state.currentFile) {
-        console.warn('No file selected');
-        toast({
-            title: "No File Selected",
-            description: "Please upload a file before saving.",
-        });
-        return;
+      console.warn('No file selected');
+      toast({
+        title: "No File Selected",
+        description: "Please upload a file before saving.",
+      });
+      return;
     }
 
     actions.setIsSaving(true);
     try {
-        console.log('Starting file upload...');
-        const response = await uploadAndSaveExcel(activeProjectId, state.currentFile);
-        console.log('Upload response:', response);
-        
-        if (response.success) {
-            console.log('Upload successful');
-            toast({
-                title: "Success",
-                description: response.message || "Data saved to database!",
-            });
-            actions.setLastSaveInfo({ status: 'success', timestamp: new Date(), message: response.message });
-        } else {
-            console.error('Upload failed:', response.message);
-            toast({
-                title: "Error Saving Data",
-                description: response.message || "An unknown error occurred.",
-            });
-            actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: response.message });
-        }
-    } catch (error: any) {
-        console.error('Unhandled error during save:', error);
+      console.log('Starting file upload...');
+      const response = await uploadAndSaveExcel(activeProjectId, state.currentFile);
+      console.log('Upload response:', response);
+
+      if (response.success) {
+        console.log('Upload successful');
         toast({
-            title: "Unhandled Error",
-            description: error.message || "An unexpected error occurred.",
+          title: "Success",
+          description: response.message || "Data saved to database!",
         });
-        actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: error.message });
+        actions.setLastSaveInfo({ status: 'success', timestamp: new Date(), message: response.message });
+      } else {
+        console.error('Upload failed:', response.message);
+        toast({
+          title: "Error Saving Data",
+          description: response.message || "An unknown error occurred.",
+        });
+        actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: response.message });
+      }
+    } catch (error: any) {
+      console.error('Unhandled error during save:', error);
+      toast({
+        title: "Unhandled Error",
+        description: error.message || "An unexpected error occurred.",
+      });
+      actions.setLastSaveInfo({ status: 'error', timestamp: new Date(), message: error.message });
     } finally {
-        console.log('Save operation completed');
-        actions.setIsSaving(false);
+      console.log('Save operation completed');
+      actions.setIsSaving(false);
     }
   };
 
-  // Handle edit mode toggle
   const handleEditModeToggle = () => {
     if (state.showTable) {
       actions.setIsExcelEditMode(!state.isExcelEditMode);
-    }  };
+    }
+  };
 
-  // Pass states to child components and allow them to update showTable and set currentFileName
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      return cloneElement(child as ReactElement<any>, { 
+      return cloneElement(child as ReactElement<any>, {
         activeTabFromHeader: state.activeTab,
         activeProject: state.activeProject,
         setActiveProject: actions.setActiveProject,
@@ -200,7 +203,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
         lastSaveInfo: state.lastSaveInfo,
         setLastSaveInfo: actions.setLastSaveInfo,
         loadProjectExcelAndSwitchTab: actions.loadProjectExcelAndSwitchTab,
-        testConfig: state.testConfig
+        testConfig: state.testConfig,
+        onSaveToDatabase: handleSaveToDatabase,
+        isSaving: state.isSaving
       });
     }
     return child;
@@ -209,11 +214,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
   return (
     <div className="h-screen flex flex-col">
       <MainNav />
-      
+
       <div className="flex bg-[#f6f6f6] overflow-hidden main-content-wrapper">
         <div className="p-8 pr-4">
           <div className="sidebar-container">
-            <TestSidebar 
+            <TestSidebar
               activeTab={state.activeTab}
               onTabClick={handleTabClick}
               activeProject={state.activeProject}
@@ -221,7 +226,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
             />
           </div>
         </div>
-        
+
         <div className="flex flex-1 p-8 pl-4 gap-4 min-w-0">
           <div className="flex-1 max-w-[calc(100%-380px)] min-w-0">
             <div className="left-container h-full">
@@ -241,7 +246,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
               </div>
               <RightHeaderActions />
             </div>            <div className="container-content">
-              {/* Conditionally display content based on active right tab */}
               {state.activeRightTab === "test-results" && (
                 <InfoPanel
                   currentFileName={state.currentFileName}
@@ -289,14 +293,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {    // Use cust
             </div>
           </div>
         </div>
-      </div>      {/* Render the delete confirmation dialog */}
-      <DeleteDialog 
-        showDialog={showDeleteDialog} 
-        onCancel={cancelDelete} 
+      </div>      <DeleteDialog
+        showDialog={showDeleteDialog}
+        onCancel={cancelDelete}
         onConfirm={confirmDelete}
         fileName={state.currentFileName || "this table"}
         isDeleting={isDeleting}
       />
+      <Toaster />
     </div>
   );
 };

@@ -39,18 +39,15 @@ export interface TestCaseDTO {
 }
 
 const testApi = {
-    // Test Results
     getAllTestResults: () => apiClient.get<TestResultDTO[]>(`${API_URL}/test-results`),
     getTestResultsByRun: (testRunId: string) => apiClient.get<TestResultDTO[]>(`${API_URL}/test-results/test-run/${testRunId}`),
     getTestResultsByCase: (testCaseId: string) => apiClient.get<TestResultDTO[]>(`${API_URL}/test-results/test-case/${testCaseId}`),
 
-    // Test Runs
     getAllTestRuns: () => apiClient.get<TestRunDTO[]>(`${API_URL}/test-runs`),
     getActiveTestRuns: () => apiClient.get<TestRunDTO[]>(`${API_URL}/test-runs/active`),
     createTestRun: (testRun: Partial<TestRunDTO>) => apiClient.post<TestRunDTO>(`${API_URL}/test-runs`, testRun),
     updateTestRunStatus: (id: string, status: string) => apiClient.put<TestRunDTO>(`${API_URL}/test-runs/${id}/status`, status), stopTestRun: (id: string) => apiClient.delete(`${API_URL}/test-runs/${id}`),
 
-    // Test Cases
     getAllTestCases: () => apiClient.get<TestCaseDTO[]>(`${API_URL}/test-cases`),
     getTestCasesBySuite: (suiteId: string) => apiClient.get<TestCaseDTO[]>(`${API_URL}/test-cases/suite/${suiteId}`),
 };

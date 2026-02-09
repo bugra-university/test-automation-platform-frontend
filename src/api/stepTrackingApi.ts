@@ -49,12 +49,12 @@ export const stepTrackingApi = {
             }
 
             // Use full URL with backend address
-            const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+            const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8081';
             const url = `${baseURL}/api/projects/${projectId}/test-suites/steps/events`;
             console.log('[StepSSE] Connecting to:', url);
-            
+
             eventSource = new EventSource(url);
-            
+
             // Handle connection opened
             eventSource.onopen = () => {
                 console.log('[StepSSE] Step tracking connection established for project', projectId);
@@ -66,7 +66,7 @@ export const stepTrackingApi = {
                 console.log('[StepSSE] Step tracking connected:', event.data);
                 onEvent({
                     eventType: 'step_connected',
-                    data: { }
+                    data: {}
                 });
             });
 
@@ -113,7 +113,7 @@ export const stepTrackingApi = {
             eventSource.onerror = (error) => {
                 console.error('[StepSSE] Step tracking connection error:', error);
                 isConnected = false;
-                
+
                 // Attempt to reconnect after 3 seconds
                 setTimeout(() => {
                     if (!isConnected) {
@@ -146,10 +146,10 @@ export const stepTrackingApi = {
      * Manually start a step (for testing/debugging)
      */
     startStep: async (
-        projectId: number, 
-        testCaseId: number, 
-        stepNumber: number, 
-        stepDescription: string, 
+        projectId: number,
+        testCaseId: number,
+        stepNumber: number,
+        stepDescription: string,
         executionId?: string
     ): Promise<StepTrackingResponse> => {
         try {
@@ -181,9 +181,9 @@ export const stepTrackingApi = {
      * Manually complete a step (for testing/debugging)
      */
     completeStep: async (
-        projectId: number, 
-        testCaseId: number, 
-        stepNumber: number, 
+        projectId: number,
+        testCaseId: number,
+        stepNumber: number,
         executionId?: string
     ): Promise<StepTrackingResponse> => {
         try {
@@ -214,10 +214,10 @@ export const stepTrackingApi = {
      * Manually fail a step (for testing/debugging)
      */
     failStep: async (
-        projectId: number, 
-        testCaseId: number, 
-        stepNumber: number, 
-        errorMessage: string, 
+        projectId: number,
+        testCaseId: number,
+        stepNumber: number,
+        errorMessage: string,
         executionId?: string
     ): Promise<StepTrackingResponse> => {
         try {

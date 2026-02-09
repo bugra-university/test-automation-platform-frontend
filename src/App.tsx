@@ -8,7 +8,6 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import MainLayout from './Layout/MainLayout';
 import './App.css';
 
-// Import page components
 import Login from './pages/Login';
 import Settings from './pages/Settings';
 import TestDashboard from './pages/TestDashboard';
@@ -27,10 +26,8 @@ const App: React.FC = () => {
           </Helmet>
           <AuthProvider>
             <Routes>
-              {/* Public routes */}
               <Route path="/login" element={<Login />} />
-              
-              {/* Protected routes */}
+
               <Route
                 path="/"
                 element={
@@ -41,7 +38,7 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
-              
+
               <Route
                 path="/settings"
                 element={
@@ -52,7 +49,7 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
-              
+
               <Route
                 path="/test-dashboard"
                 element={
@@ -63,8 +60,7 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
-              
-              {/* Catch all route */}
+
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AuthProvider>

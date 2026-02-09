@@ -14,11 +14,11 @@ interface FullScreenProps {
  * @param isTableVisible - Flag indicating if the table is visible (required for fullscreen)
  * @returns Object containing the handleFullscreen function
  */
-export const FullScreen = ({ 
+export const FullScreen = ({
   elementSelector = '.left-container',
   isTableVisible
 }: FullScreenProps) => {
-  
+
   // Function to handle fullscreen mode
   const handleFullscreen = () => {
     if (isTableVisible) {

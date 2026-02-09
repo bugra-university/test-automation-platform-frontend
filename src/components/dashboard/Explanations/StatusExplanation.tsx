@@ -1,4 +1,3 @@
-import React from "react";
 import { Check, X, AlertTriangle } from "lucide-react";
 
 interface StatusExplanationProps {

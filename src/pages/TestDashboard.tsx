@@ -44,6 +44,8 @@ interface TestDashboardProps {
     isHeadless: boolean;
     browser: string;
   };
+  readonly onSaveToDatabase?: () => void;
+  readonly isSaving?: boolean;
 }
 
 export default function TestDashboard({ 
@@ -61,7 +63,9 @@ export default function TestDashboard({
   setLastSaveInfo,
   loadProjectExcelAndSwitchTab,
   onLogout,
-  testConfig
+  testConfig,
+  onSaveToDatabase,
+  isSaving
 }: TestDashboardProps) {
   const [activeTab, setActiveTab] = useState("projects");
   
@@ -106,7 +110,6 @@ export default function TestDashboard({
           testConfig={testConfig || { isHeadless: false, browser: 'chrome' }} 
         />;      
       case "run-tests":
-        // We need to get setCurrentFileName from props
         return <RunTestsTab 
           showTable={showTable} 
           setShowTable={setShowTable} 
@@ -117,6 +120,9 @@ export default function TestDashboard({
           setIsExcelEditMode={setIsExcelEditMode}
           lastSaveInfo={lastSaveInfo}
           setLastSaveInfo={setLastSaveInfo}
+          onSaveToDatabase={onSaveToDatabase}
+          isSaving={isSaving}
+          activeProject={activeProject}
         />;
       case "test-cases":
         return <TestCasesTab />;
@@ -143,6 +149,9 @@ export default function TestDashboard({
           activeTab={activeTab}
           lastSaveInfo={lastSaveInfo}
           setLastSaveInfo={setLastSaveInfo}
+          onSaveToDatabase={onSaveToDatabase}
+          isSaving={isSaving}
+          activeProject={activeProject}
         />;
     }
   };

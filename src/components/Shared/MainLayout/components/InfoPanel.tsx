@@ -68,7 +68,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
   const [loadingTestStats, setLoadingTestStats] = useState(false);
 
 
-  // Fetch database activity and test suites stats when project changes
   useEffect(() => {
     if (activeProject) {
       fetchDatabaseActivity();
@@ -81,7 +80,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
   const fetchDatabaseActivity = async () => {
     if (!activeProject) return;
-    
+
     setLoadingActivity(true);
     try {
       const response = await projectsApi.getProjectDatabaseActivity(activeProject.id);
@@ -99,11 +98,10 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
   const fetchTestSuitesStats = async () => {
     if (!activeProject) return;
-    
+
     setLoadingTestStats(true);
     try {
       const statistics = await testSuitesApi.getTestSuitesStatistics(activeProject.id);
-      // Map API response to local interface
       setTestSuitesStats({
         totalStories: statistics.totalStories,
         totalTestCases: statistics.totalTestCases,
@@ -138,7 +136,6 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
 
   return (
     <div className="p-4">
-      {/* Project Information */}
       {activeProject && (
         <div className="p-3 rounded-lg">
           <h3 className="text-sm font-medium text-gray-900 mb-3">Project</h3>
@@ -158,16 +155,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         </div>
       )}
 
-      {/* Divider */}
       {activeProject && (
         <hr className="my-4 border-gray-200" />
       )}
 
-      {/* File Information */}
       <div className="mt-4 p-3 rounded-lg">
         <h3 className="text-sm font-medium text-gray-900 mb-3">File Information</h3>
-        
-        {/* File Info Badges */}
+
         <div className="flex flex-wrap gap-y-2 gap-x-2">
           {currentFileName ? (
             <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-800">
@@ -178,27 +172,23 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
               No file selected
             </div>
           )}
-          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-            isExcelEditMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-          }`}>
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${isExcelEditMode ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+            }`}>
             Edit Mode: {isExcelEditMode ? 'Enabled' : 'Disabled'}
           </div>
-          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${
-            showTable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-          }`}>
+          <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent ${showTable ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+            }`}>
             Table View: {showTable ? 'Visible' : 'Hidden'}
           </div>
         </div>
       </div>
 
-      {/* Divider */}
       <hr className="my-4 border-gray-200" />
 
-      {/* Database Activity */}
       {activeProject && (
         <div className="mt-4 p-3 rounded-lg">
           <h3 className="text-sm font-medium text-gray-900 mb-3">Database Activity</h3>
-          
+
           {loadingActivity ? (
             <div className="flex items-center justify-center py-4">
               <div className="text-xs text-gray-500">Loading activity...</div>
@@ -235,54 +225,46 @@ export const InfoPanel: React.FC<InfoPanelProps> = ({
         </div>
       )}
 
-      {/* Divider */}
       {activeProject && (
         <hr className="my-4 border-gray-200" />
       )}
 
-      {/* Test Suites Information */}
       {activeProject && (
         <div className="mt-4 p-3 rounded-lg">
           <h3 className="text-sm font-medium text-gray-900 mb-3">Test Suites</h3>
-          
+
           {loadingTestStats ? (
             <div className="flex items-center justify-center py-4">
               <div className="text-xs text-gray-500">Loading statistics...</div>
             </div>
           ) : testSuitesStats ? (
             <div className="flex flex-wrap gap-y-2 gap-x-2">
-              {/* Total Stories */}
               <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-blue-100 text-blue-800">
                 Stories: {testSuitesStats.totalStories}
               </div>
-              
-              {/* Total Test Cases */}
+
               <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-purple-100 text-purple-800">
                 Test Cases: {testSuitesStats.totalTestCases}
               </div>
-              
-              {/* Passed */}
+
               {testSuitesStats.passedCount > 0 && (
                 <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-green-100 text-green-800">
                   Passed: {testSuitesStats.passedCount}
                 </div>
               )}
-              
-              {/* Failed */}
+
               {testSuitesStats.failedCount > 0 && (
                 <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-red-100 text-red-800">
                   Failed: {testSuitesStats.failedCount}
                 </div>
               )}
-              
-              {/* Pending */}
+
               {testSuitesStats.pendingCount > 0 && (
                 <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-yellow-100 text-yellow-800">
                   Pending: {testSuitesStats.pendingCount}
                 </div>
               )}
-              
-              {/* Not Run */}
+
               {testSuitesStats.notRunCount > 0 && (
                 <div className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold border-transparent bg-gray-100 text-gray-700">
                   Not Run: {testSuitesStats.notRunCount}

@@ -1,37 +1,31 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Project } from '../../../../api/projectsApi';
 import { getProjectExcel, deleteProjectExcel } from '../../../../api/excelApi';
 
 export interface MainLayoutState {
-    // Tab states
     activeTab: string;
     activeRightTab: string;
     activeProject: Project | null;
 
-    // Table states
     showTable: boolean;
     tabTableStates: { [key: string]: boolean };
     tabFileNames: { [key: string]: string };
     tabFiles: { [key: string]: File | null };
 
-    // File states
     currentFileName: string;
     currentFile: File | null;
     isExcelEditMode: boolean;
     isSaving: boolean;
 
-    // Save and sync states
     lastSaveInfo: {
         status: 'success' | 'error' | null;
         timestamp: Date | null;
         message?: string;
     };
 
-    // Database states
     tableStats: any;
     loadingStats: boolean;
 
-    // Test configuration states
     testConfig: {
         isHeadless: boolean;
         browser: string;
@@ -56,83 +50,10 @@ export interface MainLayoutActions {
 }
 
 export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
-    // Initialize states with default values
     const [activeTab, setActiveTab] = useState("projects");
     const [activeRightTab, setActiveRightTab] = useState("test-results");
     const [activeProject, setActiveProjectInternal] = useState<Project | null>(null);
 
-    // Enhanced setActiveProject that saves to localStorage and checks Excel if on backlog tab
-    const setActiveProject = async (project: Project | null) => {
-        setActiveProjectInternal(project);
-        if (project) {
-            localStorage.setItem('lastActiveProject', JSON.stringify(project));
-            
-            // If we're currently on the backlog tab, load Excel data for the new project
-            if (activeTab === 'run-tests') {
-                console.log('Active tab is backlog, loading Excel data for project:', project.name);
-                try {
-                    const excelData = await getProjectExcel(project.id);
-                    
-                    if (excelData) {
-                        console.log('Excel data found for project:', project.name);
-                        
-                        // Convert Blob to File
-                        const file = new File([excelData.fileData], excelData.fileName, {
-                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                        });
-                        
-                        // Set file data
-                        setCurrentFile(file);
-                        setCurrentFileName(excelData.fileName);
-                        setShowTable(true);
-                        
-                        // Update tab states
-                        setTabTableStates(prev => ({
-                            ...prev,
-                            'run-tests': true
-                        }));
-                        
-                        console.log('Excel data loaded and table shown for project:', project.name);
-                    } else {
-                        console.log('No Excel data found for project:', project.name);
-                        // Clear any existing data
-                        setCurrentFile(null);
-                        setCurrentFileName('');
-                        setShowTable(false);
-                        
-                        // Update tab states
-                        setTabTableStates(prev => ({
-                            ...prev,
-                            'run-tests': false
-                        }));
-                        
-                        // Show toast notification for projects without Excel
-                        window.dispatchEvent(new CustomEvent('showToast', {
-                            detail: {
-                                title: 'Excel File Required',
-                                description: `Please upload an Excel file for ${project.name} first`
-                            }
-                        }));
-                    }
-                } catch (error) {
-                    console.error('Error loading Excel data for project:', error);
-                }
-            }
-        } else {
-            localStorage.removeItem('lastActiveProject');
-            
-            // If clearing project and we're on backlog tab, clear Excel data
-            if (activeTab === 'run-tests') {
-                setCurrentFile(null);
-                setCurrentFileName('');
-                setShowTable(false);
-                setTabTableStates(prev => ({
-                    ...prev,
-                    'run-tests': false
-                }));
-            }
-        }
-    };
     const [showTable, setShowTable] = useState(false);
     const [tabTableStates, setTabTableStates] = useState<{ [key: string]: boolean }>({});
     const [tabFileNames, setTabFileNames] = useState<{ [key: string]: string }>({});
@@ -153,69 +74,117 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
     const [tableStats, setTableStats] = useState<any>(null);
     const [loadingStats, setLoadingStats] = useState<boolean>(false);
     const [testConfig, setTestConfig] = useState<{ isHeadless: boolean; browser: string }>({
-        isHeadless: false,  // Changed to false for visible browser by default
+        isHeadless: false,
         browser: 'chrome'
     });
 
-    // Load last session state from localStorage on mount
-    useEffect(() => {
-        const loadLastSession = async () => {
-            try {
-                const lastProjectData = localStorage.getItem('lastActiveProject');
-                const lastTabData = localStorage.getItem('lastActiveTab');
-                
-                // Restore last tab if exists, otherwise default to projects
-                if (lastTabData) {
-                    setActiveTab(lastTabData);
-                    console.log('Restored last active tab:', lastTabData);
-                }
-                
-                if (lastProjectData) {
-                    const project = JSON.parse(lastProjectData);
-                    console.log('Loading last active project from localStorage:', project);
-                    
-                    // Set active project first
-                    setActiveProjectInternal(project);
-                    
-                    // Only load Excel if we're on the backlog tab
-                    if (lastTabData === 'run-tests') {
-                        // Try to load Excel data for this project
-                        const excelData = await getProjectExcel(project.id);
-                        
-                        if (excelData) {
-                            console.log('Excel data found for project:', project.name);
-                            
-                            // Convert Blob to File
-                            const file = new File([excelData.fileData], excelData.fileName, {
-                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                            });
-                            
-                            // Set file data
-                            setCurrentFile(file);
-                            setCurrentFileName(excelData.fileName);
-                            setShowTable(true);
-                            
-                            console.log('Setting showTable to true, file:', file.name);
-                        } else {
-                            console.log('No Excel data found for project:', project.name);
-                        }
+    const enhancedSetActiveTab = (tab: string) => {
+        setActiveTab(tab);
+        localStorage.setItem('lastActiveTab', tab);
+    };
+
+    const customSetShowTable = (value: boolean | ((prev: boolean) => boolean)) => {
+        const newValue = typeof value === 'function' ? value(showTable) : value;
+
+        setShowTable(newValue);
+
+        setTabTableStates(prev => ({
+            ...prev,
+            [activeTab]: newValue
+        }));
+    };
+
+    const customSetCurrentFileName = (fileName: string) => {
+        setCurrentFileName(fileName);
+
+        setTabFileNames(prev => ({
+            ...prev,
+            [activeTab]: fileName
+        }));
+    };
+
+    const customSetCurrentFile = async (file: File | null) => {
+        setCurrentFile(file);
+
+        setTabFiles(prev => ({
+            ...prev,
+            [activeTab]: file
+        }));
+
+        if (file) {
+            customSetCurrentFileName(file.name);
+        }
+    };
+
+    const setActiveProject = async (project: Project | null) => {
+        setActiveProjectInternal(project);
+        if (project) {
+            localStorage.setItem('lastActiveProject', JSON.stringify(project));
+            setTabTableStates(prev => ({ ...prev, 'run-tests': false }));
+            setTabFileNames(prev => ({ ...prev, 'run-tests': '' }));
+            setTabFiles(prev => ({ ...prev, 'run-tests': null }));
+            if (activeTab === 'run-tests') {
+                console.log('Active tab is backlog, loading Excel data for project:', project.name);
+                try {
+                    const excelData = await getProjectExcel(project.id);
+
+                    if (excelData) {
+                        console.log('Excel data found for project:', project.name);
+
+                        const file = new File([excelData.fileData], excelData.fileName, {
+                            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                        });
+
+                        setCurrentFile(file);
+                        setCurrentFileName(excelData.fileName);
+                        setShowTable(true);
+
+                        setTabTableStates(prev => ({
+                            ...prev,
+                            'run-tests': true
+                        }));
+
+                        console.log('Excel data loaded and table shown for project:', project.name);
+                    } else {
+                        console.log('No Excel data found for project:', project.name);
+                        setCurrentFile(null);
+                        setCurrentFileName('');
+                        setShowTable(false);
+
+                        setTabTableStates(prev => ({
+                            ...prev,
+                            'run-tests': false
+                        }));
+
+                        window.dispatchEvent(new CustomEvent('showToast', {
+                            detail: {
+                                title: 'Excel File Required',
+                                description: `Please upload an Excel file for ${project.name} first`
+                            }
+                        }));
                     }
+                } catch (error) {
+                    console.error('Error loading Excel data for project:', error);
                 }
-            } catch (error) {
-                console.error('Error loading last session:', error);
-                localStorage.removeItem('lastActiveProject');
-                localStorage.removeItem('lastActiveTab');
             }
-        };
+        } else {
+            localStorage.removeItem('lastActiveProject');
 
-        loadLastSession();
-    }, []); // Only run on mount
+            if (activeTab === 'run-tests') {
+                setCurrentFile(null);
+                setCurrentFileName('');
+                setShowTable(false);
+                setTabTableStates(prev => ({
+                    ...prev,
+                    'run-tests': false
+                }));
+            }
+        }
+    };
 
-    // Function to load database table statistics
     const loadTableStatistics = async () => {
         setLoadingStats(true);
         try {
-            // Backend API endpoint not ready yet - using mock data
             console.log('Table statistics loading disabled - backend not ready');
             setTableStats(null);
         } catch (error) {
@@ -226,214 +195,85 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         }
     };
 
-    // Function to load project Excel and switch to backlog tab
     const loadProjectExcelAndSwitchTab = async (project: Project) => {
         try {
             console.log('Loading Excel for project:', project.name, project.id);
-            
-            // Set active project first
+
             setActiveProjectInternal(project);
-            
-            // Save to localStorage for persistence
+
             localStorage.setItem('lastActiveProject', JSON.stringify(project));
-            
-            // Try to load Excel data for this project
+
             const excelData = await getProjectExcel(project.id);
-            
+
             if (excelData) {
                 console.log('Excel data found for project:', project.name);
-                
-                // Convert Blob to File
+
                 const file = new File([excelData.fileData], excelData.fileName, {
                     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
                 });
-                
-                // Set file data
+
                 setCurrentFile(file);
                 setCurrentFileName(excelData.fileName);
-                
+
                 console.log('loadProjectExcelAndSwitchTab: Setting showTable to true, file:', file.name);
                 console.log('showTable state after setting:', showTable);
                 console.log('Switching to backlog tab...');
-                
-                // Switch to backlog tab AND set state directly for run-tests tab
+
                 enhancedSetActiveTab('run-tests');
                 setTabTableStates(prev => ({
                     ...prev,
                     'run-tests': true
                 }));
                 setShowTable(true);
-                
+
                 console.log('Set run-tests tab state to true');
             } else {
                 console.log('No Excel data found for project:', project.name);
-                // Clear any existing Excel data
                 setCurrentFile(null);
                 setCurrentFileName('');
-                
-                // Use customSetShowTable to save to tab states too
+
                 customSetShowTable(false);
-                
+
                 console.log('Cleared Excel data for project without files');
-                
-                // Switch to backlog tab AND clear state directly for run-tests tab
+
                 enhancedSetActiveTab('run-tests');
                 setTabTableStates(prev => ({
                     ...prev,
                     'run-tests': false
                 }));
                 setShowTable(false);
-                
+
                 console.log('Set run-tests tab state to false');
             }
         } catch (error) {
             console.error('Error loading project Excel:', error);
-            // Don't clear existing data on error - could be network issue
-            // Just switch to backlog tab
             enhancedSetActiveTab('run-tests');
         }
     };
 
-    // Custom setShowTable function that also updates tab states
-    const customSetShowTable = (value: boolean | ((prev: boolean) => boolean)) => {
-        const newValue = typeof value === 'function' ? value(showTable) : value;
-
-        setShowTable(newValue);
-
-        // Update current tab's state immediately
-        setTabTableStates(prev => ({
-            ...prev,
-            [activeTab]: newValue
-        }));
-    };
-
-    // Custom setCurrentFileName function that also updates tab states
-    const customSetCurrentFileName = (fileName: string) => {
-        setCurrentFileName(fileName);
-
-        // Update current tab's filename immediately
-        setTabFileNames(prev => ({
-            ...prev,
-            [activeTab]: fileName
-        }));
-    };
-
-    // Custom setCurrentFile function that also updates tab states
-    const customSetCurrentFile = async (file: File | null) => {
-        setCurrentFile(file);
-
-        // Update current tab's file immediately
-        setTabFiles(prev => ({
-            ...prev,
-            [activeTab]: file
-        }));
-
-        // If file is provided, set its name
-        if (file) {
-            customSetCurrentFileName(file.name);
-        }
-    };
-
-    // Listen for global file save events to update UI
-    useEffect(() => {
-        const handleSaveSuccess = () => {
-            setLastSaveInfo({
-                status: 'success',
-                timestamp: new Date(),
-                message: 'File saved to database successfully'
-            });
-        };
-
-        window.addEventListener('excelSaveSuccess', handleSaveSuccess);
-
-        return () => {
-            window.removeEventListener('excelSaveSuccess', handleSaveSuccess);
-        };
-    }, []);
-
-    // DISABLED: Tab state restoration - causing conflicts
-    // Will be re-implemented after fixing core state management
-    /*
-    useEffect(() => {
-        // When activeTab changes, restore the state for the new tab
-        const newTabTableState = tabTableStates[activeTab];
-        const newTabFileName = tabFileNames[activeTab];
-        const newTabFile = tabFiles[activeTab];
-
-        // Restore table state if it exists
-        if (newTabTableState !== undefined) {
-            setShowTable(newTabTableState);
-        } else {
-            setShowTable(false);
-        }
-
-        // Restore filename if it exists
-        if (newTabFileName !== undefined) {
-            setCurrentFileName(newTabFileName);
-        } else {
-            setCurrentFileName("");
-        }
-
-        // Restore file if it exists
-        if (newTabFile !== undefined) {
-            setCurrentFile(newTabFile);
-        } else {
-            setCurrentFile(null);
-        }
-    }, [activeTab, tabTableStates, tabFileNames, tabFiles]);
-    */
-
-    const state: MainLayoutState = {
-        activeTab,
-        activeRightTab,
-        activeProject,
-        showTable,
-        tabTableStates,
-        tabFileNames,
-        tabFiles,
-        currentFileName,
-        currentFile,
-        isExcelEditMode,
-        isSaving,
-        lastSaveInfo,
-        tableStats,
-        loadingStats,
-        testConfig
-    };
-
-    // Enhanced setActiveTab that saves to localStorage
-    const enhancedSetActiveTab = (tab: string) => {
-        setActiveTab(tab);
-        localStorage.setItem('lastActiveTab', tab);
-    };
-
-    // Delete Excel file and all related data
     const deleteExcel = async (projectId: number) => {
         try {
             console.log('Deleting Excel for project:', projectId);
-            
+
             const result = await deleteProjectExcel(projectId);
-            
+
             if (result.success) {
-                // Clear all state related to Excel
                 setCurrentFile(null);
                 setCurrentFileName('');
                 setShowTable(false);
                 setIsExcelEditMode(false);
-                
-                // Clear tab states for this project
+
                 setTabTableStates(prev => ({
                     ...prev,
                     'run-tests': false
                 }));
-                
-                // Show success message
+
                 setLastSaveInfo({
                     status: 'success',
                     timestamp: new Date(),
                     message: 'Excel file and all related data deleted successfully'
                 });
-                
+
                 console.log('Excel deletion successful:', result.message);
             } else {
                 setLastSaveInfo({
@@ -453,25 +293,105 @@ export const useMainLayoutState = (): [MainLayoutState, MainLayoutActions] => {
         }
     };
 
-      // Upload new Excel file (clear state and show upload screen)
-  const uploadNewExcel = () => {
-    // Clear current state first
-    setCurrentFile(null);
-    setCurrentFileName('');
-    setShowTable(false);
-    setIsExcelEditMode(false);
-    
-    // Clear tab states
-    setTabTableStates(prev => ({
-      ...prev,
-      'run-tests': false
-    }));
-    
-    // Switch to upload state
-    enhancedSetActiveTab('run-tests');
-    
-    console.log('Cleared state for new Excel upload');
-  };
+    const uploadNewExcel = () => {
+        setCurrentFile(null);
+        setCurrentFileName('');
+        setShowTable(false);
+        setIsExcelEditMode(false);
+
+        setTabTableStates(prev => ({
+            ...prev,
+            'run-tests': false
+        }));
+
+        enhancedSetActiveTab('run-tests');
+
+        console.log('Cleared state for new Excel upload');
+    };
+
+    useEffect(() => {
+        const loadLastSession = async () => {
+            try {
+                const lastProjectData = localStorage.getItem('lastActiveProject');
+                const lastTabData = localStorage.getItem('lastActiveTab');
+
+                if (lastTabData) {
+                    setActiveTab(lastTabData);
+                    console.log('Restored last active tab:', lastTabData);
+                }
+
+                if (lastProjectData) {
+                    const project = JSON.parse(lastProjectData);
+                    console.log('Loading last active project from localStorage:', project);
+
+                    setActiveProjectInternal(project);
+
+                    if (lastTabData === 'run-tests') {
+                        const excelData = await getProjectExcel(project.id);
+
+                        if (excelData) {
+                            console.log('Excel data found for project:', project.name);
+
+                            const file = new File([excelData.fileData], excelData.fileName, {
+                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            });
+
+                            setCurrentFile(file);
+                            setCurrentFileName(excelData.fileName);
+                            setShowTable(true);
+
+                            console.log('Setting showTable to true, file:', file.name);
+                        } else {
+                            console.log('No Excel data found for project:', project.name);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading last session:', error);
+                localStorage.removeItem('lastActiveProject');
+                localStorage.removeItem('lastActiveTab');
+            }
+        };
+
+        loadLastSession();
+    }, []);
+
+    useEffect(() => {
+        const handleSaveSuccess = () => {
+            setLastSaveInfo({
+                status: 'success',
+                timestamp: new Date(),
+                message: 'File saved to database successfully'
+            });
+        };
+
+        window.addEventListener('excelSaveSuccess', handleSaveSuccess);
+
+        return () => {
+            window.removeEventListener('excelSaveSuccess', handleSaveSuccess);
+        };
+    }, []);
+
+
+
+
+    const state: MainLayoutState = {
+        activeTab,
+        activeRightTab,
+        activeProject,
+        showTable,
+        tabTableStates,
+        tabFileNames,
+        tabFiles,
+        currentFileName,
+        currentFile,
+        isExcelEditMode,
+        isSaving,
+        lastSaveInfo,
+        tableStats,
+        loadingStats,
+        testConfig
+    };
 
     const actions: MainLayoutActions = {
         setActiveTab: enhancedSetActiveTab,

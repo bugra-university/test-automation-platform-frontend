@@ -25,13 +25,11 @@ export interface ProjectResponse {
 const API_URL = '/api/projects';
 
 export const projectsApi = {
-    // Get all projects for current user
     getProjects: async (): Promise<Project[]> => {
         const response = await apiClient.get<ProjectResponse>(API_URL);
         return response.data.projects ?? [];
     },
 
-    // Create a new project
     createProject: async (data: CreateProjectRequest): Promise<Project> => {
         const response = await apiClient.post<ProjectResponse>(API_URL, data);
         if (!response.data.success || !response.data.project) {
@@ -40,7 +38,6 @@ export const projectsApi = {
         return response.data.project;
     },
 
-    // Get a specific project by ID
     getProject: async (id: number): Promise<Project> => {
         const response = await apiClient.get<ProjectResponse>(`${API_URL}/${id}`);
         if (!response.data.success || !response.data.project) {
@@ -49,7 +46,6 @@ export const projectsApi = {
         return response.data.project;
     },
 
-    // Delete a project
     deleteProject: async (id: number): Promise<void> => {
         const response = await apiClient.delete<ProjectResponse>(`${API_URL}/${id}`);
         if (!response.data.success) {
@@ -57,7 +53,6 @@ export const projectsApi = {
         }
     },
 
-    // Update a project (only name and description)
     updateProject: async (id: number, data: { name: string; description: string }): Promise<Project> => {
         const response = await apiClient.post<ProjectResponse>(`${API_URL}/${id}/update`, data);
         if (!response.data.success || !response.data.project) {
@@ -66,7 +61,6 @@ export const projectsApi = {
         return response.data.project;
     },
 
-    // Get project database activity
     getProjectDatabaseActivity: async (projectId: number) => {
         try {
             const response = await apiClient.get(`${API_URL}/${projectId}/database-activity`);

@@ -3,6 +3,7 @@ import { Upload, X, FileDown, Plus, FolderOpen, ChevronDown, ChevronUp } from "l
 import { cn } from "../../../lib/utils";
 import { ExcelViewer } from "../Excel/ExcelViewer";
 import { Button } from "../../ui/button";
+import { useToast } from "../../ui/UseToast";
 
 
 // Types for How It Works
@@ -75,6 +76,9 @@ interface RunTestsTabProps {
     message?: string;
   }) => void;
   tabTitle?: string;
+  onSaveToDatabase?: () => void;
+  isSaving?: boolean;
+  activeProject?: { id: number; name: string } | null;
 }
 
 export function RunTestsTab({ 
@@ -88,8 +92,12 @@ export function RunTestsTab({
   activeTab,
   lastSaveInfo,
   setLastSaveInfo,
-  tabTitle = "Backlog"
+  tabTitle = "Backlog",
+  onSaveToDatabase,
+  isSaving = false,
+  activeProject
 }: RunTestsTabProps = {}) {
+  const { toast } = useToast();
   const [dragActive, setDragActive] = useState(false);
   
   // How It Works states
@@ -172,6 +180,10 @@ export function RunTestsTab({
         if (setCurrentFileName) {
           setCurrentFileName(droppedFile.name);
         }
+        toast({
+          title: "Upload Successful",
+          description: `${droppedFile.name} is ready. You can view the table or save to database.`,
+        });
       } else {
         alert('Please upload a valid Excel file (.xlsx)');
       }
@@ -190,6 +202,10 @@ export function RunTestsTab({
         if (setCurrentFileName) {
           setCurrentFileName(selectedFile.name);
         }
+        toast({
+          title: "Upload Successful",
+          description: `${selectedFile.name} is ready. You can view the table or save to database.`,
+        });
       } else {
         alert('Please upload a valid Excel file (.xlsx)');
       }
@@ -197,11 +213,17 @@ export function RunTestsTab({
   };
 
   const clearFile = () => {
+    const removedName = file?.name || "Excel file";
     setFile(null);
     setShowTable(false);
     if (setCurrentFileName) {
       setCurrentFileName('');
     }
+    toast({
+      variant: "removed",
+      title: "File Removed",
+      description: `${removedName} has been removed. You can upload a new file.`,
+    });
   };
   
   const handleViewTable = () => {
@@ -230,12 +252,14 @@ export function RunTestsTab({
             </div>
             <div className="flex gap-3 items-center">
               {file && (
-                <Button 
-                  onClick={handleViewTable}
-                  className="gap-2 rounded-lg w-[150px] bg-blue-600 hover:bg-blue-700"
-                >
-                  Back to Table
-                </Button>
+                <>
+                  <Button 
+                    onClick={handleViewTable}
+                    className="gap-2 rounded-full min-w-[140px] bg-blue-600 hover:bg-blue-700"
+                  >
+                    Back to Table
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -379,12 +403,25 @@ export function RunTestsTab({
                         )}
                         
                         {file && (
-                          <button
-                            onClick={clearFile}
-                            className="mt-4 px-4 py-2 text-sm font-medium text-red-600 bg-red-100 rounded-full cursor-pointer hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                          >
-                            Remove File
-                          </button>
+                          <div className="mt-4 flex flex-wrap gap-3 items-center justify-center">
+                            <button
+                              onClick={clearFile}
+                              className="w-[130px] px-4 py-2 text-sm font-medium text-red-600 bg-red-100 rounded-full cursor-pointer hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            >
+                              Remove File
+                            </button>
+                            <button
+                              onClick={() => onSaveToDatabase?.()}
+                              disabled={isSaving || !activeProject}
+                              className={`w-[130px] px-4 py-2 text-sm font-medium rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 ${
+                                isSaving || !activeProject
+                                  ? 'bg-emerald-100 text-emerald-500 cursor-not-allowed'
+                                  : 'text-emerald-700 bg-emerald-100 hover:bg-emerald-200'
+                              }`}
+                            >
+                              {isSaving ? 'Saving...' : !activeProject ? 'Select Project' : 'Save to DB'}
+                            </button>
+                          </div>
                         )}
                       </div>
                     ) : (

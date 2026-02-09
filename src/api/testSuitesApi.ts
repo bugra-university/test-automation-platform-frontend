@@ -268,19 +268,19 @@ export const testSuitesApi = {
             const response = await apiClient.get(`${API_URL}/${projectId}/test-suites/reports/latest/download`, {
                 responseType: 'blob'
             });
-            
+
             // Create download link
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            
+
             // Extract filename from response headers or use default
             const contentDisposition = response.headers['content-disposition'];
             let filename = 'test-report.html';
             if (contentDisposition && contentDisposition.includes('filename=')) {
                 filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
             }
-            
+
             link.setAttribute('download', filename);
             document.body.appendChild(link);
             link.click();
@@ -294,19 +294,19 @@ export const testSuitesApi = {
 
     // Real-time execution tracking utilities
     pollExecutionStatus: async (
-        projectId: number, 
-        executionId: string, 
+        projectId: number,
+        executionId: string,
         onStatusUpdate: (status: ExecutionStatus) => void,
         intervalMs: number = 2000,
         maxAttempts: number = 60 // 2 minutes with 2 second intervals
     ): Promise<void> => {
         let attempts = 0;
-        
+
         const poll = async () => {
             try {
                 const status = await testSuitesApi.getExecutionStatus(projectId, executionId);
                 onStatusUpdate(status);
-                
+
                 // Continue polling if test is still running
                 if (status.found && status.status === 'RUNNING' && attempts < maxAttempts) {
                     attempts++;
@@ -320,7 +320,7 @@ export const testSuitesApi = {
                 });
             }
         };
-        
+
         // Start polling
         poll();
     },
@@ -333,13 +333,13 @@ export const testSuitesApi = {
         onStatusUpdate: (status: ExecutionStatus) => void
     ): Promise<{ executionId: string; result: RunTestResponse }> => {
         const result = await testSuitesApi.runTestSuite(projectId, userStoryId, config);
-        
+
         // Extract execution ID from result (we'll need to modify backend to return this)
         const executionId = `${projectId}_${userStoryId}_${Date.now()}`;
-        
+
         // Start polling for status updates
         testSuitesApi.pollExecutionStatus(projectId, executionId, onStatusUpdate);
-        
+
         return { executionId, result };
     },
 
@@ -350,13 +350,13 @@ export const testSuitesApi = {
         onStatusUpdate: (status: ExecutionStatus) => void
     ): Promise<{ executionId: string; result: RunTestResponse }> => {
         const result = await testSuitesApi.runTestCase(projectId, testCaseId, config);
-        
+
         // Extract execution ID from result
         const executionId = `${projectId}_TC_${testCaseId}_${Date.now()}`;
-        
+
         // Start polling for test runs (database-based polling)
         testSuitesApi.pollLatestTestRunsWithCallback(projectId, testCaseId, onStatusUpdate);
-        
+
         return { executionId, result };
     },
 
@@ -380,18 +380,18 @@ export const testSuitesApi = {
         maxAttempts: number = 40 // 2 minutes with 3 second intervals
     ): Promise<void> => {
         let attempts = 0;
-        
+
         const poll = async () => {
             try {
                 const response = await testSuitesApi.getLatestTestRuns(projectId);
                 const testRuns = response.testRuns || [];
-                
+
                 // Find test run for this test case
                 const relevantRun = testRuns.find((run: any) => {
                     const params = run.parameters || {};
                     return params.testCaseId === testCaseId;
                 });
-                
+
                 if (relevantRun) {
                     // Convert database status to ExecutionStatus format
                     const status: ExecutionStatus = {
@@ -402,9 +402,9 @@ export const testSuitesApi = {
                         output: `Test run ID: ${relevantRun.id}`,
                         configuration: relevantRun.parameters
                     };
-                    
+
                     onStatusUpdate(status);
-                    
+
                     // Continue polling if test is still running
                     if (relevantRun.status === 'RUNNING' && attempts < maxAttempts) {
                         attempts++;
@@ -431,7 +431,7 @@ export const testSuitesApi = {
                 });
             }
         };
-        
+
         // Start polling after a short delay to allow test run creation
         setTimeout(poll, 1000);
     },
@@ -443,18 +443,18 @@ export const testSuitesApi = {
         let eventSource: EventSource | null = null;
         let isConnected = false;
 
-            const connect = (projectId: number, onEvent: (event: TestExecutionEvent) => void) => {
-      if (eventSource) {
-        eventSource.close();
-      }
+        const connect = (projectId: number, onEvent: (event: TestExecutionEvent) => void) => {
+            if (eventSource) {
+                eventSource.close();
+            }
 
-      // Use full URL with backend address
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
-      const url = `${baseURL}/api/projects/${projectId}/test-suites/events`;
-      console.log('[SSE] Connecting to:', url);
-            
+            // Use full URL with backend address
+            const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8081';
+            const url = `${baseURL}/api/projects/${projectId}/test-suites/events`;
+            console.log('[SSE] Connecting to:', url);
+
             eventSource = new EventSource(url);
-            
+
             // Handle connection opened
             eventSource.onopen = () => {
                 console.log('[SSE] ✅ Connection established for project', projectId);
@@ -466,7 +466,7 @@ export const testSuitesApi = {
                 console.log('[SSE] Connected:', event.data);
                 onEvent({
                     eventType: 'connected',
-                    data: { }
+                    data: {}
                 });
             });
 
@@ -527,7 +527,7 @@ export const testSuitesApi = {
                 console.error('[SSE] ❌ Connection error:', error);
                 console.error('[SSE] ❌ EventSource readyState:', eventSource?.readyState);
                 isConnected = false;
-                
+
                 // Attempt to reconnect after 3 seconds
                 setTimeout(() => {
                     if (!isConnected) {
