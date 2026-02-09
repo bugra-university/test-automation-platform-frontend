@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AlertDelete } from '../../ui/alert-dialog';
-import ProductBacklogService from '../../../api/ProductBacklogService';
+
 
 /**
  * Delete utility for managing deletion/removal of content elements
@@ -39,7 +39,7 @@ export const DeleteDialog: React.FC<{
  * @param setShowTable - Function to update table visibility state
  * @returns Object containing the handleDelete function and dialog state
  */
-export const Delete = ({ 
+export const Delete = ({
   isTableVisible,
   setShowTable,
   fileName = "this table", // Default to "this table" if no fileName provided
@@ -47,7 +47,7 @@ export const Delete = ({
 }: DeleteProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  
+
   // Function to handle delete action
   const handleDelete = () => {
     if (isTableVisible) {
@@ -60,21 +60,21 @@ export const Delete = ({
   // Function to confirm deletion
   const confirmDelete = async () => {
     setIsDeleting(true);
-    
+
     try {
       // For now, we only clear the table view (UI state)
       // Physical file deletion is handled in DatabaseSyncTab
       console.log('Clearing table view...');
-      
+
       // Set table visibility to false to return to upload screen
       setShowTable(false);
       setShowDeleteDialog(false);
-      
+
       // Call success callback if provided
       if (onDeleteSuccess) {
         onDeleteSuccess();
       }
-      
+
     } catch (error) {
       console.error('Error deleting data:', error);
       alert('Failed to delete data from database. Please try again.');
@@ -86,7 +86,7 @@ export const Delete = ({
   // Function to cancel deletion
   const cancelDelete = () => {
     setShowDeleteDialog(false);
-  };  return { 
+  }; return {
     handleDelete,
     showDeleteDialog,
     cancelDelete,

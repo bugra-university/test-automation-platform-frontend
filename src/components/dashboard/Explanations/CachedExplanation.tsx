@@ -1,4 +1,3 @@
-import React from "react";
 import { Database, Clock, BarChart4, Layers } from "lucide-react";
 
 interface CachedExplanationProps {
@@ -18,12 +17,12 @@ export function CachedExplanation({ cacheInfo }: CachedExplanationProps) {
         <Layers className="h-5 w-5 text-blue-500" />
         <h3 className="text-lg font-semibold">Cached API</h3>
       </div>
-      
+
       <p className="text-sm text-muted-foreground mb-4">
-        This API implements caching to improve performance and reduce database load. 
+        This API implements caching to improve performance and reduce database load.
         Responses may be served from cache based on request parameters and freshness settings.
       </p>
-      
+
       <div className="space-y-4">
         <div className="bg-muted/50 p-3 rounded-md">
           <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
@@ -35,12 +34,12 @@ export function CachedExplanation({ cacheInfo }: CachedExplanationProps) {
             <li>Improved scalability during high traffic periods</li>
           </ul>
         </div>
-        
+
         <div className="bg-muted/50 p-3 rounded-md">
           <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
             <BarChart4 className="h-4 w-4" /> Implementation Details
           </h4>
-          
+
           {cacheInfo ? (
             <div className="space-y-3">
               {cacheInfo.cacheLocation && (
@@ -52,7 +51,7 @@ export function CachedExplanation({ cacheInfo }: CachedExplanationProps) {
                   </ul>
                 </div>
               )}
-              
+
               {cacheInfo.cacheStructure && (
                 <div>
                   <h5 className="text-xs font-semibold">Cache Structure:</h5>
@@ -68,7 +67,7 @@ export function CachedExplanation({ cacheInfo }: CachedExplanationProps) {
             </ul>
           )}
         </div>
-        
+
         <div className="bg-muted/50 p-3 rounded-md">
           <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
             <Database className="h-4 w-4" /> Developer Notes
