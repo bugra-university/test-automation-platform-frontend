@@ -1,7 +1,7 @@
 # Test Automation Platform - Frontend
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/bugra-university/test_web_v2_frontend/master/docs/images/vizja-logo.png" alt="Uniwersytet Vizja" width="300"/>
+  <img src="docs/images/vizja-logo.png" alt="Uniwersytet Vizja" width="300"/>
   
   ### Graduation Thesis Project
   **University of Economics and Human Sciences in Warsaw**
